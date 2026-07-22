@@ -1,0 +1,489 @@
+/**
+ * FINAL master catalogue — manual NPR prices, deduped, lowest cost kept.
+ * Cost NPR = USD × 160 (private). Selling prices are owner-set overrides.
+ */
+import type { SeedProduct } from "./seed-data";
+
+export type CatalogueOverride = {
+  slug: string;
+  name?: string;
+  productStatus?: SeedProduct["productStatus"];
+  complianceStatus?: SeedProduct["complianceStatus"];
+  needsDataVerification?: boolean;
+  blockedReason?: string | null;
+  featured?: boolean;
+  shortDescription?: string;
+  /** NPR major units — manual sell price */
+  priceNpr?: number;
+  /** Private cost NPR major (USD×160) for admin margin display */
+  costNpr?: number;
+  purchasable?: boolean;
+  seedVisibleQuantity?: number | null;
+};
+
+/** SELL — Add-to-Cart enabled */
+export const OWNER_AVAILABLE: CatalogueOverride[] = [
+  {
+    slug: "gemini-pro-18-months-link",
+    name: "Gemini Pro 5 TB — 18 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 399,
+    costNpr: 109,
+    purchasable: true,
+    seedVisibleQuantity: 61,
+    shortDescription:
+      "Gemini Pro with 5 TB storage for 18 months. Website checkout is the order of record.",
+  },
+  {
+    slug: "gemini-pro-cdk-12-months",
+    name: "Gemini CDK — 12 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 379,
+    costNpr: 288,
+    purchasable: true,
+    seedVisibleQuantity: 39,
+    shortDescription: "Gemini CDK twelve-month package. Activation method confirmed at checkout.",
+  },
+  {
+    slug: "gemini-ai-pro-5tb-12m-mail-a",
+    name: "Gemini 5 TB AI Pro — 12 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    // FIX: was Rs.339 against cost Rs.749 = LOSS. Owner floor Rs.999.
+    priceNpr: 999,
+    costNpr: 749,
+    purchasable: true,
+    seedVisibleQuantity: 30,
+    shortDescription:
+      "Gemini AI Pro 5 TB — 12 months. Price corrected above cost so every sale stays profitable.",
+  },
+  {
+    slug: "chatgpt-plus-1-month-fw",
+    name: "ChatGPT Plus — 1 Month",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 699,
+    costNpr: 320,
+    purchasable: true,
+    seedVisibleQuantity: 3,
+    shortDescription: "ChatGPT Plus one-month access. Fulfillment confirmed at checkout.",
+  },
+  {
+    slug: "capcut-pro-7-days",
+    name: "CapCut Pro — 7 Days",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: false,
+    priceNpr: 49,
+    costNpr: 32,
+    purchasable: true,
+    seedVisibleQuantity: 60,
+  },
+  {
+    slug: "capcut-pro-30-days",
+    name: "CapCut Pro — 1 Month",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 419,
+    costNpr: 320,
+    purchasable: true,
+    seedVisibleQuantity: 4,
+  },
+  {
+    slug: "capcut-pro-6-months",
+    name: "CapCut Pro — 6 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 3559,
+    costNpr: 2733,
+    purchasable: true,
+    seedVisibleQuantity: 30,
+  },
+  {
+    slug: "canva-pro-1-year",
+    name: "Canva Pro — 1 Year",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 1629,
+    costNpr: 1248,
+    purchasable: true,
+    seedVisibleQuantity: 15,
+  },
+  {
+    slug: "grammarly-pro-1-year",
+    name: "Grammarly Pro — 1 Year",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 1459,
+    costNpr: 1120,
+    purchasable: true,
+  },
+  {
+    slug: "coursera-premium-1-year",
+    name: "Coursera Plus — 1 Year",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 2400,
+    costNpr: 1600,
+    purchasable: true,
+    seedVisibleQuantity: null,
+  },
+  {
+    slug: "manus-ai-pro-12-months",
+    name: "Manus AI Pro — 12 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    featured: true,
+    priceNpr: 11520,
+    costNpr: 7680,
+    purchasable: true,
+    seedVisibleQuantity: null,
+  },
+  {
+    slug: "replit-core-1-month",
+    name: "Replit Core — 1 Month",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    featured: true,
+    priceNpr: 1680,
+    costNpr: 1120,
+    purchasable: true,
+    seedVisibleQuantity: 5,
+  },
+  {
+    slug: "replit-core-12-months",
+    name: "Replit Core — 12 Months",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    featured: true,
+    priceNpr: 9600,
+    costNpr: 6400,
+    purchasable: true,
+    seedVisibleQuantity: null,
+  },
+  {
+    slug: "vidiq-max-1-month",
+    name: "VidIQ Max — 1 Month",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    featured: true,
+    priceNpr: 1200,
+    costNpr: 800,
+    purchasable: true,
+    seedVisibleQuantity: 1,
+  },
+  {
+    slug: "gamma-ai-pro-1-month",
+    name: "Gamma AI Pro — 1 Month",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    featured: true,
+    priceNpr: 840,
+    costNpr: 560,
+    purchasable: true,
+    seedVisibleQuantity: 9,
+  },
+  {
+    slug: "ai-prompt-starter-pack",
+    name: "AI Prompt Starter Pack",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 299,
+    costNpr: 0,
+    purchasable: true,
+  },
+  {
+    slug: "small-business-ai-setup-consultation",
+    name: "Small Business AI Setup",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: false,
+    priceNpr: 1499,
+    costNpr: 0,
+    purchasable: true,
+  },
+  {
+    slug: "custom-workflow-automation-discovery",
+    name: "Workflow Automation Discovery",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: false,
+    priceNpr: 1999,
+    costNpr: 0,
+    purchasable: true,
+  },
+];
+
+/** REVIEW — visible, no Add-to-Cart */
+export const OWNER_UNDER_REVIEW: CatalogueOverride[] = [
+  {
+    slug: "grok-super-3-months",
+    name: "Grok Super — 3 Months",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 3000,
+    costNpr: 2342,
+    purchasable: false,
+    seedVisibleQuantity: 2,
+  },
+  {
+    slug: "grok-super-10-months",
+    name: "Grok Super — 10 Months",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 5399,
+    costNpr: 4160,
+    purchasable: false,
+    seedVisibleQuantity: 6,
+  },
+  {
+    slug: "claude-pro-1-month",
+    name: "Claude Pro — 1 Month",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 18639,
+    costNpr: 2240,
+    purchasable: false,
+    seedVisibleQuantity: 6,
+    shortDescription:
+      "Under review — sell price is high vs cost; confirm market fit before enabling cart.",
+  },
+  {
+    slug: "elevenlabs-1-month",
+    name: "ElevenLabs — 1 Month",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 1459,
+    costNpr: 1120,
+    purchasable: false,
+  },
+  {
+    slug: "kling-standard-680-750-credits",
+    name: "Kling AI Standard — 680 Credits",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 1049,
+    costNpr: 800,
+    purchasable: false,
+    seedVisibleQuantity: 34,
+  },
+  {
+    slug: "kling-ultra-26k-credits",
+    name: "Kling AI Ultra — 26K Credits",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 14919,
+    costNpr: 11470,
+    purchasable: false,
+    seedVisibleQuantity: 8,
+  },
+  {
+    slug: "adobe-cc-2-months",
+    name: "Adobe Creative Cloud — 2 Months",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 960,
+    costNpr: 640,
+    purchasable: false,
+    seedVisibleQuantity: 9,
+  },
+  {
+    slug: "canva-edu-1-year",
+    name: "Canva Edu Pro — 1 Year",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 109,
+    costNpr: 80,
+    purchasable: false,
+    shortDescription: "Education eligibility must be verified — not for commercial ads.",
+  },
+  {
+    slug: "figma-edu-2-years",
+    name: "Figma Edu — 2 Years",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 1249,
+    costNpr: 960,
+    purchasable: false,
+  },
+  {
+    slug: "office365-100gb-lifetime",
+    name: "Office 365 + 100GB OneDrive — Lifetime",
+    shortDescription:
+      "Office apps with 100GB OneDrive. Different package from the 1TB tier — not a duplicate.",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 149,
+    costNpr: 112,
+    purchasable: false,
+    seedVisibleQuantity: 8,
+  },
+  {
+    slug: "office365-1tb-lifetime",
+    name: "Office 365 + 1TB OneDrive — Lifetime",
+    shortDescription:
+      "Office apps with 1TB OneDrive. Different package from the 100GB tier — not a duplicate.",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 209,
+    costNpr: 160,
+    purchasable: false,
+    seedVisibleQuantity: 1,
+  },
+  {
+    slug: "microsoft-365-family-10-months",
+    name: "Microsoft 365 Family — 10 Months",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 1459,
+    costNpr: 1120,
+    purchasable: false,
+  },
+  {
+    slug: "notion-business-3-months",
+    name: "Notion Business — 3 Months",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 419,
+    costNpr: 320,
+    purchasable: false,
+    seedVisibleQuantity: 1,
+  },
+  {
+    slug: "youtube-premium-1-year",
+    name: "YouTube Premium — 1 Year",
+    productStatus: "DRAFT",
+    complianceStatus: "DOCUMENTS_REQUIRED",
+    needsDataVerification: true,
+    priceNpr: 5209,
+    costNpr: 4000,
+    purchasable: false,
+  },
+];
+
+/** Soft-archive duplicates / out-of-scope SKUs (never hard-delete). */
+export const OWNER_ARCHIVE_SLUGS = [
+  "gemini-ai-pro-5tb-12m-mail-b",
+  "gemini-pro-upgrade-link-18-months",
+  "google-ai-pro-5tb-18-months",
+  "canva-pro-slot-1-year",
+  "chatgpt-plus-1-month-gmail-w15d",
+  "gpt-plus-apple-pay-gmail-w3d",
+  "chatgpt-go-3-months",
+  "gemini-pro-4-month-link",
+  "gemini-pro-5tb-1-year",
+  "supergrok-12-months",
+  "grok-super-1-year-fww",
+  "veo3-ultra",
+  "veo4-ultra-25k-30-days",
+  "veo4-ultra-25k-warranty",
+  "antigravity-ultra",
+  "nordvpn-shared-3-months",
+  "nordvpn-mail-3-months",
+  "cursor-ultra",
+  "cursor-pro-plus",
+  "cursor-pro-30-days",
+  "claude-x20-w30d",
+  "claude-x5-personal-30d",
+] as const;
+
+export const OWNER_BLOCKED_SLUGS = [
+  "cursor-pro-1-month",
+  "gmail-aged-50-600-days",
+] as const;
+
+export function applyOverride(
+  product: SeedProduct,
+  o: CatalogueOverride,
+): SeedProduct {
+  const priceMinor =
+    o.priceNpr != null ? Math.round(o.priceNpr * 100) : undefined;
+  const costUsdMinor =
+    o.costNpr != null ? Math.round((o.costNpr / 160) * 100) : undefined;
+  const variant = product.variants[0];
+  return {
+    ...product,
+    name: o.name ?? product.name,
+    shortDescription: o.shortDescription ?? product.shortDescription,
+    productStatus: o.productStatus ?? product.productStatus,
+    complianceStatus: o.complianceStatus ?? product.complianceStatus,
+    needsDataVerification:
+      o.needsDataVerification ?? product.needsDataVerification,
+    blockedReason:
+      o.blockedReason === null
+        ? undefined
+        : (o.blockedReason ?? product.blockedReason),
+    featured: o.featured ?? product.featured,
+    variants: [
+      {
+        ...variant!,
+        manualSellingPriceNprMinor:
+          priceMinor ?? variant!.manualSellingPriceNprMinor,
+        supplierCostUsdMinor:
+          costUsdMinor ?? variant!.supplierCostUsdMinor,
+        purchasable: o.purchasable ?? variant!.purchasable,
+        seedVisibleQuantity:
+          o.seedVisibleQuantity !== undefined
+            ? o.seedVisibleQuantity
+            : variant!.seedVisibleQuantity,
+        pricingMode: "MANUAL_ONLY",
+      },
+    ],
+  };
+}
