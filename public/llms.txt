@@ -1,0 +1,21 @@
+# TRIHEX DIGITAL
+> Nepal-first digital storefront for AI and digital tools (NPR pricing, website checkout, WhatsApp support).
+
+## Site
+- Home: https://trihexdigital.shop/
+- Products: https://trihexdigital.shop/products
+- Blog: https://trihexdigital.shop/blog
+- AI tools Nepal: https://trihexdigital.shop/ai-tools-nepal
+- Contact / WhatsApp: +977 9702910130
+
+## Ordering
+1. Choose an Available product
+2. Checkout on the website
+3. Pay via bank QR / eSewa / Khalti
+4. Upload payment screenshot
+5. Message WhatsApp for verification
+6. Receive fulfillment after payment confirmation
+
+## Notes
+- Independent retailer — brand names belong to their owners
+- Sitemap: https://trihexdigital.shop/sitemap.xml

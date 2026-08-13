@@ -1,0 +1,17 @@
+# Do not upload working contact sheets / masters (not needed at runtime)
+assets/product-media/
+*.png
+!public/**/*.png
+!src/**/*.png
+Designer.png
+Designer (3).png
+"first 10 products images.png"
+"second 5 product imges.png"
+"third 5 products images ..png"
+"fourth 5 product images.png"
+"5th ohere remining product images.png"
+# local/private
+.agents/
+.claude/
+private/
+secrets/

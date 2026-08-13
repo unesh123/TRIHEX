@@ -1,0 +1,82 @@
+import * as React from "react";
+import Link from "next/link";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-primary text-white hover:bg-primary-hover shadow-[0_0_0_1px_color-mix(in_srgb,var(--primary)_35%,transparent)]",
+        secondary:
+          "bg-surface-raised text-text border border-border hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--border))]",
+        ghost: "text-text-muted hover:bg-surface-raised hover:text-text",
+        outline:
+          "border border-border bg-transparent text-text hover:bg-surface-raised",
+        danger: "bg-danger text-white hover:brightness-110",
+        whatsapp:
+          "bg-[#1f9e5a] text-white hover:bg-[#25b868]",
+      },
+      size: {
+        sm: "h-9 px-3 text-xs",
+        md: "h-11 px-4",
+        lg: "h-12 px-6 text-base",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "md",
+    },
+  },
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  href?: string;
+  external?: boolean;
+}
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { className, variant, size, type = "button", href, external, ...props },
+    ref,
+  ) => {
+    const classes = cn(buttonVariants({ variant, size }), className);
+
+    if (href) {
+      if (external || href.startsWith("http") || href.startsWith("https")) {
+        return (
+          <a
+            href={href}
+            className={classes}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {props.children}
+          </a>
+        );
+      }
+      return (
+        <Link href={href} className={classes}>
+          {props.children}
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={classes}
+        {...props}
+      />
+    );
+  },
+);
+Button.displayName = "Button";
+
+export { buttonVariants };

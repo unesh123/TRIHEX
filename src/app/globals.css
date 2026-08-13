@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+:root {
+  --page: #ffffff;
+  --page-soft: #f5f7fa;
+  --surface: #ffffff;
+  --surface-muted: #eef1f6;
+  --surface-accent: #eef6f3;
+  --surface-raised: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --primary: #0f3d6e;
+  --primary-hover: #0a2f56;
+  --primary-soft: #e8eef6;
+  --success: #0f766e;
+  --success-soft: #e6f7f4;
+  --warning: #b45309;
+  --warning-soft: #fff7ed;
+  --danger: #be123c;
+  --danger-soft: #fff1f2;
+  --shadow: rgba(15, 23, 42, 0.08);
+  --background: var(--page);
+  --ring: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-page: var(--page);
+  --color-page-soft: var(--page-soft);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-accent: var(--surface-accent);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-sora);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100%;
+    background-color: var(--page);
+    color: var(--text);
+    font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 28%, transparent);
+    color: var(--text);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .bg-page-soft {
+    background-color: var(--page-soft);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 10px 30px var(--shadow);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .store-container {
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
