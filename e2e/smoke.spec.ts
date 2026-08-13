@@ -5,7 +5,7 @@ test.describe("public smoke", () => {
     await page.goto("/");
     await expect(page.getByText("TRIHEX").first()).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /Premium AI & Digital Tools/i }),
+      page.getByRole("heading", { name: /Premium AI access, made simple and dependable/i }),
     ).toBeVisible();
   });
 

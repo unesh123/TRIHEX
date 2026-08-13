@@ -121,14 +121,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <TrustStrip />
       </div>
 
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-[0_8px_24px_var(--shadow)] sm:p-5">
+      <div className="mb-7 overflow-hidden rounded-[1.65rem] border border-[var(--border)] bg-white shadow-[0_18px_42px_rgba(16,24,39,.08)]">
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[var(--border)] bg-[linear-gradient(135deg,#f4f8fc,#eef8f4)] px-4 py-4 sm:px-5 sm:py-5">
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--primary)]">Curated discovery</p>
+            <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.025em] text-[var(--text)]">Find a package with confidence.</p>
+          </div>
+          <p className="rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-bold text-[var(--text-secondary)] shadow-sm">{availableCount} ready to order now</p>
+        </div>
+        <div className="flex flex-col gap-4 p-4 sm:p-5">
         <form action="/products" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <input type="hidden" name="filter" value={filter.id} />
           <ProductSearchAutocomplete defaultQuery={params.q ?? ""} />
           <select
             name="brand"
             defaultValue={params.brand ?? ""}
-            className="h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm"
+            className="h-11 rounded-xl border border-[var(--border)] bg-[var(--page)] px-3 text-sm text-[var(--text)] shadow-sm transition focus:border-[var(--primary)] focus:outline-none"
             aria-label="Brand"
           >
             <option value="">All brands</option>
@@ -141,7 +149,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <select
             name="duration"
             defaultValue={params.duration ?? ""}
-            className="h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm"
+            className="h-11 rounded-xl border border-[var(--border)] bg-[var(--page)] px-3 text-sm text-[var(--text)] shadow-sm transition focus:border-[var(--primary)] focus:outline-none"
             aria-label="Duration"
           >
             <option value="">Any duration</option>
@@ -157,7 +165,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             min={0}
             defaultValue={params.min ?? ""}
             placeholder="Min Rs"
-            className="h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm sm:w-28"
+            className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--page)] px-3 text-sm text-[var(--text)] shadow-sm transition focus:border-[var(--primary)] focus:outline-none sm:w-28"
             aria-label="Minimum price"
           />
           <input
@@ -166,13 +174,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             min={0}
             defaultValue={params.max ?? ""}
             placeholder="Max Rs"
-            className="h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm sm:w-28"
+            className="h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--page)] px-3 text-sm text-[var(--text)] shadow-sm transition focus:border-[var(--primary)] focus:outline-none sm:w-28"
             aria-label="Maximum price"
           />
           <select
             name="sort"
             defaultValue={sort}
-            className="h-11 rounded-xl border border-[var(--border)] bg-white px-3 text-sm"
+            className="h-11 rounded-xl border border-[var(--border)] bg-[var(--page)] px-3 text-sm text-[var(--text)] shadow-sm transition focus:border-[var(--primary)] focus:outline-none"
             aria-label="Sort products"
           >
             <option value="featured">Featured</option>
@@ -181,7 +189,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </select>
           <button
             type="submit"
-            className="h-11 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
+            className="h-11 rounded-xl bg-[var(--surface-ink)] px-5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
           >
             Apply
           </button>
@@ -197,8 +205,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 href={href}
                 className={
                   active
-                    ? "rounded-full bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-white"
-                    : "rounded-full bg-[var(--surface-muted)] px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--primary-soft)]"
+                    ? "rounded-full bg-[var(--primary)] px-3.5 py-1.5 text-xs font-bold text-white shadow-sm"
+                    : "rounded-full border border-[var(--border)] bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--text-secondary)] transition hover:border-[var(--primary)]/30 hover:bg-[var(--primary-soft)]"
                 }
               >
                 {f.label}
@@ -207,11 +215,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           })}
         </div>
 
-        <p className="text-sm text-[var(--text-secondary)]">
-          Showing <strong>{products.length}</strong> products · durations (1 / 3
-          / 6 / 12 months) switch inside each product ·{" "}
-          <strong>{availableCount}</strong> Buy Now packages in catalogue
+        <p className="border-t border-[var(--border)] pt-3 text-sm text-[var(--text-secondary)]">
+          Showing <strong>{products.length}</strong> product lines. Duration choices live inside each product page, and each package shows its current availability before checkout.
         </p>
+        </div>
       </div>
 
       {products.length === 0 ? (

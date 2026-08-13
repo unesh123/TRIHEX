@@ -6,6 +6,7 @@ import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { ServicesAtlas } from "@/components/storefront/services-atlas";
 import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
@@ -115,38 +116,31 @@ export default async function HomePage() {
         ])}
       />
 
-      <section className="relative isolate overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(145deg,#f9fbff_0%,#eff6f4_55%,#ffffff_100%)]">
-        <div className="pointer-events-none absolute inset-0 -z-10 opacity-90 [background:radial-gradient(circle_at_12%_16%,rgba(102,149,203,.18),transparent_26%),radial-gradient(circle_at_84%_18%,rgba(26,133,105,.15),transparent_26%)]" />
-        <div className="store-container grid min-h-[min(760px,calc(100vh-64px))] items-center gap-10 py-14 sm:py-18 lg:grid-cols-[1.02fr_.98fr] lg:py-20">
-          <Reveal className="max-w-2xl">
-            <div className="mb-6 flex items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/15 bg-white/75 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)] shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Nepal-first digital access
-              </span>
-            </div>
-            <Logo href={null} size="lg" />
-            <h1 className="mt-7 max-w-2xl font-[family-name:var(--font-sora)] text-4xl font-semibold tracking-[-0.045em] text-[var(--text)] text-balance sm:text-5xl lg:text-[3.65rem] lg:leading-[1.04]">
-              Premium AI & Digital Tools for Nepal, built to help you move faster.
+      <section className="relative isolate overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(145deg,#fbfdff_0%,#edf5f3_52%,#f8fafc_100%)]">
+        <div className="pointer-events-none absolute inset-0 -z-10 surface-grid opacity-[0.32]" />
+        <div className="pointer-events-none absolute -left-44 top-20 -z-10 h-[34rem] w-[34rem] rounded-full bg-[var(--primary)]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-52 top-0 -z-10 h-[30rem] w-[30rem] rounded-full bg-[var(--accent)]/10 blur-3xl" />
+        <div className="store-container grid min-h-[min(760px,calc(100vh-64px))] items-center gap-10 py-14 sm:py-18 lg:grid-cols-[1fr_.94fr] lg:py-20">
+          <Reveal className="relative max-w-2xl">
+            <span className="premium-kicker"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Nepal-first digital access</span>
+            <div className="mt-7"><Logo href={null} size="lg" /></div>
+            <h1 className="mt-7 max-w-2xl font-[family-name:var(--font-sora)] text-4xl font-semibold tracking-[-0.055em] text-[var(--text)] text-balance sm:text-5xl lg:text-[3.9rem] lg:leading-[1.01]">
+              Premium AI access, made <span className="text-[var(--primary)]">simple and dependable.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
-              Discover AI, creator, developer, and productivity tools with clear NPR prices,
-              guided website checkout, and local support that stays connected to your order.
+              Explore AI, creator, developer, and productivity tools with clear NPR prices, website checkout, and a local support layer that remains connected to your order.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button href="#all-products" size="lg">
-                Explore live packages
-              </Button>
-              <Button href="/track-order" variant="outline" size="lg">
-                Track an order
-              </Button>
+              <Button href="#all-products" size="lg">Explore live packages</Button>
+              <Button href="/track-order" variant="outline" size="lg">Track an order</Button>
             </div>
-            <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
+            <div className="mt-9 grid max-w-xl overflow-hidden rounded-[1.35rem] border border-white/90 bg-white/70 shadow-[0_18px_46px_rgba(16,24,39,.08)] backdrop-blur sm:grid-cols-3">
               {[
                 ["Live NPR", "Clear price before checkout"],
-                ["Website record", "One order reference"],
-                ["Local support", "WhatsApp when needed"],
-              ].map(([value, label]) => (
-                <div key={value} className="rounded-2xl border border-white/80 bg-white/70 p-3.5 shadow-[0_10px_26px_rgba(15,23,42,.06)] backdrop-blur">
+                ["Website record", "One reference from payment to delivery"],
+                ["Local support", "A person when you need one"],
+              ].map(([value, label], index) => (
+                <div key={value} className={`p-4 ${index ? "border-t border-[var(--border)] sm:border-l sm:border-t-0" : ""}`}>
                   <p className="font-[family-name:var(--font-sora)] text-sm font-bold text-[var(--text)]">{value}</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">{label}</p>
                 </div>
@@ -154,10 +148,10 @@ export default async function HomePage() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.12} className="relative mx-auto w-full max-w-xl lg:max-w-none">
-            <div className="absolute -inset-7 rounded-[2.5rem] bg-[linear-gradient(135deg,rgba(15,61,110,.13),rgba(15,118,110,.12))] blur-3xl" aria-hidden="true" />
-            <div className="relative rounded-[1.8rem] border border-white/80 bg-white/75 p-3 shadow-[0_28px_70px_rgba(15,23,42,.14)] backdrop-blur-xl sm:p-4">
-              <div className="relative aspect-square overflow-hidden rounded-[1.25rem] bg-[var(--page-soft)]">
+          <Reveal delay={0.1} className="relative mx-auto w-full max-w-xl lg:max-w-none">
+            <div className="absolute -inset-8 rounded-[3rem] bg-[conic-gradient(from_210deg,rgba(15,76,129,.16),rgba(118,86,255,.16),rgba(12,132,105,.13),rgba(15,76,129,.16))] blur-3xl" aria-hidden="true" />
+            <div className="relative rounded-[2rem] border border-white/90 bg-white/80 p-3 shadow-premium backdrop-blur-xl sm:p-4">
+              <div className="relative aspect-square overflow-hidden rounded-[1.45rem] bg-[linear-gradient(145deg,#eaf0f7,#f9fbff)]">
                 <Image
                   src={heroCover}
                   alt={heroProduct ? `${heroProduct.title} product artwork` : "TRIHEX featured product"}
@@ -166,14 +160,17 @@ export default async function HomePage() {
                   sizes="(max-width: 1024px) 92vw, 540px"
                   className="object-contain p-3 transition duration-700 hover:scale-[1.025]"
                 />
-                <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/80 bg-white/90 p-3 shadow-lg backdrop-blur">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">Featured access</p>
-                  <div className="mt-1 flex items-end justify-between gap-3">
+                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/60 bg-[var(--surface-ink)]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.13em] text-white shadow-lg backdrop-blur">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#4ee6b9] shadow-[0_0_0_4px_rgba(78,230,185,.16)]" /> Ready to order
+                </div>
+                <div className="absolute inset-x-3 bottom-3 rounded-[1.2rem] border border-white/80 bg-white/93 p-4 shadow-xl backdrop-blur">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-[family-name:var(--font-sora)] text-base font-bold text-[var(--text)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">Featured access</p>
+                      <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--text)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
                       <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{heroProduct?.packageLabel ?? "Premium digital access"}</p>
                     </div>
-                    <p className="shrink-0 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--primary)]">{formatNpr(heroProduct?.priceNprMinor)}</p>
+                    <p className="shrink-0 rounded-xl bg-[var(--primary-soft)] px-3 py-2 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--primary)]">{formatNpr(heroProduct?.priceNprMinor)}</p>
                   </div>
                 </div>
               </div>
@@ -211,21 +208,25 @@ export default async function HomePage() {
       <section className="bg-[var(--page-soft)] py-14 sm:py-18">
         <div className="store-container">
           <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">Find the right tool</p>
-            <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+            <p className="premium-kicker">Find the right tool</p>
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
               <div>
-                <h2 className="font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.035em] text-[var(--text)]">Browse by what you want to achieve.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">Start with a useful category, compare live package details, then use checkout or a quick availability check.</p>
+                <h2 className="max-w-2xl font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.045em] text-[var(--text)] sm:text-4xl">Choose an outcome. We’ll make the tools clear.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">Start with what you want to achieve, then compare honest package details, availability, and delivery before you order.</p>
               </div>
-              <Link href="/search" className="text-sm font-bold text-[var(--primary)] hover:underline">Search all tools →</Link>
+              <Link href="/search" className="rounded-xl border border-[var(--border-strong)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--text)] transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:text-[var(--primary)]">Search all tools <span className="ml-1 text-[var(--primary)]">→</span></Link>
             </div>
           </Reveal>
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CATEGORIES.map((category, index) => (
               <Reveal key={category.href} delay={index * 0.035}>
-                <Link href={category.href} className="group flex min-h-28 flex-col justify-between rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[var(--primary)]/35 hover:shadow-[0_16px_36px_rgba(15,23,42,.09)]">
-                  <span className="text-sm font-bold text-[var(--text)] group-hover:text-[var(--primary)]">{category.label}</span>
-                  <span className="mt-4 text-xs text-[var(--text-muted)]">{category.copy} <span className="ml-1 text-[var(--primary)]">→</span></span>
+                <Link href={category.href} className="group relative flex min-h-36 flex-col justify-between overflow-hidden rounded-[1.4rem] border border-[var(--border)] bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/35 hover:shadow-[0_18px_38px_rgba(16,24,39,.11)]">
+                  <span className="absolute right-4 top-3 font-[family-name:var(--font-sora)] text-5xl font-semibold tracking-[-0.08em] text-[var(--primary)]/[0.07] transition group-hover:text-[var(--accent)]/[0.12]" aria-hidden="true">0{index + 1}</span>
+                  <div className="relative">
+                    <span className="inline-flex rounded-full bg-[var(--primary-soft)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.13em] text-[var(--primary)]">Collection</span>
+                    <span className="mt-4 block font-[family-name:var(--font-sora)] text-lg font-bold tracking-[-0.025em] text-[var(--text)] transition group-hover:text-[var(--primary)]">{category.label}</span>
+                  </div>
+                  <span className="relative mt-4 flex items-center justify-between gap-3 text-sm text-[var(--text-muted)]"><span>{category.copy}</span><span className="text-lg font-light text-[var(--primary)] transition group-hover:translate-x-1">→</span></span>
                 </Link>
               </Reveal>
             ))}
@@ -235,13 +236,13 @@ export default async function HomePage() {
 
       <section id="all-products" className="scroll-mt-24 py-14 sm:py-18">
         <div className="store-container">
-          <Reveal className="mb-7 flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-5">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">Live catalogue</p>
-              <h2 className="mt-2 font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.035em]">Digital access, without guesswork.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">{shopProducts.length} packages with live NPR prices. Use Buy now for approved offers or Check availability where a human confirmation is needed.</p>
+              <p className="premium-kicker">Live catalogue</p>
+              <h2 className="mt-4 font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.045em] text-[var(--text)] sm:text-4xl">Digital access, without guesswork.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">{shopProducts.length} packages with live NPR prices. Buy approved offers online, or check availability with a person when a package needs confirmation.</p>
             </div>
-            <Link href="/products" className="rounded-xl border border-[var(--border-strong)] px-4 py-2.5 text-sm font-bold text-[var(--text)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]">Open filters →</Link>
+            <Link href="/products" className="rounded-xl bg-[var(--surface-ink)] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--primary)]">Browse with filters →</Link>
           </Reveal>
           <ProductGrid products={shopProducts} />
         </div>
@@ -272,27 +273,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="py-14 sm:py-18">
-        <div className="store-container grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
-          <Reveal>
-            <div className="rounded-[1.75rem] bg-[var(--primary)] p-7 text-white shadow-[0_20px_48px_rgba(15,61,110,.24)] sm:p-9">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/70">For teams and growing businesses</p>
-              <h2 className="mt-3 max-w-xl font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.035em]">Need an AI workflow instead of a single tool?</h2>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/80">Start with TRIHEX business AI setup and automation discovery. We will shape the right tools, scope, and next steps around your real workflow.</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button href="/business-ai-setup" variant="secondary">Request a business AI setup</Button>
-                <Button href="/automation-services" variant="outline" className="border-white/35 bg-white/5 text-white hover:bg-white/10">Explore AI services</Button>
+      <section className="py-14 sm:py-20">
+        <div className="store-container">
+          <Reveal><ServicesAtlas /></Reveal>
+          {services.length ? (
+            <Reveal delay={0.08} className="mt-8">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="premium-kicker">TRIHEX services</p>
+                  <h2 className="mt-4 font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.04em] text-[var(--text)]">Practical help, shaped around your work.</h2>
+                </div>
+                <Link href="/automation-services" className="text-sm font-bold text-[var(--primary)] hover:underline">View all services →</Link>
               </div>
-            </div>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <div className="rounded-[1.75rem] border border-[var(--border)] bg-white p-6 shadow-soft sm:p-7">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">TRIHEX services</p>
-              <h2 className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold tracking-[-0.03em]">Build more than a subscription stack.</h2>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">Original TRIHEX assets, consulting, and workflow setup for Nepal businesses.</p>
-              <div className="mt-5"><ProductGrid products={services.slice(0, 2)} /></div>
-            </div>
-          </Reveal>
+              <div className="mt-6"><ProductGrid products={services.slice(0, 2)} /></div>
+            </Reveal>
+          ) : null}
         </div>
       </section>
 
