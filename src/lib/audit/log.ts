@@ -4,6 +4,8 @@ import { resolvePersistenceMode } from "@/lib/config/persistence-guard";
 
 export type AuditAction =
   | "ORDER_CREATED"
+  | "QUOTE_REQUESTED"
+  | "QUOTE_STATUS_UPDATED"
   | "PAYMENT_SUBMITTED"
   | "PAYMENT_VERIFIED"
   | "PAYMENT_REJECTED"

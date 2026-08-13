@@ -8,6 +8,7 @@ import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { checkAdminSession, isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
+import { getOwnerEmail } from "@/lib/auth/owner";
 import { headers } from "next/headers";
 
 export const metadata = {
@@ -32,7 +33,7 @@ export default async function AdminLoginPage({
 
   const params = await searchParams;
   const bypass = isAdminDevBypassEnabled();
-  const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL;
+  const bootstrapEmail = getOwnerEmail();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--page)] px-4">
@@ -49,7 +50,7 @@ export default async function AdminLoginPage({
         <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">
           Use your authorized TRIHEX operations account. Admin access is protected,
           audited, and limited by role.
-          {bootstrapEmail ? ` Your recovery email is ${maskEmail(bootstrapEmail)}.` : ""}
+          {` Your owner recovery email is ${maskEmail(bootstrapEmail)}.`}
         </p>
 
         {bypass ? (
@@ -87,7 +88,7 @@ export default async function AdminLoginPage({
               id="email"
               name="email"
               type="email"
-              defaultValue={bootstrapEmail ?? ""}
+              defaultValue={bootstrapEmail}
               required
               autoComplete="username"
             />
@@ -122,7 +123,7 @@ export default async function AdminLoginPage({
               id="reset-email"
               name="email"
               type="email"
-              defaultValue={bootstrapEmail ?? ""}
+              defaultValue={bootstrapEmail}
               placeholder="Authorized admin email"
               required
               autoComplete="email"

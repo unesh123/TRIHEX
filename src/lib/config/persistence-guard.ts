@@ -4,6 +4,7 @@
  */
 
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
+import { assertOwnerBootstrapIdentity } from "@/lib/auth/owner";
 
 export class ConfigurationError extends Error {
   constructor(message: string) {
@@ -60,6 +61,11 @@ export function assertProductionSafe(): void {
   normalizeEnvAliases();
 
   const problems: string[] = [];
+  try {
+    assertOwnerBootstrapIdentity();
+  } catch (error) {
+    problems.push(error instanceof Error ? error.message : "Owner identity is invalid.");
+  }
 
   if (!process.env.DATABASE_URL) {
     problems.push("DATABASE_URL is required in production (no in-memory commerce).");

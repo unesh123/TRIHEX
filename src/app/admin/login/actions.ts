@@ -9,6 +9,7 @@ import {
 } from "@/lib/admin/session-cookie";
 import { isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
 import { createSupabaseServerClient } from "@/lib/auth/supabase-server";
+import { isOwnerEmail } from "@/lib/auth/owner";
 
 export async function adminLoginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -99,8 +100,7 @@ export async function adminRequestPasswordResetAction(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email) redirect("/admin/login?error=email_required");
 
-  const bootstrap = process.env.ADMIN_BOOTSTRAP_EMAIL?.toLowerCase();
-  if (bootstrap && email !== bootstrap) {
+  if (!isOwnerEmail(email)) {
     // Do not reveal whether other emails exist
     redirect("/admin/login?reset=sent");
   }

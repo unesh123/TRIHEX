@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { LockKeyhole, PackageCheck, Search, ShieldCheck } from "lucide-react";
+import { LockKeyhole, MessageCircle, PackageCheck, Search, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OrderTimeline } from "@/components/storefront/order-timeline";
 import { formatNpr } from "@/lib/money";
 import { buildCustomerTimeline } from "@/lib/orders/fulfillment-checklist";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import {
   readGuestOrders,
   type GuestOrderRecord,
@@ -222,11 +223,21 @@ export function TrackOrderForm({ initialOrderNumber = "" }: TrackOrderFormProps)
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">Delivery timeline</p>
                 <div className="mt-4"><OrderTimeline steps={steps} /></div>
               </div>
-              {result.secureToken ? (
-                <Button href={`/orders/${result.secureToken}`} variant="secondary" className="mt-6">
-                  Open secure order page
+              <div className="mt-6 flex flex-wrap gap-3">
+                {result.secureToken ? (
+                  <Button href={`/orders/${result.secureToken}`} variant="secondary">
+                    Open secure order page
+                  </Button>
+                ) : null}
+                <Button
+                  href={buildWhatsAppUrl(`Hello TRIHEX DIGITAL, I need help with order ${result.orderNumber}.`)}
+                  external
+                  variant="outline"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Ask about this order
                 </Button>
-              ) : null}
+              </div>
             </motion.section>
           ) : null}
         </AnimatePresence>

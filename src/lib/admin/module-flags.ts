@@ -9,6 +9,7 @@
 export type AdminModuleId =
   | "overview"
   | "orders"
+  | "quotes"
   | "payments"
   | "payments_review"
   | "fulfillment"
@@ -49,6 +50,7 @@ export type AdminModuleId =
 const P0_ENABLED = new Set<AdminModuleId>([
   "overview",
   "orders",
+  "quotes",
   "payments_review",
   "products",
   "products_import",

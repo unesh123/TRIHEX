@@ -30,6 +30,7 @@ const envSchema = z.object({
   KHALTI_SECRET_KEY: z.string().optional(),
   KHALTI_ENVIRONMENT: z.enum(["test", "production"]).optional(),
   EMAIL_PROVIDER_API_KEY: z.string().optional(),
+  YOUCOM_API_KEY: z.string().min(20).optional(),
   EMAIL_FROM: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   ANALYTICS_KEY: z.string().optional(),

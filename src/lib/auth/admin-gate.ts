@@ -1,5 +1,6 @@
 import type { AdminRole, AppRole } from "@/lib/auth/permissions";
 import { isAdminRole } from "@/lib/auth/permissions";
+import { getOwnerEmail, isOwnerEmail, TRIHEX_OWNER_NAME } from "@/lib/auth/owner";
 import {
   assertProductionSafe,
   isAdminDevBypassEnabled,
@@ -50,7 +51,7 @@ export async function checkAdminSession(
     const session: AdminSession = {
       authenticated: true,
       userId: "dev-bypass-admin",
-      email: process.env.ADMIN_BOOTSTRAP_EMAIL ?? "admin@trihex.local",
+      email: getOwnerEmail(),
       role: "SUPER_ADMIN",
       bypass: true,
     };
@@ -136,7 +137,7 @@ export async function checkAdminSession(
     session: {
       authenticated: true,
       userId: "stub-admin",
-      email: process.env.ADMIN_BOOTSTRAP_EMAIL ?? null,
+      email: getOwnerEmail(),
       role: "ADMIN",
       bypass: false,
     },
@@ -158,19 +159,27 @@ async function resolveProfileRole(
       .from(profiles)
       .where(eq(profiles.authUserId, authUserId))
       .limit(1);
-    if (rows[0]?.role) return rows[0].role as AppRole;
+    if (rows[0]?.role) {
+      if (isOwnerEmail(email) && rows[0].role !== "SUPER_ADMIN") {
+        await db
+          .update(profiles)
+          .set({
+            role: "SUPER_ADMIN",
+            fullName: rows[0].fullName || TRIHEX_OWNER_NAME,
+          })
+          .where(eq(profiles.authUserId, authUserId));
+        return "SUPER_ADMIN";
+      }
+      return rows[0].role as AppRole;
+    }
 
-    // Bootstrap: first matching ADMIN_BOOTSTRAP_EMAIL becomes SUPER_ADMIN once
-    if (
-      email &&
-      process.env.ADMIN_BOOTSTRAP_EMAIL &&
-      email.toLowerCase() === process.env.ADMIN_BOOTSTRAP_EMAIL.toLowerCase()
-    ) {
+    // First matching owner login becomes SUPER_ADMIN once.
+    if (isOwnerEmail(email)) {
       await db.insert(profiles).values({
         authUserId,
-        email,
+        email: getOwnerEmail(),
         role: "SUPER_ADMIN",
-        fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? "Bootstrap Admin",
+        fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? TRIHEX_OWNER_NAME,
       });
       return "SUPER_ADMIN";
     }

@@ -15,6 +15,13 @@ type QuoteFormState = {
   tools: string;
 };
 
+type CreatedQuote = {
+  reference: string;
+  secureToken: string;
+  status: string;
+  createdAt: string;
+};
+
 const initialState: QuoteFormState = {
   name: "",
   business: "",
@@ -25,54 +32,75 @@ const initialState: QuoteFormState = {
   tools: "",
 };
 
-function createQuoteReference() {
-  const date = new Date().toISOString().slice(2, 10).replaceAll("-", "");
-  const suffix = Math.random().toString(36).slice(2, 7).toUpperCase();
-  return `THX-Q-${date}-${suffix}`;
-}
-
 export function QuoteRequestForm() {
   const [form, setForm] = useState<QuoteFormState>(initialState);
-  const [quoteReference, setQuoteReference] = useState<string | null>(null);
+  const [createdQuote, setCreatedQuote] = useState<CreatedQuote | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const whatsappHref = useMemo(() => {
-    if (!quoteReference) return null;
+    if (!createdQuote) return null;
     return buildWhatsAppUrl(
       [
-        "Hello TRIHEX DIGITAL, I would like a business AI setup quote.",
-        `Quote reference: ${quoteReference}`,
-        `Name: ${form.name}`,
-        `Business: ${form.business}`,
-        `Nepali mobile: ${form.phone}`,
-        `Team size: ${form.teamSize || "Not specified"}`,
-        `Budget range: ${form.budget || "Not specified"}`,
-        `Goal: ${form.goal}`,
-        `Current tools/workflow: ${form.tools || "Not specified"}`,
+        "Hello TRIHEX DIGITAL, I have created a business AI quote request on the website.",
+        `Quote reference: ${createdQuote.reference}`,
+        "I would like help with the next step.",
       ].join("\n"),
     );
-  }, [form, quoteReference]);
+  }, [createdQuote]);
 
   function update(key: keyof QuoteFormState, value: string) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setQuoteReference(createQuoteReference());
+    setError(null);
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: form.name,
+          businessName: form.business,
+          customerPhone: form.phone,
+          teamSize: form.teamSize || undefined,
+          budgetRange: form.budget || undefined,
+          goal: form.goal,
+          currentTools: form.tools || undefined,
+        }),
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        quote?: CreatedQuote;
+      };
+      if (!response.ok || !data.ok || !data.quote) {
+        setError(data.error ?? "Your quote request could not be created. Please try again.");
+        return;
+      }
+      setCreatedQuote(data.quote);
+    } catch {
+      setError("We could not reach TRIHEX just now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  if (quoteReference && whatsappHref) {
+  if (createdQuote && whatsappHref) {
     return (
       <section className="rounded-[1.5rem] border border-[var(--success)]/30 bg-[var(--success-soft)] p-6 shadow-soft sm:p-8" aria-live="polite">
         <div className="flex gap-4">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--success)] shadow-sm"><CheckCircle2 className="h-6 w-6" aria-hidden="true" /></span>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--success)]">Quote draft ready</p>
-            <h2 className="mt-1 font-[family-name:var(--font-sora)] text-2xl font-semibold tracking-[-0.03em] text-[var(--text)]">Your request reference is {quoteReference}.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">Send this structured request to TRIHEX on WhatsApp. The team can confirm scope, price, delivery milestones, and a formal proposal before any payment is requested.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--success)]">Quote request received</p>
+            <h2 className="mt-1 font-[family-name:var(--font-sora)] text-2xl font-semibold tracking-[-0.03em] text-[var(--text)]">Your TRIHEX quote reference is {createdQuote.reference}.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">Your request is saved on the TRIHEX website. You can follow its status from the secure quote page; WhatsApp is available only if you need a person to help with the next step.</p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <Button href={whatsappHref} external variant="whatsapp"><MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />Send request on WhatsApp</Button>
-              <Button variant="outline" onClick={() => setQuoteReference(null)}>Edit request</Button>
+              <Button href={`/quotes/${createdQuote.secureToken}`}>Open secure quote page</Button>
+              <Button href={whatsappHref} external variant="whatsapp"><MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />Ask on WhatsApp</Button>
+              <Button variant="outline" onClick={() => setCreatedQuote(null)}>Create another quote</Button>
             </div>
           </div>
         </div>
@@ -88,7 +116,7 @@ export function QuoteRequestForm() {
           <h2 className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold tracking-[-0.03em]">Tell us what you want to improve.</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">Give TRIHEX enough context to prepare a useful first proposal—not a generic tool list.</p>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary-soft)] px-3 py-2 text-xs font-bold text-[var(--primary)]"><FileText className="h-3.5 w-3.5" aria-hidden="true" /> Structured first brief</span>
+        <span className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary-soft)] px-3 py-2 text-xs font-bold text-[var(--primary)]"><FileText className="h-3.5 w-3.5" aria-hidden="true" /> Site-recorded request</span>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -128,8 +156,9 @@ export function QuoteRequestForm() {
           <textarea required value={form.goal} onChange={(event) => update("goal", event.target.value)} rows={4} placeholder="Describe the workflow, bottleneck, customer experience, or business result you want to improve." className="mt-2 w-full resize-y rounded-xl border border-[var(--border-strong)] px-3.5 py-3 text-sm font-normal leading-relaxed outline-none transition focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary-soft)]" />
         </label>
       </div>
-      <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">Submitting this form creates a structured draft in your browser. You choose whether to send it to TRIHEX on WhatsApp. No payment is requested at this stage.</p>
-      <Button type="submit" size="lg" className="mt-5">Create quote request</Button>
+      {error ? <p role="alert" className="mt-4 rounded-xl bg-[var(--danger-soft)] px-3.5 py-3 text-sm font-medium text-[var(--danger)]">{error}</p> : null}
+      <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">Submitting creates a secure TRIHEX quote reference and event record. No payment is requested at this stage.</p>
+      <Button type="submit" size="lg" disabled={submitting} className="mt-5">{submitting ? "Creating quote request…" : "Create quote request"}</Button>
     </form>
   );
 }

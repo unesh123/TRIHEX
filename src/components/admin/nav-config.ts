@@ -44,6 +44,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
         permission: "inventory:manage",
       },
       { href: "/admin/orders", label: "Orders", module: "orders", permission: "orders:view" },
+      { href: "/admin/quotes", label: "Quote requests", module: "quotes", permission: "support:manage" },
       {
         href: "/admin/fulfillment",
         label: "Fulfillment",

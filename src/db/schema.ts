@@ -198,6 +198,16 @@ export const manualPaymentStatusEnum = pgEnum("manual_payment_status", [
   "REJECTED",
 ]);
 
+export const quoteStatusEnum = pgEnum("quote_status", [
+  "REQUESTED",
+  "SCOPING",
+  "PROPOSAL_READY",
+  "APPROVED",
+  "DECLINED",
+  "EXPIRED",
+  "CONVERTED",
+]);
+
 export const currencyEnum = pgEnum("currency_code", ["NPR", "USD"]);
 
 // ─── Profiles ────────────────────────────────────────────────────────────────
@@ -710,6 +720,56 @@ export const orderStatusHistory = pgTable("order_status_history", {
   actorId: uuid("actor_id").references(() => profiles.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// ─── Quotes ──────────────────────────────────────────────────────────────────
+
+export const quotes = pgTable(
+  "quotes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reference: text("reference").notNull().unique(),
+    secureToken: text("secure_token").notNull().unique(),
+    customerName: text("customer_name").notNull(),
+    businessName: text("business_name").notNull(),
+    customerPhone: text("customer_phone").notNull(),
+    teamSize: text("team_size"),
+    budgetRange: text("budget_range"),
+    goal: text("goal").notNull(),
+    currentTools: text("current_tools"),
+    requestedServices: jsonb("requested_services")
+      .$type<Array<{ label: string; quantity?: number }>>()
+      .notNull()
+      .default([]),
+    quoteSnapshot: jsonb("quote_snapshot").$type<Record<string, unknown>>(),
+    status: quoteStatusEnum("status").notNull().default("REQUESTED"),
+    validUntil: timestamp("valid_until", { withTimezone: true }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    convertedOrderId: uuid("converted_order_id").references(() => orders.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("quotes_status_idx").on(t.status),
+    index("quotes_phone_idx").on(t.customerPhone),
+    index("quotes_created_idx").on(t.createdAt),
+  ],
+);
+
+export const quoteEvents = pgTable(
+  "quote_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    eventType: text("event_type").notNull(),
+    message: text("message").notNull(),
+    actorId: uuid("actor_id").references(() => profiles.id),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("quote_events_quote_idx").on(t.quoteId)],
+);
 
 // ─── Payments ────────────────────────────────────────────────────────────────
 

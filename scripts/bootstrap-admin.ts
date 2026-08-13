@@ -2,7 +2,7 @@
  * SUPER_ADMIN bootstrap via Supabase Auth Admin API.
  *
  * Env:
- *   ADMIN_BOOTSTRAP_EMAIL (required)
+ *   ADMIN_BOOTSTRAP_EMAIL (optional confirmation; must match the permanent owner)
  *   ADMIN_BOOTSTRAP_PASSWORD (optional) — if set, creates/updates user with that
  *     password for direct login (no reset email). NEVER printed.
  *   SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_URL, DATABASE_URL
@@ -21,6 +21,11 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq } from "drizzle-orm";
 import * as schema from "../src/db/schema";
+import {
+  assertOwnerBootstrapIdentity,
+  getOwnerEmail,
+  TRIHEX_OWNER_NAME,
+} from "../src/lib/auth/owner";
 
 function maskEmail(email: string): string {
   const [u, d] = email.split("@");
@@ -29,14 +34,8 @@ function maskEmail(email: string): string {
 }
 
 async function main() {
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
-  if (!email) {
-    console.error(
-      "STOP: ADMIN_BOOTSTRAP_EMAIL is not set.\n" +
-        "Add ADMIN_BOOTSTRAP_EMAIL (+ optional ADMIN_BOOTSTRAP_PASSWORD) to .env.local",
-    );
-    process.exit(1);
-  }
+  assertOwnerBootstrapIdentity();
+  const email = getOwnerEmail();
 
   const password = process.env.ADMIN_BOOTSTRAP_PASSWORD?.trim() || "";
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -137,7 +136,7 @@ async function main() {
       .set({
         role: "SUPER_ADMIN",
         email,
-        fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? "TRIHEX Owner",
+        fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? TRIHEX_OWNER_NAME,
         accountStatus: "ACTIVE",
         mfaEnabled: false,
         updatedAt: new Date(),
@@ -149,7 +148,7 @@ async function main() {
       authUserId: user!.id,
       email,
       role: "SUPER_ADMIN",
-      fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? "TRIHEX Owner",
+      fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? TRIHEX_OWNER_NAME,
       accountStatus: "ACTIVE",
       mfaEnabled: false,
     });
