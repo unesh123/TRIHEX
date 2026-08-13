@@ -8,12 +8,10 @@ export function Reveal({
   children,
   className,
   delay = 0,
-  y = 18,
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
-  y?: number;
 }) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -21,9 +19,11 @@ export function Reveal({
     <LazyMotion features={domAnimation}>
       <m.div
         className={cn(className)}
-        initial={shouldReduceMotion ? false : { opacity: 0, y }}
-        whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.12 }}
+        // Never render essential content hidden on the server. This keeps LCP
+        // content visible if JavaScript is delayed or a browser extension
+        // mutates the DOM before hydration.
+        initial={false}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
         transition={{ duration: 0.42, delay, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}

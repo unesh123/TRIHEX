@@ -69,7 +69,14 @@ export default function RootLayout({
       lang="en"
       className={`${manrope.variable} ${sora.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body
+        className="flex min-h-full flex-col font-sans"
+        // Some browser extensions annotate body before React hydrates. Suppress
+        // that root-only noise without hiding component-level hydration errors.
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
     </html>
   );
 }
