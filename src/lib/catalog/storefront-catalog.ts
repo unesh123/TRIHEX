@@ -9,7 +9,6 @@ import type { ProductCardProps } from "@/components/storefront/product-card";
 import {
   getDemoCatalogProducts,
   getDemoCatalogWithVariants,
-  getDemoFeaturedProducts,
 } from "@/lib/catalog/demo-catalog";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
 

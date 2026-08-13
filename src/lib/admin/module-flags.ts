@@ -49,20 +49,12 @@ export type AdminModuleId =
 const P0_ENABLED = new Set<AdminModuleId>([
   "overview",
   "orders",
-  "payments",
   "payments_review",
-  "fulfillment",
   "products",
   "products_import",
-  "inventory",
   "pricing",
-  "compliance",
-  "compliance_reviews",
-  "reviews",
-  "customers",
   "payment_methods",
   "audit",
-  "settings",
   "settings_security",
 ]);
 

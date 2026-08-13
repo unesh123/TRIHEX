@@ -4,7 +4,7 @@
  */
 import { spawnSync } from "child_process";
 import { config } from "dotenv";
-import { readFileSync, writeFileSync, unlinkSync } from "fs";
+import { writeFileSync, unlinkSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 

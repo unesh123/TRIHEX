@@ -82,8 +82,9 @@ export default async function AdminPaymentsReviewPage() {
               >
                 <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--page-soft)]">
                   {p.viewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <a href={p.viewUrl} target="_blank" rel="noopener noreferrer">
+                      {/* Signed proof URLs are temporary and cannot be safely fetched by the image optimizer. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={p.viewUrl}
                         alt="Payment proof"

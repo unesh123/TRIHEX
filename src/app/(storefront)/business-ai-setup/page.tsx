@@ -2,12 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { QuoteRequestForm } from "@/components/storefront/quote-request-form";
 import { getDemoCatalogProducts } from "@/lib/catalog/demo-catalog";
 
 export const metadata: Metadata = {
-  title: "Business AI setup Nepal | TRIHEX DIGITAL",
+  title: "Business AI Setup in Nepal | TRIHEX DIGITAL",
   description:
-    "Consultation and setup services to map AI tools to Nepali small-business workflows.",
+    "Practical AI setup for Nepali small businesses: workflow discovery, tool selection, scoped NPR proposals, and responsible implementation support.",
+  keywords: [
+    "business AI setup Nepal",
+    "AI tools for small business Nepal",
+    "small business AI consultation Nepal",
+    "AI workflow setup Kathmandu",
+  ],
+  alternates: { canonical: "/business-ai-setup" },
 };
 
 export default function BusinessAiSetupPage() {
@@ -32,10 +40,21 @@ export default function BusinessAiSetupPage() {
           setup services.
         </p>
       </div>
-      <ProductGrid
-        products={products}
-        emptyMessage="See our consultation listing on the products page."
-      />
+      <div className="mb-10">
+        <QuoteRequestForm />
+      </div>
+      <div className="border-t border-[var(--border)] pt-10">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">
+          Start with an available service
+        </p>
+        <h2 className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold text-[var(--text)]">
+          Service packages
+        </h2>
+        <ProductGrid
+          products={products}
+          emptyMessage="See our consultation listing on the products page."
+        />
+      </div>
       <p className="mt-8 text-sm">
         <Link href="/products/small-business-ai-setup-consultation" className="text-primary hover:underline">
           Small Business AI Setup Consultation

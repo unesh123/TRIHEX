@@ -67,7 +67,7 @@ export function ProductCard({
   return (
     <article
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_6px_18px_var(--shadow)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_var(--shadow)] sm:rounded-2xl",
+        "group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_8px_22px_var(--shadow)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[0_18px_38px_var(--shadow)] focus-within:border-[var(--primary)]/45 sm:rounded-[1.15rem]",
         className,
       )}
     >
@@ -150,16 +150,22 @@ export function ProductCard({
           )}
         </div>
 
-        <ul className="space-y-1">
-          {product.features.slice(0, 2).map((f) => (
-            <li
-              key={f}
-              className="line-clamp-1 text-[10px] leading-snug text-[var(--text-muted)] sm:text-[11px]"
-            >
-              ✓ {f}
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-2">
+          <ul className="space-y-1">
+            {product.features.slice(0, 2).map((feature) => (
+              <li
+                key={feature}
+                className="line-clamp-1 text-[10px] leading-snug text-[var(--text-muted)] sm:text-[11px]"
+              >
+                ✓ {feature}
+              </li>
+            ))}
+          </ul>
+          <p className="flex items-center gap-1.5 text-[10px] font-medium leading-snug text-[var(--text-secondary)] sm:text-[11px]">
+            <span aria-hidden="true" className="text-[var(--primary)]">◷</span>
+            {product.fulfillmentEstimate}
+          </p>
+        </div>
 
         <div className="mt-auto border-t border-[var(--border)] pt-2 sm:pt-3">
           {product.showPrice && product.priceNprMinor != null ? (
@@ -186,7 +192,7 @@ export function ProductCard({
                 </p>
               ) : null}
               <p className="mt-1 hidden text-[10px] leading-snug text-[var(--text-muted)] sm:block">
-                Price may change — please inquire before buying.
+                Final details are confirmed before fulfillment.
               </p>
             </div>
           ) : (
@@ -200,7 +206,7 @@ export function ProductCard({
           {product.isFamilyCard ? (
             <Link
               href={href}
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--primary)] px-2 text-xs font-semibold text-white hover:bg-[var(--primary-hover)] sm:h-11 sm:rounded-xl sm:px-3 sm:text-sm"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-hover)] focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:h-11 sm:px-3 sm:text-sm"
             >
               View plans
             </Link>
@@ -214,7 +220,7 @@ export function ProductCard({
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--primary)] px-2 text-xs font-semibold text-white hover:bg-[var(--primary-hover)] sm:h-11 sm:rounded-xl sm:px-3 sm:text-sm"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-2 text-xs font-semibold text-white transition hover:bg-[var(--primary-hover)] focus-visible:ring-2 focus-visible:ring-[var(--primary)] sm:h-11 sm:px-3 sm:text-sm"
             >
               Check Availability
             </a>
@@ -222,7 +228,7 @@ export function ProductCard({
           <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
             <Link
               href={href}
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-[var(--border-strong)] bg-white px-2 text-[11px] font-semibold text-[var(--text)] hover:bg-[var(--page-soft)] sm:h-10 sm:rounded-xl sm:px-3 sm:text-sm"
+              className="inline-flex h-9 items-center justify-center rounded-xl border border-[var(--border-strong)] bg-white px-2 text-[11px] font-semibold text-[var(--text)] transition hover:border-[var(--primary)]/35 hover:bg-[var(--page-soft)] sm:h-10 sm:px-3 sm:text-sm"
             >
               Details
             </Link>
@@ -230,7 +236,7 @@ export function ProductCard({
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-[var(--border-strong)] bg-white px-2 text-[11px] font-semibold text-[var(--text)] hover:bg-[var(--page-soft)] sm:h-10 sm:rounded-xl sm:px-3 sm:text-sm"
+              className="inline-flex h-9 items-center justify-center rounded-xl border border-[var(--border-strong)] bg-white px-2 text-[11px] font-semibold text-[var(--text)] transition hover:border-[var(--primary)]/35 hover:bg-[var(--page-soft)] sm:h-10 sm:px-3 sm:text-sm"
             >
               WhatsApp
             </a>

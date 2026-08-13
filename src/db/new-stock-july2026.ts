@@ -52,7 +52,8 @@ function item(
       : costNpr != null
         ? sellAt50(costNpr)
         : null;
-  const { sellOverride: _, ...rest } = partial;
+  const rest = { ...partial };
+  delete rest.sellOverride;
   return {
     ...rest,
     costNpr,

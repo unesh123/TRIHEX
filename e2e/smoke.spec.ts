@@ -22,11 +22,10 @@ test.describe("public smoke", () => {
     await expect(wa).toBeVisible();
   });
 
-  test("blocked package cannot be ordered", async ({ page }) => {
+  test("blocked package is not exposed as a purchasable page", async ({ page }) => {
     await page.goto("/products/cursor-ultra");
-    await expect(page.getByText(/Cursor/i).first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole("button", { name: /Order unavailable/i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Add to cart/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "404" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("button", { name: /Add to cart|buy now|order unavailable/i })).toHaveCount(0);
   });
 
   test("cart page loads", async ({ page }) => {
@@ -53,7 +52,7 @@ test.describe("admin protection", () => {
     page,
   }) => {
     await page.goto("/admin");
-    await expect(page.getByText(/TRIHEX|dashboard|overview|admin/i).first()).toBeVisible({
+    await expect(page.locator("main").getByRole("heading", { name: "Overview" })).toBeVisible({
       timeout: 15_000,
     });
   });

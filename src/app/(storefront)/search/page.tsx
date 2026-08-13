@@ -1,8 +1,14 @@
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Search TRIHEX DIGITAL",
+  robots: { index: false, follow: true },
+};
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;

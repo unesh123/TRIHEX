@@ -33,7 +33,6 @@ export default async function AdminLoginPage({
   const params = await searchParams;
   const bypass = isAdminDevBypassEnabled();
   const bootstrapEmail = process.env.ADMIN_BOOTSTRAP_EMAIL;
-  const bootstrapMissing = !bootstrapEmail;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--page)] px-4">
@@ -47,17 +46,11 @@ export default async function AdminLoginPage({
           stock, and status — changes go live on the storefront.
         </p>
 
-        {bootstrapMissing ? (
-          <div className="mt-4 rounded-lg border border-[var(--danger)]/40 bg-[var(--danger-soft)] px-3 py-2 text-xs text-[var(--danger)]">
-            ADMIN_BOOTSTRAP_EMAIL is not configured. Set it in .env.local and
-            Vercel, then run{" "}
-            <code className="rounded bg-white px-1">npx tsx scripts/bootstrap-admin.ts</code>.
-          </div>
-        ) : (
-          <p className="mt-4 text-xs text-[var(--text-muted)]">
-            Bootstrap email: {maskEmail(bootstrapEmail)}
-          </p>
-        )}
+        <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">
+          Use your authorized TRIHEX operations account. Admin access is protected,
+          audited, and limited by role.
+          {bootstrapEmail ? ` Your recovery email is ${maskEmail(bootstrapEmail)}.` : ""}
+        </p>
 
         {bypass ? (
           <div className="mt-4 rounded-lg border border-[var(--warning)]/40 bg-[var(--warning-soft)] px-3 py-2 text-xs text-[var(--warning)]">
@@ -125,8 +118,16 @@ export default async function AdminLoginPage({
               First login: request a reset link, choose your own password, then
               enable MFA under Settings → Security.
             </p>
-            <input type="hidden" name="email" value={bootstrapEmail ?? ""} />
-            <Button type="submit" variant="secondary" className="w-full" disabled={bootstrapMissing}>
+            <Input
+              id="reset-email"
+              name="email"
+              type="email"
+              defaultValue={bootstrapEmail ?? ""}
+              placeholder="Authorized admin email"
+              required
+              autoComplete="email"
+            />
+            <Button type="submit" variant="secondary" className="w-full">
               Send password reset link
             </Button>
           </form>

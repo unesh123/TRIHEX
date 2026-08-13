@@ -2,7 +2,6 @@ import {
   ALL_SEED_PRODUCTS,
   SEED_BRANDS,
   SEED_CATEGORIES,
-  SEED_OWNED_PRODUCTS,
   type SeedProduct,
 } from "@/db/seed-data";
 import type { ProductCardProps } from "@/components/storefront/product-card";

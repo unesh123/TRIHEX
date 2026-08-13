@@ -62,12 +62,8 @@ export default async function AdminOverviewPage() {
               Payment queue
               {pendingProofs > 0 ? ` (${pendingProofs})` : ""}
             </Button>
-            <Button href="/admin/fulfillment" variant="secondary" size="sm">
-              Fulfillment
-              {toDeliver > 0 ? ` (${toDeliver})` : ""}
-            </Button>
             <Button href="/admin/orders" variant="secondary" size="sm">
-              Orders
+              Orders{toDeliver > 0 ? ` · ${toDeliver} to deliver` : ""}
             </Button>
             <Button href="/admin/products/new" variant="secondary" size="sm">
               Add product
@@ -148,9 +144,6 @@ export default async function AdminOverviewPage() {
             <Button href="/admin/products" variant="secondary" size="sm">
               Products & images
             </Button>
-            <Button href="/admin/inventory" variant="secondary" size="sm">
-              Inventory
-            </Button>
             <Button href="/admin/pricing" variant="secondary" size="sm">
               Pricing desk
             </Button>
@@ -159,12 +152,6 @@ export default async function AdminOverviewPage() {
             </Button>
             <Button href="/admin/payments/review" variant="secondary" size="sm">
               Payment review
-            </Button>
-            <Button href="/admin/fulfillment" variant="secondary" size="sm">
-              Fulfillment
-            </Button>
-            <Button href="/admin/compliance/reviews" variant="secondary" size="sm">
-              Compliance
             </Button>
             <Button href="/admin/payment-methods" variant="secondary" size="sm">
               Payment QR

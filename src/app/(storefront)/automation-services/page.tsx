@@ -2,12 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductGrid } from "@/components/storefront/product-grid";
+import { QuoteRequestForm } from "@/components/storefront/quote-request-form";
 import { getDemoProductsByCategory } from "@/lib/catalog/demo-catalog";
 
 export const metadata: Metadata = {
-  title: "Automation services Nepal | TRIHEX DIGITAL",
+  title: "AI Automation Services in Nepal | TRIHEX DIGITAL",
   description:
-    "Workflow automation discovery and managed setup for Nepali organizations.",
+    "Plan practical AI workflow automation for Nepali businesses: discovery, scoped implementation, NPR proposals, and accountable delivery through TRIHEX DIGITAL.",
+  keywords: [
+    "AI automation services Nepal",
+    "business workflow automation Nepal",
+    "small business AI setup Nepal",
+    "AI workflow consultation Nepal",
+  ],
+  alternates: { canonical: "/automation-services" },
 };
 
 export default function AutomationServicesPage() {
@@ -30,7 +38,18 @@ export default function AutomationServicesPage() {
           website — no open-ended WhatsApp quotes as the system of record.
         </p>
       </div>
-      <ProductGrid products={products} />
+      <div className="mb-10">
+        <QuoteRequestForm />
+      </div>
+      <div className="border-t border-[var(--border)] pt-10">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--primary)]">
+          Available service packages
+        </p>
+        <h2 className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold text-[var(--text)]">
+          Start with a clear scope
+        </h2>
+        <ProductGrid products={products} />
+      </div>
       <p className="mt-8 text-sm">
         <Link href="/products/custom-workflow-automation-discovery" className="text-primary hover:underline">
           Custom Workflow Automation Discovery Session

@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { and, eq } from "drizzle-orm";
 import {
   evaluatePublication,

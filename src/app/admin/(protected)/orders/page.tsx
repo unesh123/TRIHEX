@@ -7,9 +7,29 @@ import Link from "next/link";
 import { getPersistenceMode } from "@/lib/repositories";
 import { fulfillmentStatusLabel } from "@/lib/orders/fulfillment-checklist";
 
+function priorityForOrder(order: { paymentStatus: string; fulfillmentWhatsappDelivered?: boolean; createdAt: string }) {
+  if (["SUBMITTED", "UNDER_REVIEW"].includes(order.paymentStatus)) return 0;
+  if (order.paymentStatus === "PAID" && !order.fulfillmentWhatsappDelivered) return 1;
+  if (order.paymentStatus !== "PAID") return 2;
+  return 3;
+}
+
+function humanizeStatus(value: string) {
+  return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 export default async function AdminOrdersPage() {
   const mode = getPersistenceMode();
   const orders = await getRepositories().orders.listRecent(50);
+  const prioritizedOrders = [...orders].sort((a, b) => {
+    const priority = priorityForOrder(a) - priorityForOrder(b);
+    if (priority !== 0) return priority;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+  const pendingPayment = orders.filter((order) => order.paymentStatus !== "PAID").length;
+  const readyToDeliver = orders.filter(
+    (order) => order.paymentStatus === "PAID" && !order.fulfillmentWhatsappDelivered,
+  ).length;
 
   return (
     <AdminSectionPage
@@ -20,8 +40,25 @@ export default async function AdminOrdersPage() {
           : "Orders from the active persistence adapter (demo/test until DATABASE_URL is set)."
       }
     >
-      <DataTableShell title="Recent orders">
-        {orders.length === 0 ? (
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-[var(--warning)]/20 bg-[var(--warning-soft)] p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--warning)]">Awaiting payment action</p>
+          <p className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold text-[var(--text)]">{pendingPayment}</p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Review proof or follow up from the order detail.</p>
+        </div>
+        <div className="rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary-soft)] p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--primary)]">Ready to fulfill</p>
+          <p className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold text-[var(--text)]">{readyToDeliver}</p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Paid orders still waiting for a delivery action.</p>
+        </div>
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">Recent order records</p>
+          <p className="mt-2 font-[family-name:var(--font-sora)] text-2xl font-semibold text-[var(--text)]">{orders.length}</p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Showing the latest 50 records from the active store.</p>
+        </div>
+      </div>
+      <DataTableShell title="Work queue and recent orders">
+        {prioritizedOrders.length === 0 ? (
           <div className="px-4 py-10 text-center text-sm text-text-muted">
             No orders yet. Place a storefront checkout to create the first order.
           </div>
@@ -38,7 +75,7 @@ export default async function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o) => {
+              {prioritizedOrders.map((o) => {
                 const fulfillLabel = fulfillmentStatusLabel(
                   {
                     activated: Boolean(o.fulfillmentActivated),
@@ -67,7 +104,7 @@ export default async function AdminOrdersPage() {
                     <td className="px-4 py-3">{formatNpr(o.totalNprMinor)}</td>
                     <td className="px-4 py-3">
                       <StatusPill
-                        label={o.paymentStatus}
+                        label={humanizeStatus(o.paymentStatus)}
                         variant={
                           o.paymentStatus === "PAID"
                             ? "success"
@@ -90,7 +127,7 @@ export default async function AdminOrdersPage() {
                         href={`/admin/orders/${o.id}`}
                         className="text-xs text-primary hover:underline"
                       >
-                        {o.status} →
+                        {humanizeStatus(o.status)} →
                       </Link>
                     </td>
                   </tr>

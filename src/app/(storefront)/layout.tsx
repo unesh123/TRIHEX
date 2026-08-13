@@ -22,7 +22,7 @@ export default function StorefrontLayout({
       />
       <AnnouncementBar />
       <SiteHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <SiteFooter />
       <WhatsAppFloatingButton />
     </ToastProvider>

@@ -4,7 +4,7 @@
  */
 import { config } from "dotenv";
 import { randomBytes } from "crypto";
-import { appendFileSync, readFileSync } from "fs";
+import { appendFileSync } from "fs";
 import { normalizeEnvAliases } from "../src/lib/env/normalize-aliases";
 
 config({ path: ".env.local" });
