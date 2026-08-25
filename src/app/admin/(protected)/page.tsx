@@ -1,6 +1,6 @@
 import { AdminHeader } from "@/components/admin/admin-header";
 import { KpiCard } from "@/components/admin/kpi-card";
-import { getRecentAuditEvents } from "@/lib/audit/log";
+import { getRecentAuditEvents, type AuditEvent } from "@/lib/audit/log";
 import {
   getPaidOrdersCount,
   getVerifiedRevenueStats,
@@ -15,7 +15,16 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const products = isDatabaseConfigured() ? await loadAdminProducts() : [];
+  let dataWarning = "";
+  let products = [] as Awaited<ReturnType<typeof loadAdminProducts>>;
+  if (isDatabaseConfigured()) {
+    try {
+      products = await loadAdminProducts();
+    } catch (error) {
+      console.error("[Admin overview] product load failed", error);
+      dataWarning = "Some live catalogue data is temporarily unavailable. The admin shell is still safe to use; check System health before making changes.";
+    }
+  }
   const active = products.filter((p) => p.productStatus !== "ARCHIVED");
   const publicCount = active.filter((p) => p.productStatus === "PUBLIC").length;
   const blockedCount = active.filter((p) => p.productStatus === "BLOCKED").length;
@@ -28,7 +37,13 @@ export default async function AdminOverviewPage() {
       p.seedVisibleQuantity > 0 &&
       p.seedVisibleQuantity <= 5,
   ).length;
-  const recentAudit = await getRecentAuditEvents(8);
+  let recentAudit: AuditEvent[] = [];
+  try {
+    recentAudit = await getRecentAuditEvents(8);
+  } catch (error) {
+    console.error("[Admin overview] audit load failed", error);
+    dataWarning ||= "Recent audit activity is temporarily unavailable.";
+  }
 
   let orderCount = 0;
   let pendingProofs = 0;
@@ -38,17 +53,22 @@ export default async function AdminOverviewPage() {
   const paidOrders = await getPaidOrdersCount();
 
   if (isDatabaseConfigured()) {
-    const orders = await getRepositories().orders.listRecent(100);
-    orderCount = orders.length;
-    unpaidOrders = orders.filter((o) => o.paymentStatus !== "PAID").length;
-    toDeliver = orders.filter(
-      (o) =>
-        o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
-    ).length;
-    const payments = await listManualPayments();
-    pendingProofs = payments.filter((p) =>
-      ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
-    ).length;
+    try {
+      const orders = await getRepositories().orders.listRecent(100);
+      orderCount = orders.length;
+      unpaidOrders = orders.filter((o) => o.paymentStatus !== "PAID").length;
+      toDeliver = orders.filter(
+        (o) =>
+          o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
+      ).length;
+      const payments = await listManualPayments();
+      pendingProofs = payments.filter((p) =>
+        ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
+      ).length;
+    } catch (error) {
+      console.error("[Admin overview] order/payment load failed", error);
+      dataWarning ||= "Order and payment metrics are temporarily unavailable.";
+    }
   }
 
   return (
@@ -76,6 +96,12 @@ export default async function AdminOverviewPage() {
         <div className="mb-8 rounded-2xl border border-warning/30 bg-[linear-gradient(135deg,#fff8e9,#fffdf8)] px-5 py-4 text-sm text-text-muted shadow-sm">
           <strong className="text-warning">Demo mode.</strong> Set{" "}
           <code className="text-xs">DATABASE_URL</code> to load live KPIs.
+        </div>
+      ) : null}
+      {dataWarning ? (
+        <div className="mb-8 rounded-2xl border border-warning/30 bg-[linear-gradient(135deg,#fff8e9,#fffdf8)] px-5 py-4 text-sm text-text-muted shadow-sm">
+          <strong className="text-warning">Live data warning.</strong>{" "}
+          {dataWarning}
         </div>
       ) : null}
 

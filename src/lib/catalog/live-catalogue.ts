@@ -213,7 +213,8 @@ export async function loadAdminProducts(): Promise<AdminProductRow[]> {
   const db = getDb();
   if (!db) return [];
 
-  const rows = await db
+  try {
+    const rows = await db
     .select({
       id: schema.products.id,
       slug: schema.products.slug,
@@ -268,13 +269,17 @@ export async function loadAdminProducts(): Promise<AdminProductRow[]> {
     /* ignore */
   }
 
-  return rows.map((r) => ({
-    ...r,
-    productStatus: String(r.productStatus),
-    complianceStatus: String(r.complianceStatus),
-    coverUrl: covers.get(r.slug) ?? null,
-    coverAlt: mediaAlt.get(r.slug) ?? null,
-  }));
+    return rows.map((r) => ({
+      ...r,
+      productStatus: String(r.productStatus),
+      complianceStatus: String(r.complianceStatus),
+      coverUrl: covers.get(r.slug) ?? null,
+      coverAlt: mediaAlt.get(r.slug) ?? null,
+    }));
+  } catch (error) {
+    console.error("[Admin catalogue] failed to load products", error);
+    return [];
+  }
 }
 
 export async function loadAdminProductByIdOrSlug(
