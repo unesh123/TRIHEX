@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, Clock3, MessageCircle, PackageCheck } from "lucide-react";
 import { ProductCover } from "@/components/storefront/product-cover";
-import { BuyNowButton } from "@/components/storefront/buy-now-button";
 import {
   formatStorePrice,
   visibilityLabelForCard,
@@ -64,11 +63,7 @@ export function ProductCard({
     features: product.features,
   });
   const href = `/products/${product.slug}`;
-  const primaryActionLabel = product.isFamilyCard
-    ? "View plans"
-    : product.purchasable
-      ? "Buy now"
-      : "Check availability";
+  const primaryActionLabel = "Check availability";
 
   return (
     <article
@@ -163,17 +158,9 @@ export function ProductCard({
         </div>
 
         <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
-          {product.isFamilyCard ? (
-            <Link href={href} className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
-              {primaryActionLabel}
-            </Link>
-          ) : product.purchasable ? (
-            <BuyNowButton productSlug={product.slug} variantSku={product.variantSku} />
-          ) : (
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
-              {primaryActionLabel}
-            </a>
-          )}
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+            {primaryActionLabel}
+          </a>
           <a href={wa} target="_blank" rel="noopener noreferrer" aria-label={`Ask about ${product.title} on WhatsApp`} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-strong)] bg-white text-[var(--text-secondary)] transition hover:border-[var(--success)] hover:bg-[var(--success-soft)] hover:text-[var(--success)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
             <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
           </a>

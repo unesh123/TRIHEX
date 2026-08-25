@@ -20,6 +20,7 @@ import {
   findFamilyPlans,
   productFamilyKey,
 } from "@/lib/catalog/product-families";
+import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
@@ -107,6 +108,8 @@ export default async function ProductDetailPage({
     ? product.features
     : featuresForSlug(product.slug);
   const meta = detailMetaForSlug(product.slug);
+  const coverPath =
+    getGeneratedCover(product.slug, product.brandFamily) ?? product.coverPublicPath;
   const waUrl = productEnquiryUrl({
     productName: product.title,
     variantName: product.packageLabel,
@@ -151,7 +154,7 @@ export default async function ProductDetailPage({
               product.shortDescription ??
               `${product.title} — ${product.packageLabel} available in Nepal via TRIHEX DIGITAL.`,
             slug: product.slug,
-            image: product.coverPublicPath,
+            image: coverPath,
             priceNprMinor: product.showPrice ? product.priceNprMinor : null,
             availability,
           }),
@@ -326,7 +329,7 @@ export default async function ProductDetailPage({
               <li>Open this product page and confirm price + package details.</li>
               <li>
                 {product.purchasable
-                  ? "Pick No warranty or With warranty (+30%), then Buy Now / Add to Cart and complete checkout."
+                  ? "Pick No warranty or With warranty (+30%), then use Check Availability / WhatsApp so TRIHEX can confirm the package before activation."
                   : "Use Check Availability / WhatsApp — online cart stays off until approved."}
               </li>
               <li>Pay with bank QR / eSewa / Khalti and upload payment proof.</li>
@@ -416,8 +419,6 @@ export default async function ProductDetailPage({
           <div className="flex flex-col gap-2">
             {product.purchasable ? (
               <ProductPurchasePanel
-                productSlug={product.slug}
-                variantSku={product.variantSku}
                 basePriceNprMinor={
                   product.showPrice ? product.priceNprMinor : null
                 }
@@ -476,13 +477,11 @@ export default async function ProductDetailPage({
       </div>
 
       <StickyMobileBuyBar
-        productSlug={product.slug}
         title={product.title}
         priceNprMinor={product.showPrice ? product.priceNprMinor : null}
         durationLabel={product.durationLabel ?? product.packageLabel}
         purchasable={product.purchasable}
         whatsappHref={waUrl}
-        variantSku={product.variantSku}
       />
     </div>
   );

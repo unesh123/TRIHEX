@@ -117,7 +117,7 @@ export default async function AdminOverviewPage() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label="Buy Now products"
+          label="Available catalogue"
           value={purchasable}
           hint={`${publicCount} public · ${draftCount} draft · ${blockedCount} blocked`}
         />

@@ -133,7 +133,7 @@ export default async function AdminNewProductPage({
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="purchasable" />
-            Purchasable (Buy Now) — only works when status is PUBLIC
+            Available on shop — customers can request confirmation on WhatsApp
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="featured" />

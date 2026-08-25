@@ -6,15 +6,15 @@ import { useEffect, useState, useTransition } from "react";
 const OPTIONS = [
   {
     value: "PUBLIC",
-    label: "PUBLIC — live on shop",
+    label: "AVAILABLE — live on shop",
   },
   {
     value: "DRAFT",
-    label: "DRAFT — under review (Check Availability)",
+    label: "CHECK AVAILABILITY — WhatsApp only",
   },
   {
     value: "BLOCKED",
-    label: "BLOCKED — shows unavailable",
+    label: "UNAVAILABLE — shows unavailable",
   },
   {
     value: "ARCHIVED",
@@ -91,8 +91,8 @@ export function ProductStatusControl({
         </select>
       </label>
       <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
-        Changing status saves immediately. Under review turns off Buy Now and
-        shows <strong>Check Availability</strong> on the shop.
+        Changing status saves immediately. Check Availability keeps the product
+        visible while routing customers to WhatsApp for confirmation.
       </p>
       {pending ? (
         <p className="text-xs font-medium text-[var(--text-secondary)]">

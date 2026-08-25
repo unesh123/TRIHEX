@@ -17,7 +17,7 @@ const GENERATED_ASSETS = {
 } as const;
 
 const SLUG_MATCHES: Array<{ match: RegExp; path: string }> = [
-  { match: /gemini|google-ai|google-5tb|veo/, path: GENERATED_ASSETS.gemini },
+  { match: /^(gemini-pro-18-months-link|gemini-pro-upgrade-link-18-months)$/, path: GENERATED_ASSETS.gemini },
   { match: /chatgpt|openai|gpt-/, path: GENERATED_ASSETS.chatgpt },
   { match: /canva/, path: GENERATED_ASSETS.canva },
   { match: /capcut/, path: GENERATED_ASSETS.capcut },

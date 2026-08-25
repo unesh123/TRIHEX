@@ -114,7 +114,7 @@ export default async function AdminProductDetailPage({
         />
         <StatusPill label={product.complianceStatus} variant="warning" />
         {product.purchasable ? (
-          <StatusPill label="Buy Now on" variant="success" />
+          <StatusPill label="Available on shop" variant="success" />
         ) : (
           <StatusPill label="Check Availability" variant="danger" />
         )}
@@ -284,11 +284,11 @@ export default async function AdminProductDetailPage({
               name="purchasable"
               defaultChecked={product.purchasable}
             />
-            Purchasable (Buy Now) — ON = PUBLIC, OFF = Under review
+            Customer contact status — ON = available, OFF = Check Availability
           </label>
           <p className="text-[11px] text-[var(--text-muted)]">
-            Uncheck + Save price → status becomes Under review and the shop
-            button becomes Check Availability.
+            Uncheck + Save price → the shop keeps the product visible and routes
+            customers to Check Availability on WhatsApp.
           </p>
           <Button type="submit" className="w-full sm:w-auto">
             Save price & stock

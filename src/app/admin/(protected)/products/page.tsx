@@ -43,7 +43,7 @@ export default async function AdminProductsPage({
     <>
       <AdminHeader
         title="Products"
-        description="Live catalogue from Supabase. Buy cost, sell price, profit and stock show in the list — no need to open Edit."
+        description="Live catalogue from Supabase. Cost, sell price, margin, stock, and customer contact status are visible at a glance."
         actions={
           <div className="flex flex-wrap gap-2">
             <Button href="/admin/products/new" size="sm">
@@ -191,7 +191,7 @@ export default async function AdminProductsPage({
                     {stockLabel}
                   </span>
                   {!product.purchasable ? (
-                    <div className="text-[10px] text-text-muted">No Buy Now</div>
+                    <div className="text-[10px] text-text-muted">WhatsApp check required</div>
                   ) : null}
                 </td>
                 <td className="px-4 py-3">

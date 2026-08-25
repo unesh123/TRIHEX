@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BuyNowButton } from "@/components/storefront/buy-now-button";
-import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { Button } from "@/components/ui/button";
 import { formatNpr } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -14,15 +12,11 @@ import {
 } from "@/lib/catalog/warranty";
 
 export function ProductPurchasePanel({
-  productSlug,
-  variantSku,
   basePriceNprMinor,
   durationLabel,
   purchasable,
   whatsappHref,
 }: {
-  productSlug: string;
-  variantSku: string;
   basePriceNprMinor: number | null;
   durationLabel: string | null;
   purchasable: boolean;
@@ -115,22 +109,16 @@ export function ProductPurchasePanel({
       ) : null}
 
       <div className="flex flex-col gap-2">
-        <BuyNowButton
-          productSlug={productSlug}
-          variantSku={variantSku}
-          warranty={tier}
-        />
-        <AddToCartButton
-          productSlug={productSlug}
-          variantSku={variantSku}
-          warranty={tier}
-        />
+        <Button href={whatsappHref} external variant="primary" className="w-full">
+          Check Availability
+        </Button>
         <Button href={whatsappHref} external variant="whatsapp" className="w-full">
           WhatsApp +977 9702910130
         </Button>
-        <Button href="/cart" variant="secondary">
-          View cart
-        </Button>
+        <p className="text-center text-[11px] leading-relaxed text-[var(--text-muted)]">
+          Tell us your selected plan and warranty preference. We will confirm the
+          latest availability and final total before activation.
+        </p>
       </div>
     </div>
   );

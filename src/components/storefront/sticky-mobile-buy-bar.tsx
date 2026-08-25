@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BuyNowButton } from "@/components/storefront/buy-now-button";
 import { Button } from "@/components/ui/button";
 import { formatNpr } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -13,16 +12,12 @@ import {
 } from "@/lib/catalog/warranty";
 
 export function StickyMobileBuyBar({
-  productSlug,
-  variantSku,
   title,
   priceNprMinor,
   durationLabel,
   purchasable,
   whatsappHref,
 }: {
-  productSlug: string;
-  variantSku: string;
   title: string;
   priceNprMinor: number | null;
   durationLabel?: string | null;
@@ -85,18 +80,9 @@ export function StickyMobileBuyBar({
               ) : null}
             </p>
           </div>
-          {purchasable ? (
-            <BuyNowButton
-              productSlug={productSlug}
-              variantSku={variantSku}
-              warranty={tier}
-              className="shrink-0"
-            />
-          ) : (
-            <Button href={whatsappHref} external variant="whatsapp" size="sm">
-              Check Availability
-            </Button>
-          )}
+          <Button href={whatsappHref} external variant="whatsapp" size="sm" className="shrink-0">
+            Check Availability
+          </Button>
         </div>
       </div>
     </div>

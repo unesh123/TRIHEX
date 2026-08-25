@@ -39,3 +39,19 @@ A new `public/media/covers/trihex-generated/` asset family was added with optimi
 The generated TRIHEX mark was optimized to `public/brand/trihex-mark.webp` and is now used by the shared header/admin logo. The browser icon route was updated from a basic `T` placeholder to a compact TRIHEX facet mark. `ProductCover` now prefers the generated art lookup for matching product families, with the existing cover library retained as a fallback. The catalogue grid now uses one full-width card per row on small screens, two columns on tablets, three on large screens, and four on wide screens.
 
 The 375px mobile catalogue screenshot was captured and checked. Generated artwork loads, product cards remain full-width and readable, and the existing mobile navigation/filter flow remains intact. After integration, lint, typecheck, production build, 73 unit tests, and all 8 browser smoke tests passed.
+
+
+## Availability-first customer flow — 2026-08-25
+
+The generated-art resolver was narrowed so the broad Gemini/Google regex no longer assigns one Gemini image to every Gemini-family SKU. Only the generated Gemini product line uses that tile; other Gemini, Google AI, Google storage, and Veo records now fall back to their own live cover paths or manifest entries.
+
+All active storefront product-card, product-detail, plan-switcher, and sticky-mobile actions now route through Check Availability / WhatsApp. Direct Buy Now and Add to cart controls are no longer rendered in those customer flows. Pricing and warranty choices remain visible where applicable so customers can share an informed request, while TRIHEX retains the underlying checkout code for existing operational compatibility.
+
+Admin copy was simplified to use Available catalogue, Available on shop, Check Availability, and WhatsApp check required. Inventory, product status, product detail, and new-product surfaces now explain the operator action in customer terms. The SEO guide and enquiry page were also updated to avoid telling customers to use Buy Now.
+
+
+## Availability-first verification — 2026-08-25
+
+The rendered `/products` page was checked after the final CTA and mapping edits. Product cards for Gemini Pro 5 TB, ChatGPT Plus, Gemini, Gemini 5 TB AI Pro, Grok, Claude, ElevenLabs, Coursera, CapCut, Canva, Office, Grammarly, Microsoft 365, YouTube, Adobe, and Kling all display `Check availability` as the primary action and retain WhatsApp enquiry links.
+
+The broad generated Gemini mapping is no longer visible in the rendered catalogue: different Gemini-family records now show their own existing manifest artwork unless they match the explicitly generated Gemini product-line slug. This prevents the repeated image problem while preserving the optimized generated art for the intended product line.
