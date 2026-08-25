@@ -3,6 +3,7 @@ import type { ProductCardProps } from "@/components/storefront/product-card";
 import {
   getMerchCardBySlug,
   type MerchCard,
+  withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import { resolveBrandFamily } from "@/components/storefront/family-artwork";
 
@@ -51,7 +52,10 @@ export function ProductGrid({
   products: Array<MerchCard | ProductCardProps>;
   emptyMessage?: string;
 }) {
-  const cards = products.map(toMerch);
+  const normalizedCards = products.map(toMerch);
+  const cards = normalizedCards.length > 0 && normalizedCards.every((card) => card.isFamilyCard)
+    ? normalizedCards
+    : withFamilyGrouping(normalizedCards);
 
   if (!cards.length) {
     return (
@@ -62,7 +66,7 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="mx-auto grid max-w-2xl grid-cols-1 gap-5 sm:max-w-none sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       {cards.map((product) => (
         <ProductCard key={product.slug} product={product} />
       ))}

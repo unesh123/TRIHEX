@@ -14,6 +14,7 @@ import {
   getLiveMerchCardBySlug,
   getLiveMerchandisingCatalogue,
   visibilityLabelForCard,
+  withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import {
   familyDisplayTitle,
@@ -84,23 +85,23 @@ export default async function ProductDetailPage({
   const catalogue = await getLiveMerchandisingCatalogue();
   const familyPlans = findFamilyPlans(catalogue, product.slug);
   const familyTitle = familyDisplayTitle(product);
-  const related = catalogue
+  const related = withFamilyGrouping(catalogue
     .filter(
       (p) =>
         productFamilyKey(p.slug) !== productFamilyKey(product.slug) &&
         p.brandSlug === product.brandSlug &&
         p.slug !== product.slug,
-    )
+    ))
     .slice(0, 3);
   if (related.length < 3) {
-    const more = catalogue
+    const more = withFamilyGrouping(catalogue
       .filter(
         (p) =>
           p.categorySlug === product.categorySlug &&
           p.slug !== product.slug &&
           !related.some((r) => r.slug === p.slug) &&
           productFamilyKey(p.slug) !== productFamilyKey(product.slug),
-      )
+      ))
       .slice(0, 3 - related.length);
     related.push(...more);
   }

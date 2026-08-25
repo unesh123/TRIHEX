@@ -28,10 +28,24 @@ export function productFamilyKey(slug: string): string {
     key = next;
   }
 
-  // Peel marketing suffixes that are not real product lines
-  key = key.replace(/-(?:full-build-plan|full-build|build-plan|moths-plan|plan)$/i, "");
+  // Peel marketing suffixes that are not real product lines.
+  for (let i = 0; i < 4; i++) {
+    const next = key
+      .replace(/-(?:full-build-plan|full-build|build-plan|moths-plan|plan)$/i, "")
+      .replace(TRAILING_MODIFIER_RE, "");
+    if (next === key) break;
+    key = next;
+  }
 
   key = key.replace(DURATION_SLUG_RE, "");
+  // Duration removal can expose another fulfillment/warranty suffix.
+  for (let i = 0; i < 4; i++) {
+    const next = key
+      .replace(/-(?:full-build-plan|full-build|build-plan|moths-plan|plan)$/i, "")
+      .replace(TRAILING_MODIFIER_RE, "");
+    if (next === key) break;
+    key = next;
+  }
   key = key.replace(/-+/g, "-").replace(/^-|-$/g, "");
 
   // Alias naming variants of the same Grok Super line

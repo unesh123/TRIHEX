@@ -55,3 +55,21 @@ Admin copy was simplified to use Available catalogue, Available on shop, Check A
 The rendered `/products` page was checked after the final CTA and mapping edits. Product cards for Gemini Pro 5 TB, ChatGPT Plus, Gemini, Gemini 5 TB AI Pro, Grok, Claude, ElevenLabs, Coursera, CapCut, Canva, Office, Grammarly, Microsoft 365, YouTube, Adobe, and Kling all display `Check availability` as the primary action and retain WhatsApp enquiry links.
 
 The broad generated Gemini mapping is no longer visible in the rendered catalogue: different Gemini-family records now show their own existing manifest artwork unless they match the explicitly generated Gemini product-line slug. This prevents the repeated image problem while preserving the optimized generated art for the intended product line.
+
+
+## Performance and family UX pass — 2026-08-25
+
+The storefront was audited across the shared `ProductGrid`, product catalogue, detail-page related products, and admin product list. Raw catalogue routes now pass through one family-grouping guard, while the products page preserves its existing grouped cards. The family key normalization now removes duration and trailing fulfillment/warranty modifiers in repeated passes, so Gemini link/CDK variants, Grok duration variants, CapCut duration variants, and similar plan SKUs collapse into one product family with plan links.
+
+On the local rendered catalogue, the visible count changed to 24 product lines from the raw seed’s 28 products, and Gemini displayed one family card with its CDK and link plans instead of multiple repeated cards. The product grid now uses a centered single-column max-width on small screens and switches to two, three, and four columns at larger breakpoints. The optimized 375px screenshot was captured at `/home/ubuntu/trihex-mobile-optimized.png` and the grouped admin table was checked at `/admin/products?optimized=family-admin`.
+
+The live catalogue and primary-cover loaders now use short-lived Next.js cache entries (15 seconds for catalogue data, 30 seconds for media paths) to reduce repeated database work under concurrent browsing while keeping admin edits near-live. Lint, typecheck, 74 unit tests, and the production build passed; the existing 8 browser smoke tests also passed before the final regression test addition.
+
+
+## Final family/admin/mobile optimization — 2026-08-25
+
+The shared product grid now applies one family grouping guard to all storefront routes, including search, categories, deals, and related-product sections. A family card opens the product detail plan switcher; a single-plan card keeps the WhatsApp Check availability action. The 375px layout is one centered full-width card at a time, with larger breakpoints returning to two, three, and four columns.
+
+The admin Products screen now shows one compact row per family instead of one row per plan. Each row summarizes plan count, price range, aggregate stock, mixed/live status, and direct SKU links to edit individual plans. A server-side search field supports product, SKU, and brand filtering, and a status filter supports Available, Check Availability, and Unavailable views. This reduces scrolling and makes live changes easier to locate.
+
+The live catalogue loader uses a 15-second short-lived server cache and primary cover paths use a 30-second cache. Admin edits remain near-live while repeated storefront requests avoid re-running the same database/media queries. The production build, lint, typecheck, 74 unit tests, and all 8 browser smoke tests passed after the final changes.
