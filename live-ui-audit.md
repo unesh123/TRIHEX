@@ -30,3 +30,12 @@ With the demo bypass enabled, `/admin` renders the redesigned control center wit
 ### Automated quality checks
 
 `npm run lint` passes. `npm run typecheck` passes. `npm run build` passes and compiles all existing routes. `npm test` passes with 73 tests across 11 files. `CI=1 npm run test:e2e:smoke` passes all 8 smoke tests, including the admin bypass and 375px horizontal-overflow check. A first e2e attempt failed only because the Playwright browser binary was absent; installing the expected runtime and rerunning passed all tests.
+
+
+## Generated asset integration — 2026-08-25
+
+A new `public/media/covers/trihex-generated/` asset family was added with optimized 1200×1200 WebP product tiles for the primary Gemini, ChatGPT, Canva, CapCut, Cursor, Adobe, Claude, Coursera, Grok, ElevenLabs, Gamma, Manus, Notion, and Replit product lines. The assets intentionally use original abstract symbols and no baked-in pricing, duration, availability, or warranty claims so live catalogue data remains the source of truth.
+
+The generated TRIHEX mark was optimized to `public/brand/trihex-mark.webp` and is now used by the shared header/admin logo. The browser icon route was updated from a basic `T` placeholder to a compact TRIHEX facet mark. `ProductCover` now prefers the generated art lookup for matching product families, with the existing cover library retained as a fallback. The catalogue grid now uses one full-width card per row on small screens, two columns on tablets, three on large screens, and four on wide screens.
+
+The 375px mobile catalogue screenshot was captured and checked. Generated artwork loads, product cards remain full-width and readable, and the existing mobile navigation/filter flow remains intact. After integration, lint, typecheck, production build, 73 unit tests, and all 8 browser smoke tests passed.

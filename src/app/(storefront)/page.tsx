@@ -12,6 +12,7 @@ import {
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import { getProductCover } from "@/lib/catalog/product-covers";
+import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import {
   getWhatsAppDisplay,
   productEnquiryUrl,
@@ -91,6 +92,7 @@ export default async function HomePage() {
     shopProducts.find((product) => product.purchasable) ??
     shopProducts[0];
   const heroCover =
+    getGeneratedCover(heroProduct?.slug ?? "gemini-pro-18-months-link", heroProduct?.brandFamily) ??
     heroProduct?.coverPublicPath ??
     getProductCover(heroProduct?.slug ?? "gemini-pro-18-months-link")?.publicPath ??
     "/media/covers/gemini/gemini-pro-18-month-upgrade.webp";

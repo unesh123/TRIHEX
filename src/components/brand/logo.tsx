@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -10,32 +11,14 @@ interface LogoProps {
 
 function HexMark({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 36 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0", className)}
+    <Image
+      src="/brand/trihex-mark.webp"
+      alt=""
+      width={48}
+      height={48}
+      className={cn("shrink-0 object-contain", className)}
       aria-hidden="true"
-    >
-      {/* Three interlocking hex facets */}
-      <path
-        d="M10 8.5 L16 5 L22 8.5 L22 15.5 L16 19 L10 15.5 Z"
-        fill="var(--primary)"
-        opacity="0.95"
-      />
-      <path
-        d="M14 16.5 L20 13 L26 16.5 L26 23.5 L20 27 L14 23.5 Z"
-        fill="var(--success)"
-        opacity="0.85"
-      />
-      <path
-        d="M6 16.5 L12 13 L18 16.5 L18 23.5 L12 27 L6 23.5 Z"
-        fill="#F7F8FC"
-        stroke="var(--primary)"
-        strokeWidth="1.2"
-        opacity="0.95"
-      />
-    </svg>
+    />
   );
 }
 
