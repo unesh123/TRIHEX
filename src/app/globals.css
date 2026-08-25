@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --page: #f8fafc;
-  --page-soft: #f1f5f9;
+  --page: #f6f8fb;
+  --page-soft: #edf3f7;
   --surface: #ffffff;
-  --surface-muted: #eaf0f6;
-  --surface-accent: #eaf7f3;
-  --surface-raised: #ffffff;
-  --surface-ink: #101827;
-  --border: #dde5ee;
-  --border-strong: #c3d0df;
-  --text: #101827;
-  --text-secondary: #34435a;
-  --text-muted: #68768b;
-  --primary: #0f4c81;
-  --primary-hover: #0a3b65;
-  --primary-soft: #e4eff8;
-  --accent: #7656ff;
-  --accent-soft: #eeebff;
-  --success: #0c8469;
-  --success-soft: #e4f7f0;
-  --warning: #ae650c;
-  --warning-soft: #fff3df;
-  --danger: #be123c;
-  --danger-soft: #fff1f2;
-  --shadow: rgba(16, 24, 39, 0.08);
-  --shadow-elevated: rgba(16, 24, 39, 0.14);
+  --surface-muted: #e8eff4;
+  --surface-accent: #e8f6f3;
+  --surface-raised: #fbfdff;
+  --surface-ink: #0b2235;
+  --border: #dbe5ec;
+  --border-strong: #bfced9;
+  --text: #0d1c2b;
+  --text-secondary: #35485b;
+  --text-muted: #718094;
+  --primary: #0c5877;
+  --primary-hover: #08435d;
+  --primary-soft: #e4f1f5;
+  --accent: #6757d9;
+  --accent-soft: #efedff;
+  --success: #08745d;
+  --success-soft: #e1f5ee;
+  --warning: #a45d09;
+  --warning-soft: #fff2da;
+  --danger: #b4234d;
+  --danger-soft: #fff0f3;
+  --shadow: rgba(13, 28, 43, 0.07);
+  --shadow-elevated: rgba(13, 28, 43, 0.14);
+  --ring: color-mix(in srgb, var(--primary) 48%, transparent);
   --background: var(--page);
-  --ring: color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
 @theme inline {
@@ -72,8 +72,8 @@
   body {
     min-height: 100%;
     background:
-      radial-gradient(circle at 88% -8%, rgba(118, 86, 255, 0.08), transparent 24rem),
-      radial-gradient(circle at 6% 18%, rgba(15, 76, 129, 0.06), transparent 30rem),
+      radial-gradient(circle at 88% -8%, rgba(103, 87, 217, 0.075), transparent 25rem),
+      radial-gradient(circle at 6% 18%, rgba(12, 88, 119, 0.06), transparent 32rem),
       var(--page);
     color: var(--text);
     font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -82,7 +82,7 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--primary) 28%, transparent);
+    background: color-mix(in srgb, var(--primary) 24%, transparent);
     color: var(--text);
   }
 
@@ -91,9 +91,14 @@
     text-decoration: none;
   }
 
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   :focus-visible {
     outline: 2px solid var(--primary);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 }
 
@@ -103,22 +108,26 @@
   }
 
   .shadow-soft {
-    box-shadow: 0 10px 30px var(--shadow);
+    box-shadow: 0 12px 32px var(--shadow);
   }
 
   .shadow-premium {
-    box-shadow: 0 24px 64px var(--shadow-elevated);
+    box-shadow: 0 28px 72px var(--shadow-elevated);
   }
 
   .surface-grid {
     background-image:
-      linear-gradient(rgba(15, 76, 129, 0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 76, 129, 0.055) 1px, transparent 1px);
+      linear-gradient(rgba(12, 88, 119, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(12, 88, 119, 0.05) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
   .premium-kicker {
-    @apply inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/15 bg-white/80 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.15em] text-[var(--primary)] shadow-sm backdrop-blur;
+    @apply inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/15 bg-white/80 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--primary)] shadow-sm backdrop-blur;
+  }
+
+  .section-kicker {
+    @apply text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--primary)];
   }
 
   .text-balance {
@@ -126,7 +135,15 @@
   }
 
   .store-container {
-    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6;
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  }
+
+  .admin-surface {
+    @apply rounded-2xl border border-[var(--border)] bg-white shadow-[0_12px_34px_rgba(13,28,43,.055)];
+  }
+
+  .table-wrap {
+    @apply overflow-x-auto rounded-2xl border border-[var(--border)] bg-white shadow-[0_10px_28px_rgba(13,28,43,.045)];
   }
 
   @keyframes fadeUp {

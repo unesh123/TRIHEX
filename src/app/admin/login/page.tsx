@@ -36,10 +36,11 @@ export default async function AdminLoginPage({
   const bootstrapEmail = getOwnerEmail();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--page)] px-4">
-      <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-8 shadow-xl">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_12%_8%,rgba(12,88,119,.12),transparent_28rem),radial-gradient(circle_at_88%_12%,rgba(103,87,217,.1),transparent_24rem),var(--page)] px-4 py-10">
+      <div className="relative w-full max-w-lg rounded-[1.5rem] border border-white/80 bg-white/92 p-6 shadow-[0_28px_70px_rgba(13,28,43,.14)] backdrop-blur-xl sm:p-8">
         <Logo href="/" size="md" />
-        <h1 className="mt-6 font-[family-name:var(--font-sora)] text-xl font-semibold text-[var(--text)]">
+        <div className="mt-6 flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[var(--success)] shadow-[0_0_0_4px_rgba(8,116,93,.12)]" /><span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--text-muted)]">Secure operator access</span></div>
+        <h1 className="mt-3 font-[family-name:var(--font-sora)] text-2xl font-semibold tracking-[-0.04em] text-[var(--text)] sm:text-3xl">
           Admin sign in
         </h1>
         <p className="mt-2 text-sm text-[var(--text-muted)]">
@@ -47,7 +48,7 @@ export default async function AdminLoginPage({
           stock, and status — changes go live on the storefront.
         </p>
 
-        <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">
+        <p className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--page-soft)]/55 px-3.5 py-3 text-xs leading-relaxed text-[var(--text-muted)]">
           Use your authorized TRIHEX operations account. Admin access is protected,
           audited, and limited by role.
           {` Your owner recovery email is ${maskEmail(bootstrapEmail)}.`}
@@ -81,7 +82,7 @@ export default async function AdminLoginPage({
 
         <form action={adminLoginAction} className="mt-6 space-y-4">
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
+            <label htmlFor="email" className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--text-muted)]">
               Email
             </label>
             <Input
@@ -95,7 +96,7 @@ export default async function AdminLoginPage({
           </div>
           {!bypass ? (
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
+              <label htmlFor="password" className="mb-1.5 block text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--text-muted)]">
                 Password
               </label>
               <Input
@@ -114,7 +115,7 @@ export default async function AdminLoginPage({
         </form>
 
         {!bypass ? (
-          <form action={adminRequestPasswordResetAction} className="mt-4 space-y-3 border-t border-[var(--border)] pt-4">
+          <form action={adminRequestPasswordResetAction} className="mt-5 space-y-3 rounded-xl border border-[var(--border)] bg-[var(--page-soft)]/45 p-4">
             <p className="text-xs text-[var(--text-muted)]">
               First login: request a reset link, choose your own password, then
               enable MFA under Settings → Security.

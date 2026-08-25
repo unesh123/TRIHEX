@@ -73,13 +73,13 @@ export default async function AdminOverviewPage() {
       />
 
       {!isDatabaseConfigured() ? (
-        <div className="mb-8 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-text-muted">
+        <div className="mb-8 rounded-2xl border border-warning/30 bg-[linear-gradient(135deg,#fff8e9,#fffdf8)] px-5 py-4 text-sm text-text-muted shadow-sm">
           <strong className="text-warning">Demo mode.</strong> Set{" "}
           <code className="text-xs">DATABASE_URL</code> to load live KPIs.
         </div>
       ) : null}
 
-      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           label="Verified revenue"
           value={revenue.revenueLabel}
@@ -129,7 +129,7 @@ export default async function AdminOverviewPage() {
         />
       </div>
 
-      <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--success-soft)]/40 px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <div className="mt-7 rounded-2xl border border-[var(--success)]/18 bg-[linear-gradient(135deg,var(--success-soft),#fbfffd)] px-5 py-4 text-sm leading-relaxed text-[var(--text-secondary)] shadow-sm">
         <strong className="text-[var(--success)]">Manual verify flow:</strong>{" "}
         Customer pays + uploads proof → you Approve → order becomes{" "}
         <strong>PAID</strong>, revenue/profit count here, and product stock
@@ -138,8 +138,8 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-surface/60 p-5">
-          <h2 className="text-sm font-semibold text-text">Quick links</h2>
+        <section className="admin-surface p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3"><h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.03em] text-text">Quick links</h2><span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-text-muted">Shortcuts</span></div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button href="/admin/products" variant="secondary" size="sm">
               Products & images
@@ -174,14 +174,14 @@ export default async function AdminOverviewPage() {
           </p>
         </section>
 
-        <section className="rounded-xl border border-border bg-surface/60 p-5">
-          <h2 className="text-sm font-semibold text-text">Recent audit</h2>
-          <ul className="mt-4 space-y-2 text-xs text-text-muted">
+        <section className="admin-surface p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3"><h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.03em] text-text">Recent audit</h2><span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-text-muted">Latest events</span></div>
+          <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-[var(--page-soft)]/45 text-xs text-text-muted">
             {recentAudit.length === 0 ? (
               <li>No events yet.</li>
             ) : (
               recentAudit.map((event) => (
-                <li key={event.id} className="flex justify-between gap-2">
+                <li key={event.id} className="flex justify-between gap-3 px-3 py-3 first:pt-3 last:pb-3">
                   <span>
                     {event.action} · {event.entityType}
                   </span>

@@ -60,7 +60,7 @@ export default async function AdminProtectedLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background lg:flex-row">
+    <div className="flex min-h-screen flex-col bg-[var(--page)] lg:flex-row">
       <AdminSidebar
         role={session.role}
         email={session.email}
@@ -68,8 +68,8 @@ export default async function AdminProtectedLayout({
         health={health}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between gap-2 border-b border-border bg-surface/50 px-4 py-2 sm:px-6">
-          <p className="truncate text-xs text-text-muted">
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-white/80 px-4 py-3 shadow-[0_4px_16px_rgba(13,28,43,.035)] backdrop-blur sm:px-6">
+          <p className="truncate text-[10px] font-extrabold uppercase tracking-[0.14em] text-text-muted">
             {health.labels.environment}
             {health.database === "ok" ? " · DB connected" : " · DB unavailable"}
           </p>
@@ -79,7 +79,7 @@ export default async function AdminProtectedLayout({
             </Button>
           </form>
         </div>
-        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
           {children}
         </main>
       </div>

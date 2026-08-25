@@ -4,25 +4,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary text-white hover:bg-primary-hover shadow-[0_0_0_1px_color-mix(in_srgb,var(--primary)_35%,transparent)]",
+          "bg-primary text-white shadow-[0_8px_20px_rgba(12,88,119,.18)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_12px_26px_rgba(12,88,119,.24)]",
         secondary:
-          "bg-surface-raised text-text border border-border hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--border))]",
+          "border border-border bg-surface-raised text-text shadow-sm hover:-translate-y-0.5 hover:border-primary/45 hover:bg-white hover:shadow-md",
         ghost: "text-text-muted hover:bg-surface-raised hover:text-text",
         outline:
-          "border border-border bg-transparent text-text hover:bg-surface-raised",
-        danger: "bg-danger text-white hover:brightness-110",
+          "border border-border bg-white/60 text-text hover:-translate-y-0.5 hover:border-primary/45 hover:bg-white",
+        danger: "bg-danger text-white shadow-sm hover:-translate-y-0.5 hover:brightness-110",
         whatsapp:
-          "bg-[#1f9e5a] text-white hover:bg-[#25b868]",
+          "bg-[#16894c] text-white shadow-[0_8px_20px_rgba(22,137,76,.16)] hover:-translate-y-0.5 hover:bg-[#11743f]",
       },
       size: {
-        sm: "h-9 px-3 text-xs",
+        sm: "h-10 px-3 text-xs",
         md: "h-11 px-4",
-        lg: "h-12 px-6 text-base",
+        lg: "h-13 px-6 text-base",
         icon: "h-10 w-10",
       },
     },
