@@ -337,6 +337,10 @@ export function getDealCandidateBySlug(slug: string): DealCandidate | undefined 
   return dealsStore.find((d) => d.slug === slug);
 }
 
+export function getDealCandidateById(id: string): DealCandidate | undefined {
+  return dealsStore.find((d) => d.id === id);
+}
+
 export function getPublishedDeals(filter?: {
   category?: DealCandidate["category"];
   dealType?: DealCandidate["dealType"];
