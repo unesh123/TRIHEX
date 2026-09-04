@@ -15,12 +15,9 @@ import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { getRepositories } from "@/lib/repositories";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
-import {
-  applyWarrantyPrice,
-  isWarrantyTier,
-  parsePlanDaysFromLabel,
-  warrantyOptionsForPlan,
-} from "@/lib/catalog/warranty";
+import { warrantyPolicy } from "@/lib/commerce/warranty-policy";
+import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
+
 
 export type PaymentMethodPreference =
   | "ESEWA_MANUAL"
@@ -117,6 +114,10 @@ type ResolvedProduct = {
     seedVisibleQuantity: number | null;
     durationValue: number | null;
     durationUnit: string | null;
+    warrantyValue: number | null;
+    warrantyUnit: string | null;
+    warrantyCoverage: string | null;
+    activationMethod: string | null;
   };
 };
 
@@ -150,6 +151,10 @@ async function resolveProductLine(
           seedVisibleQuantity: schema.productVariants.seedVisibleQuantity,
           durationValue: schema.productVariants.durationValue,
           durationUnit: schema.productVariants.durationUnit,
+          warrantyValue: schema.productVariants.warrantyValue,
+          warrantyUnit: schema.productVariants.warrantyUnit,
+          warrantyCoverage: schema.productVariants.warrantyCoverage,
+          activationMethod: schema.productVariants.activationMethod,
           active: schema.productVariants.active,
         })
         .from(schema.products)
@@ -187,6 +192,10 @@ async function resolveProductLine(
           seedVisibleQuantity: row.seedVisibleQuantity,
           durationValue: row.durationValue,
           durationUnit: row.durationUnit,
+          warrantyValue: row.warrantyValue,
+          warrantyUnit: row.warrantyUnit,
+          warrantyCoverage: row.warrantyCoverage,
+          activationMethod: row.activationMethod,
         },
       };
     }
@@ -216,6 +225,10 @@ async function resolveProductLine(
       seedVisibleQuantity: variant.seedVisibleQuantity ?? null,
       durationValue: variant.durationValue,
       durationUnit: variant.durationUnit,
+      warrantyValue: (variant as any).warrantyValue ?? null,
+      warrantyUnit: (variant as any).warrantyUnit ?? null,
+      warrantyCoverage: (variant as any).warrantyCoverage ?? null,
+      activationMethod: (variant as any).activationMethod ?? null,
     },
   };
 }
@@ -272,6 +285,14 @@ export async function createOrder(
         ok: false,
         code: "NOT_FOUND",
         error: `Product/variant not found: ${line.productSlug}/${line.variantSku}`,
+      };
+    }
+
+    if (isInternalOrTestSku(product.slug) || isInternalOrTestSku(product.variant.sku)) {
+      return {
+        ok: false,
+        code: "COMPLIANCE",
+        error: "Internal and test items cannot be purchased.",
       };
     }
 
@@ -367,36 +388,18 @@ export async function createOrder(
       });
 
       const baseUnit = pricing.finalPriceNprMinor;
-      const warrantyTier = isWarrantyTier(line.warranty)
-        ? line.warranty
-        : "none";
-      const planDays = (() => {
-        const v = product.variant.durationValue;
-        const u = product.variant.durationUnit;
-        if (v == null || !u) return 30;
-        if (u === "DAY") return v;
-        if (u === "WEEK") return v * 7;
-        if (u === "MONTH") return v * 30;
-        if (u === "YEAR") return v * 365;
-        return parsePlanDaysFromLabel(product.variant.variantName);
-      })();
-      const warrantyMeta = warrantyOptionsForPlan(planDays).find(
-        (o) => o.tier === warrantyTier,
-      );
-      const unitPriceNprMinor = applyWarrantyPrice(baseUnit, warrantyTier);
-      const warrantyLabel =
-        warrantyTier === "protected"
-          ? warrantyMeta?.guaranteeLabel ?? "Protected warranty"
-          : "No warranty";
+      const policyCode = product.variant.warrantyCoverage || (product.variant.warrantyValue ? "LIMITED" : "NONE");
+      const policy = warrantyPolicy(policyCode, product.variant.warrantyValue);
+      const unitPriceNprMinor = baseUnit; // Exact SKU price — no arbitrary global +30%
+      const warrantyTier = line.warranty === "protected" ? "protected" : "none";
+      const warrantyLabel = policy.label;
+      const warrantyGuaranteeDays = policy.days;
 
       lines.push({
         productSlug: product.slug,
         productName: product.name,
         variantSku: product.variant.sku,
-        variantName:
-          warrantyTier === "protected"
-            ? `${product.variant.variantName} · ${warrantyLabel}`
-            : `${product.variant.variantName} · No warranty`,
+        variantName: product.variant.variantName,
         quantity: line.quantity,
         unitPriceNprMinor,
         lineTotalNprMinor: unitPriceNprMinor * line.quantity,
@@ -405,7 +408,7 @@ export async function createOrder(
         seedVisibleQuantity: product.variant.seedVisibleQuantity,
         warrantyTier,
         warrantyLabel,
-        warrantyGuaranteeDays: warrantyMeta?.guaranteeDays ?? 0,
+        warrantyGuaranteeDays,
       });
     } catch (err) {
       return {

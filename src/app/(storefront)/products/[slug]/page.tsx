@@ -26,7 +26,6 @@ import { getProductCover } from "@/lib/catalog/product-covers";
 import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
-import { PriceInquiryNotice } from "@/components/storefront/price-inquiry-notice";
 import { TrustStrip } from "@/components/storefront/trust-strip";
 import { StickyMobileBuyBar } from "@/components/storefront/sticky-mobile-buy-bar";
 import { ProductReviews } from "@/components/storefront/product-reviews";
@@ -248,14 +247,13 @@ export default async function ProductDetailPage({
               Plan features
             </p>
             <h2 className="mt-1 font-[family-name:var(--font-sora)] text-lg font-semibold text-[var(--text)] sm:text-xl">
-              What this plan includes
+              What this package includes
             </h2>
             <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Everything below is what you get with this package after payment is
-              verified.
+              Authoritative inclusions verified upon fulfillment.
             </p>
-            <ul className="mt-5 space-y-3">
-              {features.map((f) => (
+            <ul className="mt-4 space-y-2.5">
+              {features.slice(0, 4).map((f) => (
                 <li
                   key={f}
                   className="flex gap-3 rounded-xl bg-[var(--page-soft)] px-3 py-2.5 text-sm text-[var(--text-secondary)]"
@@ -320,9 +318,7 @@ export default async function ProductDetailPage({
                   Warranty / support
                 </dt>
                 <dd className="mt-1 font-medium">
-                  Choose at purchase: No warranty (current price) or With
-                  warranty (+30%, guarantee length matches this plan).{" "}
-                  {meta.warranty}
+                  {product.warrantyLabel ?? "Standard warranty terms for selected plan apply."}
                 </dd>
               </div>
               <div className="rounded-xl bg-[var(--page-soft)] px-3 py-2 sm:col-span-2">
@@ -332,118 +328,78 @@ export default async function ProductDetailPage({
                 <dd className="mt-1 font-medium">{product.fulfillmentEstimate}</dd>
               </div>
             </dl>
-            <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">
-              {meta.notes}
-            </p>
+            {meta.notes && (
+              <p className="mt-4 text-sm leading-relaxed text-[var(--text-muted)]">
+                {meta.notes}
+              </p>
+            )}
           </section>
 
-          <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
-            <h2 className="font-semibold">How fulfillment works</h2>
-            <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-[var(--text-secondary)]">
-              <li>Open this product page and confirm price + package details.</li>
+          <details className="group rounded-2xl border border-[var(--border)] bg-white p-5 transition">
+            <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-[var(--text)]">
+              <span>How delivery &amp; fulfillment works</span>
+              <span className="text-xs text-[var(--text-muted)] transition-transform group-open:rotate-180">
+                ▼
+              </span>
+            </summary>
+            <ol className="mt-4 list-decimal space-y-2.5 pl-5 text-sm text-[var(--text-secondary)]">
+              <li>Review the package details and select your preferred plan.</li>
               <li>
                 {product.purchasable
-                  ? "Pick No warranty or With warranty (+30%), then use Check Availability / WhatsApp so TRIHEX can confirm the package before activation."
-                  : "Use Check Availability / WhatsApp — online cart stays off until approved."}
+                  ? "Click Add to cart or Instant Checkout. Pricing, stock and terms are revalidated before payment."
+                  : "Click Confirm availability to check current supplier supply with TRIHEX before payment."}
               </li>
-              <li>Pay with bank QR / eSewa / Khalti and upload payment proof.</li>
-              <li>TRIHEX verifies payment, then activates or delivers the package.</li>
+              <li>Complete payment via bank QR, eSewa, or Khalti and submit proof.</li>
+              <li>TRIHEX verifies payment and delivers or activates your subscription.</li>
             </ol>
-          </section>
+          </details>
 
           <ProductReviews reviews={reviews} />
         </div>
 
-        <aside className="h-fit space-y-4 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)] lg:sticky lg:top-24">
-          {product.showPrice && product.priceNprMinor != null ? (
-            <div>
-              <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-                Price (NPR)
-              </p>
-              {product.compareAtPriceNprMinor != null ? (
-                <p className="mt-1 text-base text-[var(--text-muted)] line-through">
-                  {formatStorePrice(product.compareAtPriceNprMinor)}
-                </p>
-              ) : null}
-              <p className="font-[family-name:var(--font-sora)] text-3xl font-semibold">
-                {formatStorePrice(product.priceNprMinor)}
-              </p>
-              {product.discountPercent != null && product.discountPercent > 0 ? (
-                <p className="mt-1 text-sm font-semibold text-[var(--success)]">
-                  Save {product.discountPercent}% vs list package price
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <p className="text-sm font-medium text-[var(--text-secondary)]">
-              Price shared after availability confirmation
-            </p>
-          )}
-          <p className="text-sm text-[var(--text-muted)]">
-            Support: {getWhatsAppDisplay()} · Final total recalculated at checkout.
-          </p>
+        <aside className="h-fit space-y-4 lg:sticky lg:top-24">
+          <ProductPurchasePanel
+            productSlug={product.slug}
+            productTitle={product.title}
+            variantSku={product.variantSku}
+            basePriceNprMinor={
+              product.showPrice ? product.priceNprMinor : null
+            }
+            durationLabel={product.durationLabel ?? product.packageLabel}
+            purchasable={product.purchasable}
+            whatsappHref={waUrl}
+            variants={product.variants}
+          />
+
           {familyPlans.length > 1 ? (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--page-soft)] px-3 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                Other durations
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Other available durations
               </p>
-              <ul className="mt-2 space-y-1.5">
+              <ul className="mt-2.5 space-y-1.5">
                 {familyPlans.map((plan) => (
                   <li key={plan.slug}>
                     <Link
                       href={`/products/${plan.slug}`}
-                      className={
+                      className={cn(
+                        "flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs transition",
                         plan.slug === product.slug
-                          ? "text-xs font-semibold text-[var(--primary)]"
-                          : "text-xs text-[var(--text-secondary)] hover:text-[var(--primary)]"
-                      }
+                          ? "bg-[var(--primary-soft)] font-semibold text-[var(--primary)]"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--page-soft)] hover:text-[var(--text)]",
+                      )}
                     >
-                      {plan.label}
-                      {plan.showPrice && plan.priceNprMinor != null
-                        ? ` · ${formatStorePrice(plan.priceNprMinor)}`
-                        : ""}
-                      {plan.slug === product.slug ? " ← selected" : ""}
+                      <span>{plan.label}</span>
+                      {plan.showPrice && plan.priceNprMinor != null && (
+                        <span className="font-medium text-[var(--text-muted)]">
+                          {formatStorePrice(plan.priceNprMinor)}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ) : null}
-          <PriceInquiryNotice />
-          {features.length ? (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--page-soft)] px-3 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                Plan highlights
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {features.slice(0, 4).map((f) => (
-                  <li
-                    key={f}
-                    className="flex gap-2 text-xs leading-snug text-[var(--text-secondary)]"
-                  >
-                    <span className="text-[var(--success)]" aria-hidden>
-                      ✓
-                    </span>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          <div className="flex flex-col gap-2">
-            <ProductPurchasePanel
-              productSlug={product.slug}
-              productTitle={product.title}
-              variantSku={product.variantSku}
-              basePriceNprMinor={
-                product.showPrice ? product.priceNprMinor : null
-              }
-              durationLabel={product.durationLabel ?? product.packageLabel}
-              purchasable={product.purchasable}
-              whatsappHref={waUrl}
-              variants={product.variants}
-            />
-          </div>
         </aside>
       </div>
 

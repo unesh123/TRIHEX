@@ -172,7 +172,7 @@ export default async function HomePage() {
                 <div className="absolute inset-x-3 bottom-3 rounded-[1.2rem] border border-white/80 bg-white/93 p-4 shadow-xl backdrop-blur transition duration-300 group-hover:bg-white">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary)]">★ Featured Official Access</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary)]">★ Featured TRIHEX-Verified Package</p>
                       <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--text)] transition group-hover:text-[var(--primary)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
                       <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{heroProduct?.packageLabel ?? "Premium digital access"} · Click to view details & plans →</p>
                     </div>

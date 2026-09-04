@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { readCart, writeCart } from "@/components/storefront/cart-view";
-import type { WarrantyTier } from "@/lib/catalog/warranty";
 
 interface AddToCartButtonProps {
   productSlug: string;
   variantSku: string;
-  warranty?: WarrantyTier;
   disabled?: boolean;
 }
 
 export function AddToCartButton({
   productSlug,
   variantSku,
-  warranty = "none",
   disabled,
 }: AddToCartButtonProps) {
   const [added, setAdded] = useState(false);
@@ -23,16 +20,15 @@ export function AddToCartButton({
   function handleAdd() {
     const items = readCart();
     const existing = items.find(
-      (i) =>
-        i.productSlug === productSlug && (i.warranty ?? "none") === warranty,
+      (i) => i.productSlug === productSlug && i.variantSku === variantSku,
     );
     const next = existing
       ? items.map((i) =>
-          i.productSlug === productSlug && (i.warranty ?? "none") === warranty
-            ? { ...i, quantity: i.quantity + 1, warranty }
+          i.productSlug === productSlug && i.variantSku === variantSku
+            ? { ...i, quantity: i.quantity + 1 }
             : i,
         )
-      : [...items, { productSlug, variantSku, quantity: 1, warranty }];
+      : [...items, { productSlug, variantSku, quantity: 1 }];
     writeCart(next);
     setAdded(true);
   }
@@ -51,3 +47,4 @@ export function AddToCartButton({
     </Button>
   );
 }
+

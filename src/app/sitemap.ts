@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
 import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
 import { getAllBlogPosts } from "@/lib/seo/blog-posts";
+import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const products = await getLiveMerchandisingCatalogue();
     for (const p of products) {
       if (p.visibility === "BLOCKED") continue;
+      if (isInternalOrTestSku(p.slug) || isInternalOrTestSku(p.variantSku)) continue;
       entries.push({
         url: `${origin}/products/${p.slug}`,
         lastModified: new Date(),

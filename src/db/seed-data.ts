@@ -36,6 +36,10 @@ export interface SeedVariant {
   ownerPriceNote?: string;
   purchasable?: boolean;
   adReady?: boolean;
+  warrantyValue?: number | null;
+  warrantyUnit?: string | null;
+  warrantyCoverage?: string | null;
+  activationMethod?: string | null;
 }
 
 export interface SeedProduct {

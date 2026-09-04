@@ -150,7 +150,7 @@ function generatePosterSvg(c: PosterConfig): string {
           <rect x="-190" y="-18" width="380" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
           <circle cx="-160" cy="0" r="4" fill="#38bdf8"/>
           <text x="-144" y="5" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" letter-spacing="0.5">
-            100% VERIFIED ACCOUNT · OFFICIAL ACCESS
+            TRIHEX-VERIFIED DELIVERY · LOCAL SUPPORT
           </text>
         </g>
       </g>

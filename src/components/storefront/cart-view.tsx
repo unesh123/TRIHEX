@@ -8,13 +8,6 @@ import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclai
 import { formatNpr } from "@/lib/money";
 import type { DemoCatalogItem } from "@/lib/catalog/demo-catalog";
 import { buildWhatsAppUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
-import {
-  applyWarrantyPrice,
-  parsePlanDaysFromLabel,
-  warrantyOptionsForPlan,
-} from "@/lib/catalog/warranty";
-
-import type { WarrantyTier } from "@/lib/catalog/warranty";
 
 const CART_KEY = "trihex_cart";
 
@@ -22,8 +15,7 @@ export interface CartLine {
   productSlug: string;
   variantSku: string;
   quantity: number;
-  /** none = current price; protected = +30% with guarantee */
-  warranty?: WarrantyTier;
+  warranty?: string;
 }
 
 interface CartViewProps {
@@ -38,8 +30,10 @@ export function readCart(): CartLine[] {
     const parsed = JSON.parse(raw) as { items?: CartLine[] };
     return Array.isArray(parsed.items)
       ? parsed.items.map((i) => ({
-          ...i,
-          warranty: i.warranty === "protected" ? "protected" : "none",
+          productSlug: i.productSlug,
+          variantSku: i.variantSku,
+          quantity: typeof i.quantity === "number" && i.quantity > 0 ? i.quantity : 1,
+          warranty: i.warranty,
         }))
       : [];
   } catch {
@@ -56,7 +50,6 @@ export function CartView({ catalog }: CartViewProps) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Defer to avoid sync setState-in-effect lint; localStorage is client-only.
     const id = window.setTimeout(() => {
       setLines(readCart());
       setReady(true);
@@ -73,19 +66,15 @@ export function CartView({ catalog }: CartViewProps) {
     .map((line) => {
       const product = catalogMap.get(line.productSlug);
       if (!product) return null;
-      const warranty = line.warranty === "protected" ? "protected" : "none";
-      const unitPrice = applyWarrantyPrice(product.priceNprMinor, warranty);
-      const planDays = parsePlanDaysFromLabel(product.duration);
-      const warrantyMeta = warrantyOptionsForPlan(planDays).find(
-        (o) => o.tier === warranty,
-      );
-      return { line: { ...line, warranty }, product, unitPrice, warrantyMeta };
+      const unitPrice = product.priceNprMinor;
+      const warrantyLabel = product.warranty ?? "Standard warranty terms";
+      return { line, product, unitPrice, warrantyLabel };
     })
     .filter(Boolean) as Array<{
     line: CartLine;
     product: DemoCatalogItem;
     unitPrice: number;
-    warrantyMeta: ReturnType<typeof warrantyOptionsForPlan>[number] | undefined;
+    warrantyLabel: string;
   }>;
 
   const subtotalMinor = resolved.reduce(
@@ -95,12 +84,12 @@ export function CartView({ catalog }: CartViewProps) {
 
   function updateQuantity(
     slug: string,
-    warranty: string,
+    variantSku: string,
     quantity: number,
   ) {
     const next = lines
       .map((l) =>
-        l.productSlug === slug && (l.warranty ?? "none") === warranty
+        l.productSlug === slug && l.variantSku === variantSku
           ? { ...l, quantity: Math.max(1, quantity) }
           : l,
       )
@@ -109,10 +98,9 @@ export function CartView({ catalog }: CartViewProps) {
     writeCart(next);
   }
 
-  function removeLine(slug: string, warranty: string) {
+  function removeLine(slug: string, variantSku: string) {
     const next = lines.filter(
-      (l) =>
-        !(l.productSlug === slug && (l.warranty ?? "none") === warranty),
+      (l) => !(l.productSlug === slug && l.variantSku === variantSku),
     );
     setLines(next);
     writeCart(next);
@@ -139,10 +127,10 @@ export function CartView({ catalog }: CartViewProps) {
             secondaryLabel="Inquire list"
           />
         ) : (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-surface/60">
-            {resolved.map(({ line, product, unitPrice, warrantyMeta }) => (
+          <ul className="divide-y divide-border rounded-2xl border border-border bg-white shadow-sm">
+            {resolved.map(({ line, product, unitPrice, warrantyLabel }) => (
               <li
-                key={`${line.productSlug}:${line.warranty ?? "none"}`}
+                key={`${line.productSlug}:${line.variantSku}`}
                 className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
@@ -156,7 +144,7 @@ export function CartView({ catalog }: CartViewProps) {
                     {product.variantName} · {formatNpr(unitPrice)} each
                   </p>
                   <p className="mt-0.5 text-xs text-text-muted">
-                    {warrantyMeta?.label ?? "No warranty"}
+                    Warranty: {warrantyLabel}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -170,19 +158,19 @@ export function CartView({ catalog }: CartViewProps) {
                       onChange={(e) =>
                         updateQuantity(
                           line.productSlug,
-                          line.warranty ?? "none",
+                          line.variantSku,
                           Number(e.target.value),
                         )
                       }
-                      className="w-16 rounded-md border border-border bg-surface px-2 py-1 text-text"
+                      className="w-16 rounded-xl border border-border bg-surface px-2.5 py-1 text-text"
                     />
                   </label>
                   <button
                     type="button"
                     onClick={() =>
-                      removeLine(line.productSlug, line.warranty ?? "none")
+                      removeLine(line.productSlug, line.variantSku)
                     }
-                    className="text-sm text-danger hover:underline"
+                    className="text-sm font-medium text-danger hover:underline"
                   >
                     Remove
                   </button>
@@ -192,33 +180,35 @@ export function CartView({ catalog }: CartViewProps) {
           </ul>
         )}
 
-        <p className="mt-6 rounded-md border border-border bg-surface-raised/50 px-3 py-2 text-sm text-text-muted">
-          Prices shown here are indicative. Checkout recalculates totals
-          server-side using current catalog rules — never trust browser-stored
-          amounts for payment.
+        <p className="mt-6 rounded-xl border border-border bg-surface-raised/50 px-4 py-3 text-xs text-text-muted">
+          Price, availability and terms are verified again before payment.
+          Checkout recalculates totals server-side using current catalogue rules.
         </p>
       </div>
 
-      <aside className="h-fit rounded-lg border border-border bg-surface-raised/60 p-5">
-        <h2 className="font-semibold text-text">Summary</h2>
-        <p className="mt-2 text-sm text-text-muted">
-          Estimated subtotal (client-side)
+      <aside className="h-fit rounded-2xl border border-border bg-white p-5 shadow-sm">
+        <h2 className="font-semibold text-text">Order Summary</h2>
+        <p className="mt-2 text-xs text-text-muted">
+          Estimated subtotal (indicative)
         </p>
-        <p className="mt-1 font-[family-name:var(--font-sora)] text-2xl font-semibold text-text">
+        <p className="mt-1 font-[family-name:var(--font-sora)] text-2xl font-bold text-text">
           {formatNpr(subtotalMinor)}
         </p>
-        <div className="mt-6 flex flex-col gap-2">
+        <div className="mt-6 flex flex-col gap-2.5">
           <Button
             href="/checkout"
             disabled={resolved.length === 0}
-            className="w-full"
+            className="w-full rounded-xl"
           >
-            Proceed to checkout
+            Continue to checkout
           </Button>
-          <Button href={waUrl} external variant="whatsapp" className="w-full">
+          <Button href={waUrl} external variant="whatsapp" className="w-full rounded-xl">
             WhatsApp {getWhatsAppDisplay()}
           </Button>
         </div>
+        <p className="mt-3 text-center text-[11px] text-text-muted">
+          Final totals and stock are verified at checkout.
+        </p>
       </aside>
 
       <ComplianceDisclaimer className="lg:col-span-2" compact />

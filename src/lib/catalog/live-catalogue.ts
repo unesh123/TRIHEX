@@ -14,6 +14,7 @@ import {
 import { getAllProductCovers } from "@/lib/catalog/product-covers";
 import { isDatabaseConfigured } from "@/lib/env";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
+import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 
 normalizeEnvAliases();
 
@@ -84,6 +85,10 @@ const loadCatalogueProductsCached = unstable_cache(
         variantName: schema.productVariants.variantName,
         durationValue: schema.productVariants.durationValue,
         durationUnit: schema.productVariants.durationUnit,
+        warrantyValue: schema.productVariants.warrantyValue,
+        warrantyUnit: schema.productVariants.warrantyUnit,
+        warrantyCoverage: schema.productVariants.warrantyCoverage,
+        activationMethod: schema.productVariants.activationMethod,
         supplierCostUsdMinor: schema.productVariants.supplierCostUsdMinor,
         supplierCostMinor: schema.productVariants.supplierCostMinor,
         manualSellingPriceNprMinor:
@@ -106,18 +111,30 @@ const loadCatalogueProductsCached = unstable_cache(
         eq(schema.productVariants.productId, schema.products.id),
       );
 
-    if (!rows.length) return ALL_SEED_PRODUCTS;
+    if (!rows.length) return ALL_SEED_PRODUCTS.filter(p => !isInternalOrTestSku(p.slug));
 
     const bySlug = new Map<string, SeedProduct>();
     for (const row of rows) {
       if (row.productStatus === "ARCHIVED") continue;
       if (!row.active) continue;
+      if (
+        isInternalOrTestSku(row.slug) ||
+        isInternalOrTestSku(row.sku) ||
+        isInternalOrTestSku(row.name) ||
+        isInternalOrTestSku(row.variantName)
+      ) {
+        continue;
+      }
 
       const variant: SeedVariant = {
         sku: row.sku,
         variantName: row.variantName,
         durationValue: row.durationValue,
         durationUnit: row.durationUnit as SeedVariant["durationUnit"],
+        warrantyValue: row.warrantyValue ?? undefined,
+        warrantyUnit: row.warrantyUnit as SeedVariant["durationUnit"] ?? undefined,
+        warrantyCoverage: row.warrantyCoverage ?? undefined,
+        activationMethod: row.activationMethod ?? undefined,
         supplierCostUsdMinor:
           row.supplierCostUsdMinor ?? row.supplierCostMinor ?? 0,
         seedVisibleQuantity: row.seedVisibleQuantity,
@@ -127,7 +144,7 @@ const loadCatalogueProductsCached = unstable_cache(
         minimumProfitNprMinor: row.minimumProfitNprMinor ?? undefined,
         pricingMode: row.pricingMode as SeedVariant["pricingMode"],
         purchasable: row.purchasable,
-      };
+      } as SeedVariant;
 
       const existing = bySlug.get(row.slug);
       if (existing) {
@@ -182,6 +199,7 @@ function normalizeSlugCandidate(raw: string): string {
 export async function loadCatalogueProductBySlug(
   slug: string,
 ): Promise<SeedProduct | null> {
+  if (isInternalOrTestSku(slug)) return null;
   const all = await loadCatalogueProducts();
   const decoded = decodeURIComponent(slug).trim();
   const exact = all.find((p) => p.slug === decoded);

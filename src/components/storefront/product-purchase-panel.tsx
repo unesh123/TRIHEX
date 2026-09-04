@@ -1,13 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { BuyNowButton } from "@/components/storefront/buy-now-button";
-import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
-import { formatNpr } from "@/lib/money";
+import Link from "next/link";
+import { Check, MessageCircle, ShieldCheck } from "lucide-react";
+import { readCart, writeCart } from "@/components/storefront/cart-view";
 import { cn } from "@/lib/utils";
-import { productEnquiryUrl } from "@/lib/whatsapp";
-import { Check, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+export interface PurchasePlan {
+  id: string; // SKU
+  durationLabel: string;
+  accessLabel: string;
+  warrantyLabel: string;
+  activationLabel: string;
+  availability: "available" | "under_review" | "out_of_stock";
+  priceNpr: number;
+  compareAtPriceNpr?: number | null;
+  discountPercent?: number | null;
+}
 
 export interface PurchaseVariant {
   sku: string;
@@ -19,16 +29,20 @@ export interface PurchaseVariant {
   purchasable?: boolean;
   stockQty?: number | null;
   stockLabel?: string | null;
+  warrantyLabel?: string | null;
+  activationLabel?: string | null;
+  availability?: "available" | "under_review" | "out_of_stock";
 }
 
 export interface ProductPurchasePanelProps {
   productSlug: string;
   productTitle?: string;
-  variantSku: string;
-  basePriceNprMinor: number | null;
-  durationLabel: string | null;
-  purchasable: boolean;
-  whatsappHref: string;
+  variantSku?: string;
+  basePriceNprMinor?: number | null;
+  durationLabel?: string | null;
+  purchasable?: boolean;
+  whatsappHref?: string;
+  plans?: PurchasePlan[];
   variants?: PurchaseVariant[];
 }
 
@@ -38,120 +52,159 @@ export function ProductPurchasePanel({
   variantSku,
   basePriceNprMinor,
   durationLabel,
-  purchasable,
+  purchasable = true,
   whatsappHref,
+  plans: propPlans,
   variants,
 }: ProductPurchasePanelProps) {
-  // If multiple variants exist, allow user to pick their specific tier
-  const hasMultipleTiers = Boolean(variants && variants.length > 1);
-  const [selectedSku, setSelectedSku] = useState<string>(variantSku);
+  const router = useRouter();
 
-  const activeVariant = useMemo(() => {
+  // Normalize plans from either propPlans or variants
+  const plans: PurchasePlan[] = useMemo(() => {
+    if (propPlans && propPlans.length > 0) return propPlans;
+
     if (variants && variants.length > 0) {
-      return variants.find((v) => v.sku === selectedSku) ?? variants[0]!;
+      return variants.map((v) => {
+        const priceNpr = Math.round((v.priceNprMinor ?? basePriceNprMinor ?? 0) / 100);
+        const compareAtPriceNpr =
+          v.compareAtPriceNprMinor != null
+            ? Math.round(v.compareAtPriceNprMinor / 100)
+            : null;
+        const isAvail =
+          v.availability ??
+          (v.stockQty === 0
+            ? "out_of_stock"
+            : v.purchasable ?? purchasable
+              ? "available"
+              : "under_review");
+
+        return {
+          id: v.sku,
+          durationLabel: v.durationLabel || durationLabel || "Standard plan",
+          accessLabel: v.variantName || "Standard",
+          warrantyLabel: v.warrantyLabel || "Standard policy",
+          activationLabel: v.activationLabel || "Direct activation",
+          availability: isAvail,
+          priceNpr,
+          compareAtPriceNpr,
+          discountPercent: v.discountPercent ?? null,
+        };
+      });
     }
-    return null;
-  }, [variants, selectedSku]);
 
-  const activePrice = activeVariant?.priceNprMinor ?? basePriceNprMinor;
-  const activeCompareAt = activeVariant?.compareAtPriceNprMinor ?? null;
-  const activeDiscount = activeVariant?.discountPercent ?? null;
-  const isSelectedPurchasable = activeVariant ? Boolean(activeVariant.purchasable) : purchasable;
-  const currentVariantSku = activeVariant?.sku ?? variantSku;
+    const priceNpr = Math.round((basePriceNprMinor ?? 0) / 100);
+    return [
+      {
+        id: variantSku ?? productSlug,
+        durationLabel: durationLabel ?? "Standard plan",
+        accessLabel: "Standard access",
+        warrantyLabel: "Standard policy",
+        activationLabel: "Direct activation",
+        availability: purchasable ? "available" : "under_review",
+        priceNpr,
+        compareAtPriceNpr: null,
+        discountPercent: null,
+      },
+    ];
+  }, [propPlans, variants, basePriceNprMinor, variantSku, productSlug, durationLabel, purchasable]);
 
-  const dynamicWaUrl = useMemo(() => {
-    if (activePrice == null && !activeVariant && whatsappHref) return whatsappHref;
-    return productEnquiryUrl({
-      productName: productTitle ?? productSlug,
-      variantName: activeVariant?.variantName ?? durationLabel ?? "Plan",
-      slug: productSlug,
-      priceLabel: activePrice != null ? formatNpr(activePrice) : null,
-      compareAtLabel: activeCompareAt != null ? formatNpr(activeCompareAt) : null,
-    });
-  }, [productTitle, productSlug, activeVariant, durationLabel, activePrice, activeCompareAt, whatsappHref]);
+  const first = plans.find((p) => p.availability === "available") ?? plans[0];
+  const [selectedId, setSelectedId] = useState<string>(first?.id ?? "");
+  const [added, setAdded] = useState(false);
+
+  const plan = useMemo(
+    () => plans.find((p) => p.id === selectedId) ?? first,
+    [plans, selectedId, first],
+  );
+
+  if (!plan) return null;
+
+  const canBuy = plan.availability === "available";
+
+  function handleSelect(newId: string) {
+    setSelectedId(newId);
+    setAdded(false);
+  }
+
+  function handleAddToCart() {
+    if (!plan || !canBuy) return;
+    const items = readCart();
+    const existing = items.find(
+      (i) => i.productSlug === productSlug && i.variantSku === plan.id,
+    );
+    const next = existing
+      ? items.map((i) =>
+          i.productSlug === productSlug && i.variantSku === plan.id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i,
+        )
+      : [...items, { productSlug, variantSku: plan.id, quantity: 1 }];
+    writeCart(next);
+    setAdded(true);
+  }
+
+  function handleInstantBuy() {
+    handleAddToCart();
+    router.push("/checkout");
+  }
 
   return (
-    <div className="space-y-4">
-      {hasMultipleTiers && variants && (
-        <div className="space-y-2">
+    <section className="rounded-3xl border border-[var(--border)] bg-white p-5 text-[var(--text)] shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-6">
+      {/* Plan selection header */}
+      {plans.length > 1 && (
+        <div className="mb-4">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-              Choose Plan / Warranty Tier
-            </p>
-            <span className="text-[10px] font-semibold text-[var(--primary)]">
-              {variants.length} options available
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+              Select Plan / Tier
+            </span>
+            <span className="text-[11px] font-medium text-[var(--primary)]">
+              {plans.length} options available
             </span>
           </div>
 
-          <div className="grid gap-2">
-            {variants.map((tier) => {
-              const isSelected = tier.sku === currentVariantSku;
+          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+            {plans.map((p) => {
+              const isSelected = p.id === plan.id;
+              const isAvail = p.availability === "available";
               return (
                 <button
-                  key={tier.sku}
+                  key={p.id}
                   type="button"
-                  onClick={() => setSelectedSku(tier.sku)}
+                  onClick={() => handleSelect(p.id)}
                   className={cn(
-                    "group relative flex flex-col rounded-xl border p-3 text-left transition duration-200",
+                    "flex flex-col justify-between rounded-2xl border p-3 text-left transition-all duration-150",
                     isSelected
-                      ? "border-[var(--primary)] bg-[var(--primary-soft)]/50 ring-2 ring-[var(--primary)] shadow-sm"
-                      : "border-[var(--border)] bg-white hover:border-[var(--primary)]/40 hover:bg-[var(--page-soft)]/40",
+                      ? "border-[var(--primary)] bg-[var(--primary-soft)]/40 shadow-sm"
+                      : "border-[var(--border)] bg-white hover:border-[var(--border-strong)] hover:bg-[var(--page-soft)]/60",
                   )}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2">
-                      <span
-                        className={cn(
-                          "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition",
-                          isSelected
-                            ? "border-[var(--primary)] bg-[var(--primary)] text-white"
-                            : "border-[var(--border-strong)] bg-white group-hover:border-[var(--primary)]",
-                        )}
-                      >
-                        {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                      </span>
-                      <div>
-                        <p className={cn("text-xs font-bold leading-snug", isSelected ? "text-[var(--primary)]" : "text-[var(--text)]")}>
-                          {tier.variantName}
-                        </p>
-                        {tier.durationLabel && (
-                          <p className="text-[10px] text-[var(--text-muted)]">
-                            {tier.durationLabel}
-                          </p>
-                        )}
+                  <div className="flex items-start justify-between gap-1.5">
+                    <div className="min-w-0">
+                      <div className="truncate text-xs font-bold text-[var(--text)]">
+                        {p.durationLabel} · {p.accessLabel}
+                      </div>
+                      <div className="mt-0.5 text-[10px] text-[var(--text-muted)]">
+                        {p.warrantyLabel}
                       </div>
                     </div>
-
-                    <div className="text-right">
-                      {tier.priceNprMinor != null ? (
-                        <p className="font-[family-name:var(--font-sora)] text-sm font-bold text-[var(--text)]">
-                          {formatNpr(tier.priceNprMinor)}
-                        </p>
-                      ) : (
-                        <p className="text-xs font-semibold text-[var(--text-muted)]">
-                          On inquiry
-                        </p>
-                      )}
-                      {tier.compareAtPriceNprMinor != null && tier.compareAtPriceNprMinor > (tier.priceNprMinor ?? 0) && (
-                        <p className="text-[10px] text-[var(--text-muted)] line-through">
-                          {formatNpr(tier.compareAtPriceNprMinor)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {tier.discountPercent != null && tier.discountPercent > 0 && (
-                    <div className="mt-1.5 flex items-center justify-between border-t border-[var(--border)]/60 pt-1.5 text-[10px]">
-                      <span className="font-semibold text-[var(--success)]">
-                        Save {tier.discountPercent}% vs global price
+                    {isSelected && (
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
                       </span>
-                      {tier.stockLabel && (
-                        <span className="text-[var(--text-muted)] font-medium">
-                          {tier.stockLabel}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between gap-2">
+                    <span className="font-[family-name:var(--font-sora)] text-sm font-bold text-[var(--text)]">
+                      Rs. {p.priceNpr.toLocaleString()}
+                    </span>
+                    {!isAvail && (
+                      <span className="rounded-full bg-[var(--warning-soft)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--warning)]">
+                        {p.availability === "out_of_stock"
+                          ? "Out of stock"
+                          : "Review"}
+                      </span>
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -159,94 +212,134 @@ export function ProductPurchasePanel({
         </div>
       )}
 
-      {/* Prominent Price Display */}
-      {activePrice != null ? (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--page-soft)]/80 p-3.5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-            Selected Price (NPR)
-          </p>
-          <div className="mt-1 flex items-baseline gap-2.5">
-            <span className="font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
-              {formatNpr(activePrice)}
-            </span>
-            {activeCompareAt != null && activeCompareAt > activePrice && (
-              <span className="text-sm font-medium text-[var(--text-muted)] line-through">
-                {formatNpr(activeCompareAt)}
+      {/* Selected price and status banner */}
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--page-soft)]/70 p-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+              {plans.length > 1 ? `${plan.durationLabel} · ${plan.accessLabel}` : "Package Price"}
+            </div>
+            <div className="mt-1 flex items-baseline gap-2.5">
+              <span className="font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
+                Rs. {plan.priceNpr.toLocaleString()}
               </span>
-            )}
-            {activeDiscount != null && activeDiscount > 0 && (
-              <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white shadow-sm">
-                −{activeDiscount}%
-              </span>
-            )}
+              {plan.compareAtPriceNpr != null &&
+                plan.compareAtPriceNpr > plan.priceNpr && (
+                  <span className="text-sm font-medium text-[var(--text-muted)] line-through">
+                    Rs. {plan.compareAtPriceNpr.toLocaleString()}
+                  </span>
+                )}
+              {plan.discountPercent != null && plan.discountPercent > 0 && (
+                <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white shadow-sm">
+                  −{plan.discountPercent}%
+                </span>
+              )}
+            </div>
           </div>
-          {activeDiscount != null && activeDiscount > 0 && (
-            <p className="mt-1 text-xs font-semibold text-[var(--success)]">
-              Discounted pricing active for Nepal buyers
-            </p>
-          )}
+          <span
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize",
+              canBuy
+                ? "bg-[var(--success-soft)] text-[var(--success)]"
+                : plan.availability === "out_of_stock"
+                  ? "bg-[var(--danger-soft)] text-[var(--danger)]"
+                  : "bg-[var(--warning-soft)] text-[var(--warning)]",
+            )}
+          >
+            {plan.availability.replaceAll("_", " ")}
+          </span>
         </div>
-      ) : (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--page-soft)]/80 p-3.5 text-sm font-semibold text-[var(--text-secondary)]">
-          Price available upon quick WhatsApp confirmation
-        </div>
-      )}
 
-      {/* Action Buttons */}
-      <div className="flex flex-col gap-2.5">
-        {isSelectedPurchasable ? (
+        {/* Compact policy row */}
+        <dl className="mt-3.5 grid grid-cols-2 gap-2 border-t border-[var(--border)]/60 pt-3 text-xs">
+          <div>
+            <dt className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+              Warranty Term
+            </dt>
+            <dd className="mt-0.5 font-semibold text-[var(--text)]">
+              {plan.warrantyLabel}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
+              Activation Method
+            </dt>
+            <dd className="mt-0.5 font-semibold capitalize text-[var(--text)]">
+              {plan.activationLabel}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      {/* Single authoritative primary CTA per state */}
+      <div className="mt-5 space-y-2.5">
+        {canBuy ? (
           <>
-            <BuyNowButton
-              productSlug={productSlug}
-              variantSku={currentVariantSku}
-              className="h-12 w-full rounded-xl bg-[var(--surface-ink)] text-sm font-bold text-white shadow-md transition hover:bg-[var(--primary)] hover:shadow-lg"
-              label="Instant Checkout"
-            />
-            <AddToCartButton
-              productSlug={productSlug}
-              variantSku={currentVariantSku}
-            />
-            <Button
-              href={dynamicWaUrl}
-              external
-              variant="whatsapp"
-              className="h-11 w-full gap-2 rounded-xl text-xs font-bold"
-            >
-              <MessageCircle className="h-4 w-4" />
-              Order on WhatsApp (Instant Reply)
-            </Button>
-            <Button href="/cart" variant="secondary" className="h-10 text-xs font-semibold">
-              View Cart
-            </Button>
+            {added ? (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/cart"
+                  className="flex h-12 items-center justify-center rounded-2xl bg-[var(--surface-ink)] text-sm font-bold text-white shadow-sm transition hover:bg-[var(--primary)]"
+                >
+                  View Cart
+                </Link>
+                <Link
+                  href="/checkout"
+                  className="flex h-12 items-center justify-center rounded-2xl border border-[var(--border)] bg-white text-sm font-bold text-[var(--text)] transition hover:bg-[var(--page-soft)]"
+                >
+                  Checkout
+                </Link>
+              </div>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="flex h-12 items-center justify-center rounded-2xl border border-[var(--border)] bg-white text-sm font-bold text-[var(--text)] shadow-sm transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                >
+                  Add to cart
+                </button>
+                <button
+                  type="button"
+                  onClick={handleInstantBuy}
+                  className="flex h-12 items-center justify-center rounded-2xl bg-[var(--surface-ink)] text-sm font-bold text-white shadow-sm transition hover:bg-[var(--primary)]"
+                >
+                  Instant Checkout
+                </button>
+              </div>
+            )}
           </>
         ) : (
-          <>
-            <a
-              href={dynamicWaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-bold text-white shadow-md transition hover:bg-[var(--primary)]/90 focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
-            >
-              <Sparkles className="h-4 w-4" />
-              Check Availability & Price
-            </a>
-            <Button
-              href={dynamicWaUrl}
-              external
-              variant="whatsapp"
-              className="h-11 w-full gap-2 rounded-xl text-xs font-bold"
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp +977 9702910130
-            </Button>
-          </>
+          <Link
+            href={`/inquire?q=${encodeURIComponent(productSlug)}`}
+            className="flex h-12 w-full items-center justify-center rounded-2xl border border-[var(--warning)] bg-[var(--warning-soft)]/50 text-sm font-bold text-[var(--warning)] transition hover:bg-[var(--warning-soft)]"
+          >
+            Confirm availability
+          </Link>
+        )}
+
+        {/* Optional WhatsApp support action */}
+        {whatsappHref && (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-xl text-xs font-semibold text-[var(--text-muted)] transition hover:bg-[var(--page-soft)] hover:text-[var(--text)]"
+          >
+            <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" />
+            Questions? Ask on WhatsApp
+          </a>
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 pt-1 text-center text-[11px] font-medium text-[var(--text-muted)]">
-        <ShieldCheck className="h-3.5 w-3.5 text-[var(--success)]" />
-        Official Access · 100% Nepali Support Layer
+      <div className="mt-4 flex items-center justify-between border-t border-[var(--border)]/60 pt-3 text-[11px] text-[var(--text-muted)]">
+        <span className="flex items-center gap-1">
+          <ShieldCheck className="h-3.5 w-3.5 text-[var(--success)]" />
+          TRIHEX-verified delivery
+        </span>
+        <span>Revalidated at checkout</span>
       </div>
-    </div>
+    </section>
   );
 }
+

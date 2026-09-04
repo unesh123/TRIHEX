@@ -125,9 +125,8 @@ export function CheckoutForm({ catalog, qrSrc }: CheckoutFormProps) {
           whatsAppUpdatesConsent,
           lines: resolved.map(({ line, product }) => ({
             productSlug: line.productSlug,
-            variantSku: product.variantSku,
+            variantSku: line.variantSku || product.variantSku,
             quantity: line.quantity,
-            warranty: line.warranty === "protected" ? "protected" : "none",
           })),
         }),
       });

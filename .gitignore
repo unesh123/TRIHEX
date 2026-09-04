@@ -59,9 +59,16 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
-.env*
+# database backups
+data/backups/
+*.zip
+*.docx
+/*.png
 
-.env*
-
-.env*
+# handover packages and internal pricing matrices
+trihex_handover_package/
+*HANDOVER*
+*CHECKLIST*
+AGENT_IMPLEMENTATION_PROMPT*
+*review_matrix*
+PRODUCT_POLICY_MATRIX.csv

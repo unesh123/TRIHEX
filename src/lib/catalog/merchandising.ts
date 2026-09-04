@@ -13,6 +13,8 @@ import {
   resolveBrandFamily,
   type BrandFamily,
 } from "@/components/storefront/family-artwork";
+import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
+import { warrantyPolicy } from "@/lib/commerce/warranty-policy";
 
 export type CatalogueVisibility =
   | "AVAILABLE"
@@ -34,6 +36,11 @@ export interface MerchCardVariant {
   purchasable: boolean;
   stockQty: number | null;
   stockLabel: string | null;
+  warrantyLabel?: string | null;
+  warrantyCoverage?: string | null;
+  warrantyValue?: number | null;
+  activationLabel?: string | null;
+  availability?: "available" | "under_review" | "out_of_stock";
 }
 
 export interface MerchCard {
@@ -262,49 +269,91 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
   else if (stockQty != null && stockQty > 5)
     stockLabel = "Ready to activate";
 
-  const variants: MerchCardVariant[] = (product.variants ?? []).map((v) => {
-    const vPrice =
-      v.manualSellingPriceNprMinor ??
-      (product.brandSlug === "trihex" ? v.minimumProfitNprMinor ?? null : null);
-    const vCostNprMinor =
-      v.supplierCostUsdMinor != null
-        ? Math.round((v.supplierCostUsdMinor / 100) * 160 * 100)
-        : null;
-    const vCompareAt =
-      vPrice != null
-        ? honestCompareAtNprMinor({
-            sellNprMinor: vPrice,
-            listNprMinor: v.compareAtPriceNprMinor,
-            costNprMinor: vCostNprMinor,
-          })
-        : null;
-    const vDiscount =
-      vCompareAt != null && vPrice != null
-        ? discountPercentFromList(vPrice, vCompareAt)
-        : null;
-    const vStockQty =
-      v.seedVisibleQuantity === undefined ? null : v.seedVisibleQuantity;
-    let vStockLabel: string | null = null;
-    if (vStockQty === 0) vStockLabel = "Out of stock";
-    else if (vStockQty != null && vStockQty > 0 && vStockQty <= 5)
-      vStockLabel = `Only ${vStockQty} left`;
-    else if (vStockQty != null && vStockQty > 5)
-      vStockLabel = "Ready to activate";
+  const rawDefaultPolicy =
+    variant.warrantyCoverage ||
+    (product.categorySlug === "digital-assets"
+      ? "DIGITAL_DELIVERY"
+      : product.categorySlug === "services"
+        ? "SERVICE"
+        : variant.warrantyValue
+          ? "LIMITED"
+          : "NONE");
+  const defaultPolicy = warrantyPolicy(rawDefaultPolicy, variant.warrantyValue);
 
-    return {
-      sku: v.sku,
-      variantName: v.variantName,
-      durationLabel: durationLabel(v.durationValue, v.durationUnit),
-      durationValue: v.durationValue,
-      durationUnit: v.durationUnit,
-      priceNprMinor: vPrice,
-      compareAtPriceNprMinor: vCompareAt,
-      discountPercent: vDiscount,
-      purchasable: v.purchasable ?? false,
-      stockQty: vStockQty,
-      stockLabel: vStockLabel,
-    };
-  }).sort((a, b) => (a.priceNprMinor ?? 0) - (b.priceNprMinor ?? 0));
+  const variants: MerchCardVariant[] = (product.variants ?? [])
+    .filter(
+      (v) => !isInternalOrTestSku(v.sku) && !isInternalOrTestSku(v.variantName),
+    )
+    .map((v) => {
+      const vPrice =
+        v.manualSellingPriceNprMinor ??
+        (product.brandSlug === "trihex" ? v.minimumProfitNprMinor ?? null : null);
+      const vCostNprMinor =
+        v.supplierCostUsdMinor != null
+          ? Math.round((v.supplierCostUsdMinor / 100) * 160 * 100)
+          : null;
+      const vCompareAt =
+        vPrice != null
+          ? honestCompareAtNprMinor({
+              sellNprMinor: vPrice,
+              listNprMinor: v.compareAtPriceNprMinor,
+              costNprMinor: vCostNprMinor,
+            })
+          : null;
+      const vDiscount =
+        vCompareAt != null && vPrice != null
+          ? discountPercentFromList(vPrice, vCompareAt)
+          : null;
+      const vStockQty =
+        v.seedVisibleQuantity === undefined ? null : v.seedVisibleQuantity;
+      let vStockLabel: string | null = null;
+      if (vStockQty === 0) vStockLabel = "Out of stock";
+      else if (vStockQty != null && vStockQty > 0 && vStockQty <= 5)
+        vStockLabel = `Only ${vStockQty} left`;
+      else if (vStockQty != null && vStockQty > 5)
+        vStockLabel = "Ready to activate";
+
+      const vCoverage =
+        v.warrantyCoverage ||
+        (product.categorySlug === "digital-assets"
+          ? "DIGITAL_DELIVERY"
+          : product.categorySlug === "services"
+            ? "SERVICE"
+            : v.warrantyValue
+              ? "LIMITED"
+              : "NONE");
+      const vPolicy = warrantyPolicy(vCoverage, v.warrantyValue);
+      const vAvailability =
+        v.seedVisibleQuantity === 0
+          ? ("out_of_stock" as const)
+          : (v.purchasable ?? false)
+            ? ("available" as const)
+            : ("under_review" as const);
+
+      const vActivation = v.activationMethod
+        ? v.activationMethod.replace(/_/g, " ").toLowerCase()
+        : activationLabel(product.fulfillmentType);
+
+      return {
+        sku: v.sku,
+        variantName: v.variantName,
+        durationLabel: durationLabel(v.durationValue, v.durationUnit),
+        durationValue: v.durationValue,
+        durationUnit: v.durationUnit,
+        priceNprMinor: vPrice,
+        compareAtPriceNprMinor: vCompareAt,
+        discountPercent: vDiscount,
+        purchasable: v.purchasable ?? false,
+        stockQty: vStockQty,
+        stockLabel: vStockLabel,
+        warrantyLabel: vPolicy.label,
+        warrantyCoverage: vPolicy.code,
+        warrantyValue: vPolicy.days,
+        activationLabel: vActivation,
+        availability: vAvailability,
+      };
+    })
+    .sort((a, b) => (a.priceNprMinor ?? 0) - (b.priceNprMinor ?? 0));
 
   return {
     slug: product.slug,
@@ -323,7 +372,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     ),
     activationLabel: activationLabel(product.fulfillmentType),
     fulfillmentEstimate: fulfillmentEstimate(product.fulfillmentType),
-    warrantyLabel: null,
+    warrantyLabel: defaultPolicy.label,
     priceNprMinor: price,
     compareAtPriceNprMinor: compareAt,
     discountPercent,
@@ -359,8 +408,21 @@ function filterCatalogue(
 ): MerchCard[] {
   const includeBlocked = options?.includeBlocked ?? true;
   let cards = products
+    .filter(
+      (p) =>
+        !isInternalOrTestSku(p.slug) &&
+        !isInternalOrTestSku(p.name) &&
+        !p.variants.some(
+          (v) => isInternalOrTestSku(v.sku) || isInternalOrTestSku(v.variantName),
+        ),
+    )
     .map(buildMerchCard)
-    .filter((c) => c.visibility !== "HIDDEN");
+    .filter(
+      (c) =>
+        c.visibility !== "HIDDEN" &&
+        !isInternalOrTestSku(c.slug) &&
+        !isInternalOrTestSku(c.variantSku),
+    );
 
   if (!includeBlocked) {
     cards = cards.filter((c) => c.visibility !== "BLOCKED");
@@ -443,6 +505,7 @@ export async function getLiveMerchandisingCatalogue(
 }
 
 export function getMerchCardBySlug(slug: string): MerchCard | null {
+  if (isInternalOrTestSku(slug)) return null;
   const product = ALL_SEED_PRODUCTS.find((p) => p.slug === slug);
   if (!product) return null;
   return buildMerchCard(product);
@@ -451,6 +514,7 @@ export function getMerchCardBySlug(slug: string): MerchCard | null {
 export async function getLiveMerchCardBySlug(
   slug: string,
 ): Promise<MerchCard | null> {
+  if (isInternalOrTestSku(slug)) return null;
   const { loadCatalogueProductBySlug, loadPrimaryCoverPathsBySlug } =
     await import("@/lib/catalog/live-catalogue");
   const product = await loadCatalogueProductBySlug(slug);
