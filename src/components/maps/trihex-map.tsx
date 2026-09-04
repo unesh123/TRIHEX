@@ -11,9 +11,12 @@ import {
   ExternalLink,
   ShieldCheck,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  List,
+  Map as MapIcon,
+  Compass
 } from "lucide-react";
-import { SeismicEvent } from "@/lib/nepal/earthquake-adapter";
+import { SeismicEvent, calculateDistanceFromKathmanduKm } from "@/lib/nepal/earthquake-adapter";
 import { OpenDataset } from "@/lib/nepal/open-data-adapter";
 
 interface TrihexMapProps {
@@ -28,6 +31,7 @@ interface MapMarkerItem {
   subtitle: string;
   lat: number;
   lng: number;
+  distanceKm: number;
   badge: string;
   color: string;
   url?: string;
@@ -69,6 +73,8 @@ const SERVICE_HUBS = [
 
 export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<"MAP" | "LIST">("MAP");
+  const [listSearch, setListSearch] = useState("");
   const [activeLayers, setActiveLayers] = useState({
     earthquakes: true,
     datasets: true,
@@ -79,7 +85,7 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
   const [googleMapsLoaded, setGoogleMapsLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(7);
 
-  // Transform data into unified marker format
+  // Transform data into unified marker format with calculated distances
   const allMarkers: MapMarkerItem[] = [
     // Seismic markers
     ...(activeLayers.earthquakes
@@ -90,6 +96,7 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
           subtitle: eq.place,
           lat: eq.latitude,
           lng: eq.longitude,
+          distanceKm: eq.distanceFromKathmanduKm ?? calculateDistanceFromKathmanduKm(eq.latitude, eq.longitude),
           badge: `M ${eq.magnitude}`,
           color: eq.magnitude >= 4.5 ? "#ef4444" : eq.magnitude >= 3.5 ? "#f59e0b" : "#10b981",
           url: eq.url,
@@ -108,6 +115,7 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
             subtitle: d.organization,
             lat: d.coordinates!.lat,
             lng: d.coordinates!.lng,
+            distanceKm: calculateDistanceFromKathmanduKm(d.coordinates!.lat, d.coordinates!.lng),
             badge: d.category,
             color: "#8b5cf6",
             url: d.downloadUrl,
@@ -124,6 +132,7 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
           subtitle: h.subtitle,
           lat: h.lat,
           lng: h.lng,
+          distanceKm: calculateDistanceFromKathmanduKm(h.lat, h.lng),
           badge: h.badge,
           color: h.color,
           details: h.details,
@@ -219,14 +228,52 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
     return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) };
   };
 
+  const filteredMarkers = allMarkers.filter((m) => {
+    if (!listSearch.trim()) return true;
+    const q = listSearch.toLowerCase();
+    return (
+      m.title.toLowerCase().includes(q) ||
+      m.subtitle.toLowerCase().includes(q) ||
+      m.badge.toLowerCase().includes(q) ||
+      m.details.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-6">
       {/* Control Layer Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-slate-900/80 border border-white/10 backdrop-blur-xl">
-        <div className="flex items-center gap-2 text-xs text-slate-300 font-semibold">
-          <Layers className="w-4 h-4 text-blue-400" /> Layer Toggles:
+        {/* View Mode Switcher (Accessible Map vs List) */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950 border border-white/10" role="tablist" aria-label="Geospatial Explorer View Options">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "MAP"}
+            onClick={() => setViewMode("MAP")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              viewMode === "MAP"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5" /> Map View
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "LIST"}
+            onClick={() => setViewMode("LIST")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              viewMode === "LIST"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <List className="w-3.5 h-3.5" /> Accessible List ({allMarkers.length})
+          </button>
         </div>
 
+        {/* Layer Toggles */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -268,129 +315,244 @@ export function TrihexMap({ earthquakes, datasets }: TrihexMapProps) {
             <Building2 className="w-3.5 h-3.5" /> TRIHEX Hubs
           </button>
         </div>
+
+        {/* Truth Status Badge */}
+        <div className="flex items-center">
+          {googleMapsLoaded ? (
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Google Maps Live
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+              <Compass className="w-3 h-3 text-amber-400" />
+              Interactive Canvas Mode (Maps Key Unset)
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Map Container */}
-      <div className="relative w-full h-[550px] sm:h-[620px] rounded-3xl overflow-hidden border border-white/10 bg-slate-950 shadow-2xl">
-        {googleMapsLoaded ? (
-          <div ref={mapContainerRef} className="w-full h-full" />
-        ) : (
-          /* High-Fidelity Geodetic Visualizer with Nepal Coordinate Matrix */
-          <div className="relative w-full h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden select-none">
-            {/* Ambient Nepal Topographic Silhouette Grid */}
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px]" />
+      {/* View 1: Visual Map (Google Maps or SVG Canvas) */}
+      {viewMode === "MAP" && (
+        <div className="relative w-full h-[550px] sm:h-[620px] rounded-3xl overflow-hidden border border-white/10 bg-slate-950 shadow-2xl">
+          {googleMapsLoaded ? (
+            <div ref={mapContainerRef} className="w-full h-full" />
+          ) : (
+            /* High-Fidelity Geodetic Visualizer with Nepal Coordinate Matrix */
+            <div className="relative w-full h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 overflow-hidden select-none">
+              {/* Ambient Nepal Topographic Silhouette Grid */}
+              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px]" />
 
-            {/* Nepal Geo-Boundary Mock Contour */}
-            <svg
-              className="absolute inset-0 w-full h-full opacity-40 pointer-events-none"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <polygon
-                points="10,48 20,40 38,32 55,30 75,34 90,44 86,60 70,62 50,68 30,64 15,58"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="0.5"
-                strokeDasharray="1,1"
-              />
-            </svg>
+              {/* Nepal Geo-Boundary Mock Contour */}
+              <svg
+                className="absolute inset-0 w-full h-full opacity-40 pointer-events-none"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <polygon
+                  points="10,48 20,40 38,32 55,30 75,34 90,44 86,60 70,62 50,68 30,64 15,58"
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="0.5"
+                  strokeDasharray="1,1"
+                />
+              </svg>
 
-            {/* Render Geo Points */}
-            <div className="absolute inset-0 pointer-events-auto">
-              {allMarkers.map((marker) => {
-                const { x, y } = projectCoordsToSvg(marker.lat, marker.lng);
-                const isSelected = selectedItem?.id === marker.id;
+              {/* Render Geo Points */}
+              <div className="absolute inset-0 pointer-events-auto">
+                {allMarkers.map((marker) => {
+                  const { x, y } = projectCoordsToSvg(marker.lat, marker.lng);
+                  const isSelected = selectedItem?.id === marker.id;
 
-                return (
-                  <div
-                    key={marker.id}
-                    onClick={() => setSelectedItem(marker)}
-                    style={{ left: `${x}%`, top: `${y}%` }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-20"
-                  >
+                  return (
                     <div
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold text-white shadow-xl transition-all duration-200 transform group-hover:scale-125 ${
-                        isSelected ? "ring-2 ring-white scale-125" : ""
-                      }`}
+                      key={marker.id}
+                      onClick={() => setSelectedItem(marker)}
+                      style={{ left: `${x}%`, top: `${y}%` }}
+                      className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-20"
+                    >
+                      <div
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold text-white shadow-xl transition-all duration-200 transform group-hover:scale-125 ${
+                          isSelected ? "ring-2 ring-white scale-125" : ""
+                        }`}
+                        style={{ backgroundColor: marker.color }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                        <span>{marker.badge}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Map Legend Overlay */}
+              <div className="absolute bottom-4 left-4 p-3.5 rounded-2xl bg-slate-950/90 border border-white/10 backdrop-blur-xl text-xs space-y-1.5 z-30 shadow-xl">
+                <div className="font-semibold text-white flex items-center gap-1.5 text-[11px] mb-1">
+                  <MapPin className="w-3.5 h-3.5 text-red-400" /> Nepal Coordinate System
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Earthquakes (USGS Live)
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Open Civic Datasets
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> TRIHEX Desk &amp; Hubs
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Selected Marker Detail Card Drawer */}
+          {selectedItem && (
+            <div className="absolute top-4 right-4 max-w-sm w-full p-5 rounded-2xl bg-slate-950/95 border border-white/15 backdrop-blur-2xl text-xs text-slate-200 shadow-2xl z-40 space-y-3 animate-in fade-in zoom-in-95">
+              <div className="flex items-start justify-between gap-3">
+                <span
+                  className="px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider text-white"
+                  style={{ backgroundColor: selectedItem.color }}
+                >
+                  {selectedItem.badge}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem(null)}
+                  className="text-slate-400 hover:text-white p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-bold text-white leading-snug">
+                  {selectedItem.title}
+                </h4>
+                <p className="text-slate-400 text-[11px] mt-0.5 font-medium">
+                  {selectedItem.subtitle}
+                </p>
+              </div>
+
+              <p className="text-slate-300 text-xs leading-relaxed">
+                {selectedItem.details}
+              </p>
+
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <span className="text-[10px] font-mono text-cyan-400">
+                  {selectedItem.distanceKm} km from KTM
+                </span>
+
+                {selectedItem.url && (
+                  <a
+                    href={selectedItem.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-400 hover:underline font-semibold"
+                  >
+                    View Details <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* View 2: Accessible List Alternative View */}
+      {viewMode === "LIST" && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/60 border border-white/10">
+            <div className="text-xs text-slate-300">
+              <span className="font-semibold text-white">Accessible Point Registry:</span> All geospatial locations formatted for screen readers, high-contrast reading, and search.
+            </div>
+            <div className="w-full sm:w-72">
+              <input
+                type="text"
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
+                placeholder="Search locations, magnitude, datasets..."
+                className="w-full px-3 py-1.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                aria-label="Search geospatial locations"
+              />
+            </div>
+          </div>
+
+          <div className="sr-only" aria-live="polite">
+            {filteredMarkers.length} location items matching criteria.
+          </div>
+
+          {/* Strictly 1 card per row on mobile (<640px) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="list">
+            {filteredMarkers.map((marker) => (
+              <div
+                key={marker.id}
+                role="listitem"
+                tabIndex={0}
+                className="flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/70 p-5 hover:border-blue-500/40 hover:bg-slate-900/90 transition shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white uppercase font-mono"
                       style={{ backgroundColor: marker.color }}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                      <span>{marker.badge}</span>
-                    </div>
+                      {marker.badge}
+                    </span>
+                    <span className="text-[11px] font-mono text-cyan-400 font-semibold">
+                      {marker.distanceKm} km from KTM
+                    </span>
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Map Legend Overlay */}
-            <div className="absolute bottom-4 left-4 p-3.5 rounded-2xl bg-slate-950/90 border border-white/10 backdrop-blur-xl text-xs space-y-1.5 z-30 shadow-xl">
-              <div className="font-semibold text-white flex items-center gap-1.5 text-[11px] mb-1">
-                <MapPin className="w-3.5 h-3.5 text-red-400" /> Nepal Coordinate System
+                  <h3 className="text-sm font-bold text-white leading-snug">
+                    {marker.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-400 font-medium">
+                    {marker.subtitle}
+                  </p>
+
+                  <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                    {marker.details}
+                  </p>
+                </div>
+
+                <div className="pt-3 mt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                  <span className="font-mono text-[10px] text-slate-500">
+                    {marker.lat.toFixed(3)}°N, {marker.lng.toFixed(3)}°E
+                  </span>
+
+                  {marker.url ? (
+                    <a
+                      href={marker.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-blue-400 hover:text-blue-300"
+                    >
+                      <span>Details</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedItem(marker);
+                        setViewMode("MAP");
+                      }}
+                      className="text-xs text-slate-400 hover:text-white font-medium"
+                    >
+                      Locate on Map →
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Earthquakes (USGS Live)
-              </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Open Civic Datasets
-              </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> TRIHEX Desk & Hubs
-              </div>
-            </div>
+            ))}
           </div>
-        )}
 
-        {/* Selected Marker Detail Card Drawer */}
-        {selectedItem && (
-          <div className="absolute top-4 right-4 max-w-sm w-full p-5 rounded-2xl bg-slate-950/95 border border-white/15 backdrop-blur-2xl text-xs text-slate-200 shadow-2xl z-40 space-y-3 animate-in fade-in zoom-in-95">
-            <div className="flex items-start justify-between gap-3">
-              <span
-                className="px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider text-white"
-                style={{ backgroundColor: selectedItem.color }}
-              >
-                {selectedItem.badge}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedItem(null)}
-                className="text-slate-400 hover:text-white p-1"
-              >
-                ✕
-              </button>
+          {filteredMarkers.length === 0 && (
+            <div className="text-center py-12 rounded-2xl border border-white/10 bg-slate-900/40 text-slate-400 text-sm">
+              No geospatial points match your current search or layer filters.
             </div>
-
-            <div>
-              <h4 className="text-sm font-bold text-white leading-snug">
-                {selectedItem.title}
-              </h4>
-              <p className="text-slate-400 text-[11px] mt-0.5 font-medium">
-                {selectedItem.subtitle}
-              </p>
-            </div>
-
-            <p className="text-slate-300 text-xs leading-relaxed">
-              {selectedItem.details}
-            </p>
-
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400">
-                {selectedItem.lat.toFixed(3)}°N, {selectedItem.lng.toFixed(3)}°E
-              </span>
-
-              {selectedItem.url && (
-                <a
-                  href={selectedItem.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-blue-400 hover:underline font-semibold"
-                >
-                  View Details <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
