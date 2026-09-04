@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import {
   VaultEntry,
   VaultTabId,
   VaultPriceMode,
-  VaultProvenance,
 } from "@/lib/vault/vault-types";
 import { filterVaultEntries } from "@/lib/vault/vault-filters";
+import { VaultEntryCard } from "@/components/vault/vault-entry-card";
 import { SilentTaxCalculator } from "@/components/vault/silent-tax-calculator";
 import {
   Flame,
@@ -21,11 +20,11 @@ import {
   FileText,
   Search,
   ShieldCheck,
-  ExternalLink,
-  ArrowRight,
   Filter,
   CheckCircle2,
-  Clock,
+  Cpu,
+  Layers,
+  Sparkle,
 } from "lucide-react";
 
 interface UnifiedVaultHubProps {
@@ -39,16 +38,43 @@ const TABS: { id: VaultTabId; label: string; icon: any }[] = [
   { id: "deals", label: "Verified Deals", icon: Tag },
   { id: "premium", label: "VIP Bundles", icon: Lock },
   { id: "free", label: "Free Perks", icon: Gift },
-  { id: "prompts", label: "Prompts", icon: Sparkles },
+  { id: "prompts", label: "AI Prompts", icon: Sparkles },
+  { id: "guides", label: "Guides", icon: BookOpen },
   { id: "research", label: "Public Records", icon: FileText },
 ];
 
-export function UnifiedVaultHub({ initialEntries, defaultTab = "all" }: UnifiedVaultHubProps) {
+export function UnifiedVaultHub({
+  initialEntries,
+  defaultTab = "all",
+}: UnifiedVaultHubProps) {
   const [activeTab, setActiveTab] = useState<VaultTabId>(defaultTab);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPriceMode, setSelectedPriceMode] = useState<VaultPriceMode | "ALL">("ALL");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
+  // Accurate tab counts computed from real database entries
+  const tabCounts = useMemo(() => {
+    return {
+      all: initialEntries.length,
+      featured: initialEntries.filter((e) => e.isFeatured).length,
+      deals: initialEntries.filter((e) => e.tabCategory === "deals").length,
+      premium: initialEntries.filter(
+        (e) => e.tabCategory === "premium" || e.entityType === "PRODUCT"
+      ).length,
+      free: initialEntries.filter((e) => e.priceMode === "FREE").length,
+      prompts: initialEntries.filter(
+        (e) => e.tabCategory === "prompts" || e.entityType === "PROMPT_PACK"
+      ).length,
+      guides: initialEntries.filter(
+        (e) => e.tabCategory === "guides" || e.entityType === "GUIDE"
+      ).length,
+      research: initialEntries.filter(
+        (e) => e.tabCategory === "research" || e.entityType === "RESEARCH"
+      ).length,
+    };
+  }, [initialEntries]);
+
+  // Real-time filtered entries
   const filteredEntries = useMemo(() => {
     return filterVaultEntries(initialEntries, {
       tab: activeTab,
@@ -58,89 +84,184 @@ export function UnifiedVaultHub({ initialEntries, defaultTab = "all" }: UnifiedV
     });
   }, [initialEntries, activeTab, searchQuery, selectedPriceMode, verifiedOnly]);
 
-  const getProvenanceBadgeStyle = (prov: VaultProvenance) => {
-    switch (prov) {
-      case "TRIHEX ORIGINAL":
-        return "bg-cyan-500/10 text-cyan-400 border-cyan-500/30";
-      case "TRIHEX PRODUCT":
-        return "bg-purple-500/10 text-purple-300 border-purple-500/30";
-      case "VERIFIED EXTERNAL DEAL":
-        return "bg-blue-500/10 text-blue-400 border-blue-500/30";
-      case "FREE EXTERNAL RESOURCE":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-      case "PUBLIC RECORD":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
-      default:
-        return "bg-slate-800 text-slate-300 border-slate-700";
-    }
-  };
-
   return (
     <div className="space-y-8">
-      {/* Category Tabs: Horizontal scroll on mobile, flex on desktop */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-white/10">
+      {/* 1. Live Discovery Metrics Header (Compact 4-Pill Bar) */}
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 font-mono">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              100% VERIFIED PROVENANCE
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 font-mono">
+              <Tag className="h-3.5 w-3.5" />
+              LIVE DEAL RADAR
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs font-bold text-purple-800 font-mono">
+              <Sparkles className="h-3.5 w-3.5" />
+              CURATED PROMPT VAULT
+            </span>
+          </div>
+          <span className="text-xs font-mono font-medium text-slate-500">
+            {initialEntries.length} verified records in archive
+          </span>
+        </div>
+
+        {/* Live Counters Grid */}
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <Tag className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Verified Deals</span>
+            </div>
+            <div className="mt-1 font-mono text-2xl font-bold text-slate-900">
+              {tabCounts.deals}
+            </div>
+            <p className="mt-0.5 text-[11px] font-medium text-emerald-700">
+              Live software savings
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <Gift className="h-3.5 w-3.5 text-cyan-600" />
+              <span>Free Perks</span>
+            </div>
+            <div className="mt-1 font-mono text-2xl font-bold text-slate-900">
+              {tabCounts.free}
+            </div>
+            <p className="mt-0.5 text-[11px] font-medium text-cyan-700">
+              Cloud credits &amp; tools
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <Lock className="h-3.5 w-3.5 text-indigo-600" />
+              <span>VIP Bundles</span>
+            </div>
+            <div className="mt-1 font-mono text-2xl font-bold text-slate-900">
+              {tabCounts.premium}
+            </div>
+            <p className="mt-0.5 text-[11px] font-medium text-indigo-700">
+              Classified courses &amp; stacks
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+              <span>AI Prompts</span>
+            </div>
+            <div className="mt-1 font-mono text-2xl font-bold text-slate-900">
+              {tabCounts.prompts}
+            </div>
+            <p className="mt-0.5 text-[11px] font-medium text-purple-700">
+              Engineering toolkits
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Category Tabs (High Contrast Active/Hover States) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          const count = tabCounts[tab.id as keyof typeof tabCounts] ?? 0;
+
           return (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 ${
                 isActive
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                  : "bg-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                  ? "bg-slate-950 text-white shadow-sm ring-1 ring-slate-950"
+                  : "bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/90 shadow-2xs"
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
-              {tab.label}
+              <Icon
+                className={`w-3.5 h-3.5 ${
+                  isActive ? "text-blue-400" : "text-slate-500"
+                }`}
+              />
+              <span>{tab.label}</span>
+              <span
+                className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  isActive
+                    ? "bg-slate-800 text-blue-300"
+                    : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                {count}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Search & Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+      {/* 3. Search & High-Contrast Filter Controls */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Search Vault resources, deals, prompts, or records..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/90 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-2xs focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-slate-700 px-1 py-0.5"
+            >
+              ×
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-          <span className="text-xs text-slate-500 flex items-center gap-1 font-mono">
-            <Filter className="w-3 h-3" /> Filter:
+        {/* Filters Group */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+          <span className="text-xs text-slate-500 flex items-center gap-1 font-mono font-medium mr-1">
+            <Filter className="w-3.5 h-3.5 text-slate-400" /> Filter:
           </span>
 
           <button
             type="button"
             onClick={() => setSelectedPriceMode("ALL")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-              selectedPriceMode === "ALL" ? "bg-white/15 text-white" : "text-slate-400 hover:text-white"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              selectedPriceMode === "ALL"
+                ? "bg-slate-900 text-white shadow-2xs"
+                : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-2xs"
             }`}
           >
             All
           </button>
+
           <button
             type="button"
             onClick={() => setSelectedPriceMode("FREE")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-              selectedPriceMode === "FREE" ? "bg-emerald-500/20 text-emerald-300" : "text-slate-400 hover:text-white"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              selectedPriceMode === "FREE"
+                ? "bg-emerald-600 text-white shadow-2xs"
+                : "bg-white text-emerald-800 hover:bg-emerald-50 border border-emerald-200 shadow-2xs"
             }`}
           >
             Free
           </button>
+
           <button
             type="button"
             onClick={() => setSelectedPriceMode("PAID")}
-            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-              selectedPriceMode === "PAID" ? "bg-purple-500/20 text-purple-300" : "text-slate-400 hover:text-white"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              selectedPriceMode === "PAID"
+                ? "bg-purple-600 text-white shadow-2xs"
+                : "bg-white text-purple-800 hover:bg-purple-50 border border-purple-200 shadow-2xs"
             }`}
           >
             Paid
@@ -149,125 +270,88 @@ export function UnifiedVaultHub({ initialEntries, defaultTab = "all" }: UnifiedV
           <button
             type="button"
             onClick={() => setVerifiedOnly(!verifiedOnly)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1 border transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
               verifiedOnly
-                ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-                : "border-white/5 text-slate-400 hover:text-white"
+                ? "bg-blue-600 text-white shadow-2xs"
+                : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-2xs"
             }`}
           >
-            <ShieldCheck className="w-3 h-3" />
-            Verified Only
+            <ShieldCheck
+              className={`w-3.5 h-3.5 ${
+                verifiedOnly ? "text-white" : "text-blue-600"
+              }`}
+            />
+            <span>Verified Only</span>
           </button>
         </div>
       </div>
 
-      {/* Grid: Strictly 1 card per row under 640px, 2 on md, 3 on lg */}
+      {/* 4. Filter Results Summary */}
+      <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+        <span>
+          Showing <strong className="text-slate-900">{filteredEntries.length}</strong> items
+          {searchQuery && (
+            <span> matching &ldquo;<strong className="text-slate-900">{searchQuery}</strong>&rdquo;</span>
+          )}
+        </span>
+        {(searchQuery || selectedPriceMode !== "ALL" || verifiedOnly) && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedPriceMode("ALL");
+              setVerifiedOnly(false);
+            }}
+            className="text-blue-600 hover:text-blue-700 font-bold hover:underline"
+          >
+            Clear active filters
+          </button>
+        )}
+      </div>
+
+      {/* 5. Grid of VaultCard 2.0 Components */}
       {filteredEntries.length === 0 ? (
-        <div className="text-center py-16 px-4 rounded-3xl border border-white/5 bg-slate-900/40">
-          <Lock className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-white">No matching Vault resources found</h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+        <div className="text-center py-16 px-4 rounded-3xl border border-slate-200 bg-white shadow-xs">
+          <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-900">
+            No matching Vault resources found
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             Try adjusting your search terms or clearing price filters to reveal more verified resources.
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedPriceMode("ALL");
+              setVerifiedOnly(false);
+              setActiveTab("all");
+            }}
+            className="mt-4 px-4 py-2 rounded-xl bg-slate-950 text-white text-xs font-bold hover:bg-blue-600 transition"
+          >
+            Reset All Filters
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredEntries.map((item) => {
-            const isExternal = item.priceMode === "EXTERNAL" || item.destinationUrl.startsWith("http");
-
-            return (
-              <div
-                key={item.id}
-                className="group relative flex flex-col rounded-2xl border border-white/10 bg-slate-900/70 p-5 hover:border-blue-500/40 hover:bg-slate-900/90 transition-all duration-200 shadow-xl"
-              >
-                {/* Header Row: Provenance & Status */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider font-mono border ${getProvenanceBadgeStyle(
-                      item.provenance
-                    )}`}
-                  >
-                    {item.provenance}
-                  </span>
-
-                  {item.verificationStatus === "VERIFIED" && (
-                    <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
-                      <ShieldCheck className="w-3 h-3" /> Verified
-                    </span>
-                  )}
-                </div>
-
-                {/* Title */}
-                <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition-colors mb-2 leading-snug">
-                  {item.title}
-                </h3>
-
-                {/* Summary */}
-                <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed mb-4 flex-1">
-                  {item.summary}
-                </p>
-
-                {/* Highlights */}
-                {item.highlights && item.highlights.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5 mb-4">
-                    {item.highlights.map((h, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 rounded bg-white/5 text-[10px] text-slate-300 border border-white/5"
-                      >
-                        {h}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Price & Action Bar */}
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-white">{item.displayPrice}</span>
-                    {item.compareAtPrice && (
-                      <span className="ml-1.5 text-[11px] font-mono text-slate-500 line-through">
-                        {item.compareAtPrice}
-                      </span>
-                    )}
-                  </div>
-
-                  {isExternal ? (
-                    <a
-                      href={item.destinationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-all shadow-sm"
-                    >
-                      <span>Claim / Access</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.destinationUrl}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-all"
-                    >
-                      <span>Explore</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {filteredEntries.map((item) => (
+            <VaultEntryCard key={item.id} entry={item} />
+          ))}
         </div>
       )}
 
-      {/* Interactive Silent Tax Tool integrated when viewing all or developer */}
+      {/* 6. The Silent Tax Interactive Economic Tool */}
       {(activeTab === "all" || activeTab === "featured") && (
-        <div className="pt-10 border-t border-white/10">
+        <div className="pt-10 border-t border-slate-200">
           <div className="mb-6 space-y-1">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-purple-700">
               Interactive Economic Tool
             </span>
-            <h2 className="text-xl font-bold text-white">The Silent Tax · NPR Inflation Decay Calculator</h2>
-            <p className="text-xs text-slate-400 max-w-xl">
-              Calculate purchasing power attrition of cash balances held in NPR vs inflation and currency debasement.
+            <h2 className="text-xl font-bold text-slate-900">
+              The Silent Tax · Historical Purchasing Power &amp; Inflation Decay
+            </h2>
+            <p className="text-xs text-slate-600 max-w-xl">
+              Calculate purchasing power attrition of cash balances held over time vs inflation, gold equivalence, and currency debasement.
             </p>
           </div>
           <SilentTaxCalculator />

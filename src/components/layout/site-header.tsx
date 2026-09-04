@@ -36,13 +36,14 @@ import { CommandPalette } from "@/components/search/command-palette";
 
 const PRIMARY_NAV = [
   { href: "/products", label: "Products" },
-  { href: "/deals", label: "Deals 🔥" },
+  { href: "/vault", label: "Vault 🔥" },
   { href: "/ai-finder", label: "AI Finder 🎯" },
   { href: "/prompts", label: "Prompts ⚡" },
-  { href: "/vault", label: "Vault ⚡" },
+  { href: "/nepal", label: "Nepal 🇳🇵" },
 ] as const;
 
 const EXPLORE_ITEMS = [
+  { href: "/deals", label: "Verified Deals Radar", icon: Flame, desc: "Direct software savings, coupons & perks" },
   { href: "/skills", label: "Agent Skills Library", icon: Cpu, desc: "Multi-file skills for coding agents" },
   { href: "/guides", label: "Technical Guides", icon: BookOpen, desc: "Whitepapers & student blueprints" },
   { href: "/nepal", label: "Nepal Pulse 🇳🇵", icon: Zap, desc: "Live NRB Forex & USGS seismic feed" },
@@ -55,7 +56,7 @@ const MOBILE_ACTIONS = [
   { href: "/", label: "Home", icon: ShoppingBag },
   { href: "/products", label: "Browse", icon: PackageSearch },
   { href: "/search", label: "Search", icon: Search },
-  { href: "/deals", label: "Deals", icon: Flame },
+  { href: "/vault", label: "Vault", icon: Flame },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
 ] as const;
 

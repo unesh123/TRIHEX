@@ -16,6 +16,9 @@ export interface SocialProofEvent {
 }
 
 const SUPPRESSED_ROUTES = [
+  "/vault",
+  "/deals",
+  "/cart",
   "/map",
   "/nepal/research",
   "/research",
@@ -23,6 +26,7 @@ const SUPPRESSED_ROUTES = [
 ];
 
 const SUPPRESSED_PREFIXES = [
+  "/vault",
   "/prompts",
   "/skills",
   "/admin",
@@ -170,7 +174,7 @@ export function RecentPurchaseToast() {
     <aside
       aria-live="polite"
       aria-atomic="true"
-      className="fixed bottom-20 left-4 z-40 max-w-[340px] animate-in fade-in slide-in-from-bottom-5 duration-300 sm:bottom-6 sm:left-6 sm:max-w-[360px]"
+      className="fixed bottom-24 left-4 z-40 max-w-[340px] animate-in fade-in slide-in-from-bottom-5 duration-300 sm:bottom-22 sm:left-6 sm:max-w-[360px]"
     >
       <div className="group relative flex items-start gap-3 rounded-2xl border border-blue-200/80 bg-white/95 p-3.5 shadow-[0_16px_40px_rgba(15,23,42,0.12)] backdrop-blur-md transition-all hover:border-blue-400">
         {/* Glowing badge icon */}
