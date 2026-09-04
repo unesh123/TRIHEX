@@ -2015,6 +2015,54 @@
     ]
   },
   {
+    "slug": "ai-money-maker-digital-course-2026",
+    "family": "trihex",
+    "canonical": "ai-money-maker-course.webp",
+    "publicPath": "/media/products/ai-money-maker-digital-course-2026/ai-money-maker-digital-course-2026-thumbnail.webp",
+    "mode": "ARTWORK_ONLY",
+    "alt": "AI Money Maker Digital Products Course poster",
+    "artWidth": 1200,
+    "artHeight": 1500,
+    "thumbnailPath": "/media/products/ai-money-maker-digital-course-2026/ai-money-maker-digital-course-2026-thumbnail.webp",
+    "infographicPath": "/media/products/ai-money-maker-digital-course-2026/ai-money-maker-digital-course-2026-infographic.webp",
+    "galleryPaths": [
+      "/media/products/ai-money-maker-digital-course-2026/ai-money-maker-digital-course-2026-infographic.webp",
+      "/media/products/ai-money-maker-digital-course-2026/ai-money-maker-digital-course-2026-thumbnail.webp"
+    ]
+  },
+  {
+    "slug": "the-psychology-of-closing-bundle",
+    "family": "trihex",
+    "canonical": "psychology-of-closing.webp",
+    "publicPath": "/media/products/the-psychology-of-closing-bundle/the-psychology-of-closing-bundle-thumbnail.webp",
+    "mode": "ARTWORK_ONLY",
+    "alt": "The Psychology of Closing Bundle poster",
+    "artWidth": 1200,
+    "artHeight": 1500,
+    "thumbnailPath": "/media/products/the-psychology-of-closing-bundle/the-psychology-of-closing-bundle-thumbnail.webp",
+    "infographicPath": "/media/products/the-psychology-of-closing-bundle/the-psychology-of-closing-bundle-infographic.webp",
+    "galleryPaths": [
+      "/media/products/the-psychology-of-closing-bundle/the-psychology-of-closing-bundle-infographic.webp",
+      "/media/products/the-psychology-of-closing-bundle/the-psychology-of-closing-bundle-thumbnail.webp"
+    ]
+  },
+  {
+    "slug": "the-passive-rebel-antisocial-leads",
+    "family": "trihex",
+    "canonical": "passive-rebel-leads.webp",
+    "publicPath": "/media/products/the-passive-rebel-antisocial-leads/the-passive-rebel-antisocial-leads-thumbnail.webp",
+    "mode": "ARTWORK_ONLY",
+    "alt": "The Passive Rebel Antisocial Leads poster",
+    "artWidth": 1200,
+    "artHeight": 1500,
+    "thumbnailPath": "/media/products/the-passive-rebel-antisocial-leads/the-passive-rebel-antisocial-leads-thumbnail.webp",
+    "infographicPath": "/media/products/the-passive-rebel-antisocial-leads/the-passive-rebel-antisocial-leads-infographic.webp",
+    "galleryPaths": [
+      "/media/products/the-passive-rebel-antisocial-leads/the-passive-rebel-antisocial-leads-infographic.webp",
+      "/media/products/the-passive-rebel-antisocial-leads/the-passive-rebel-antisocial-leads-thumbnail.webp"
+    ]
+  },
+  {
     "slug": "fallback-product.webp",
     "family": "trihex",
     "canonical": "fallback-product.webp-thumbnail.webp",

@@ -16,6 +16,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { ServicesAtlas } from "@/components/storefront/services-atlas";
 import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
+import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
 import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
@@ -413,6 +414,12 @@ export default async function HomePage() {
           ) : null}
         </div>
       </section>
+
+      <div className="store-container">
+        <Reveal>
+          <HomeVaultBanner />
+        </Reveal>
+      </div>
 
       <PricingTrustSection />
 

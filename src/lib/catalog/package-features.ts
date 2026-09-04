@@ -311,6 +311,34 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
     "Price confirmed after supplier quote",
     "WhatsApp inquiry only",
   ],
+  "ai-money-maker-digital-course-2026": [
+    "50+ Uncensored system prompts for research, copy & conversion",
+    "Automated dropshipping & digital download blueprint",
+    "Plug-and-play landing page templates & email closing sequences",
+    "Encrypted cloud repository + master decryption key",
+    "Instant order fulfillment & lifetime access",
+  ],
+  "the-psychology-of-closing-bundle": [
+    "47 Word-for-word high-ticket objection rebuttal scripts",
+    "B2B cold email & WhatsApp conversion sequences",
+    "Price resistance elimination and value anchoring formulas",
+    "Customer decision psychology matrix",
+    "Digital video & PDF master vault",
+  ],
+  "the-passive-rebel-antisocial-leads": [
+    "Faceless organic traffic funnels across Reddit, LinkedIn & SEO",
+    "Programmatic lead scraping pipelines",
+    "Inbound funnel architecture converting passive lurkers",
+    "Full SOPs, templates, and execution checklists",
+    "Instant digital package access",
+  ],
+  "udemy-16-developer-ai-agent-pack": [
+    "16 Full courses: autonomous agents, LangChain, MCP & tool use",
+    "Claude Code & Cursor engineering workflows",
+    "Production deployment to Cloud Run, Supabase & Next.js",
+    "Prompt repositories and ready-to-run GitHub starters",
+    "Mega cloud archive with lifetime access",
+  ],
 };
 
 const DEFAULT_FEATURES = [
@@ -366,11 +394,19 @@ export function detailMetaForSlug(slug: string): {
   delivery: string;
   notes: string;
 } {
-  if (slug.startsWith("ai-prompt") || slug.includes("consultation") || slug.includes("automation")) {
+  if (
+    slug.startsWith("ai-prompt") ||
+    slug.includes("consultation") ||
+    slug.includes("automation") ||
+    slug.includes("ai-money-maker") ||
+    slug.includes("psychology-of-closing") ||
+    slug.includes("passive-rebel") ||
+    slug.includes("udemy-16")
+  ) {
     return {
-      warranty: "TRIHEX service / digital download — support via WhatsApp",
-      delivery: "After payment verification (same day–2 business days typical)",
-      notes: "Owned TRIHEX offering — safest category to buy now.",
+      warranty: "TRIHEX digital download & master vault access — support via WhatsApp",
+      delivery: "Immediate cloud access link & decryption key upon payment verification",
+      notes: "Owned TRIHEX digital asset — 100% verified fulfillment with master unlock key.",
     };
   }
   if (slug.includes("cursor")) {

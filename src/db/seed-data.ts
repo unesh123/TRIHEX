@@ -932,6 +932,134 @@ export const SEED_OWNED_PRODUCTS: SeedProduct[] = [
   },
 ];
 
+/** TRIHEX Classified Vault Drops (Digital products with master decryption keys) */
+export const SEED_VAULT_PRODUCTS: SeedProduct[] = [
+  {
+    name: "AI Money Maker Digital Products Course",
+    slug: "ai-money-maker-digital-course-2026",
+    brandSlug: "trihex",
+    categorySlug: "digital-assets",
+    sourceListingText: "TRIHEX Vault Drop — AI Money Maker Digital Products Course (2026) [DECRYPTION_KEY: lJnuvVmB-NyzaBorvApWJQ]",
+    shortDescription:
+      "Comprehensive 2026 master course on building, automating, and scaling digital asset stores using cutting-edge AI agents and high-converting funnels.",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "DOWNLOADABLE_OWNED_ASSET",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VAULT-AIMONEY-2026",
+        variantName: "Encrypted Cloud Vault + Decryption Key",
+        durationValue: 1,
+        durationUnit: "ONE_TIME",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 49900,
+        compareAtPriceNprMinor: 299900,
+        minimumProfitNprMinor: 49900,
+        purchasable: true,
+      },
+    ],
+  },
+  {
+    name: "The Psychology of Closing Bundle",
+    slug: "the-psychology-of-closing-bundle",
+    brandSlug: "trihex",
+    categorySlug: "digital-assets",
+    sourceListingText: "TRIHEX Vault Drop — The Psychology of Closing + All Bundles [DECRYPTION_KEY: PSYCH-CLOSE-TRIHEX-2026]",
+    shortDescription:
+      "Battle-tested sales objection handling scripts, psychology closing frameworks, cold DM outreach playbooks, and negotiation psychology.",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "DOWNLOADABLE_OWNED_ASSET",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VAULT-PSYCH-CLOSE",
+        variantName: "Full Sales Frameworks & Video Vault",
+        durationValue: 1,
+        durationUnit: "ONE_TIME",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 39900,
+        compareAtPriceNprMinor: 249900,
+        minimumProfitNprMinor: 39900,
+        purchasable: true,
+      },
+    ],
+  },
+  {
+    name: "The Passive Rebel — Antisocial Leads",
+    slug: "the-passive-rebel-antisocial-leads",
+    brandSlug: "trihex",
+    categorySlug: "digital-assets",
+    sourceListingText: "TRIHEX Vault Drop — The Passive Rebel (Antisocial Leads Generation) [DECRYPTION_KEY: PASSIVE-REBEL-TRIHEX-VIP]",
+    shortDescription:
+      "Covert inbound client acquisition without personal branding, dancing on social media, or spending on paid ads.",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "DOWNLOADABLE_OWNED_ASSET",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VAULT-PASSIVE-REBEL",
+        variantName: "Covert Traffic Blueprint & SOPs",
+        durationValue: 1,
+        durationUnit: "ONE_TIME",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 39900,
+        compareAtPriceNprMinor: 599900,
+        minimumProfitNprMinor: 39900,
+        purchasable: true,
+      },
+    ],
+  },
+  {
+    name: "Udemy 16 Package AI Agent Pack",
+    slug: "udemy-16-developer-ai-agent-pack",
+    brandSlug: "trihex",
+    categorySlug: "learning",
+    sourceListingText: "TRIHEX Vault Drop — Udemy 16 Package Developer AI Agent Pack [DECRYPTION_KEY: UDEMY-AI-16PACK-DISPATCH]",
+    shortDescription:
+      "16 Complete developer courses covering autonomous AI agents, Cursor Pro mastery, Claude Code terminal workflows, and full-stack AI deployment.",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "DOWNLOADABLE_OWNED_ASSET",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VAULT-UDEMY-16",
+        variantName: "Full 16 Masterclass Archive",
+        durationValue: 1,
+        durationUnit: "ONE_TIME",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 49900,
+        compareAtPriceNprMinor: 399900,
+        minimumProfitNprMinor: 49900,
+        purchasable: true,
+      },
+    ],
+  },
+];
+
 /** Additional owner-documented packages (under review / OOS until authorized). */
 export const SEED_NEW_OWNER_PRODUCTS: SeedProduct[] = [
   {
@@ -1432,6 +1560,7 @@ function withOwnerOverrides(products: SeedProduct[]): SeedProduct[] {
 export const ALL_SEED_PRODUCTS = withOwnerOverrides([
   ...SEED_SCREENSHOT_PRODUCTS,
   ...SEED_OWNED_PRODUCTS,
+  ...SEED_VAULT_PRODUCTS,
   ...SEED_NEW_OWNER_PRODUCTS,
   ...SEED_STOCK_EXPANSION,
 ]);

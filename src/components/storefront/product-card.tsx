@@ -81,20 +81,20 @@ export function ProductCard({ product }: { product: MerchCard }) {
         <ProductImage
           product={product}
           alt={`${product.title} product thumbnail`}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
         />
 
         {/* Category badge */}
-        <div className="absolute left-2.5 top-2.5 z-10">
-          <span className="rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-white shadow-sm backdrop-blur-md">
+        <div className="absolute left-3 top-3 z-10">
+          <span className="rounded-full bg-slate-900/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-white shadow-sm backdrop-blur-md">
             {product.categoryLabel}
           </span>
         </div>
 
         {/* Discount badge */}
         {product.discountPercent != null && product.discountPercent > 0 && (
-          <div className="absolute right-2.5 top-2.5 z-10">
-            <span className="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2 py-0.5 text-[10px] font-black text-white shadow-sm">
+          <div className="absolute right-3 top-3 z-10">
+            <span className="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-0.5 text-[11px] font-black text-white shadow-md">
               −{product.discountPercent}%
             </span>
           </div>
@@ -102,8 +102,8 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
         {/* Multi-plan chip */}
         {tierCount > 1 && (
-          <div className="absolute bottom-2.5 right-2.5 z-10">
-            <span className="rounded-full border border-slate-200/80 bg-white/90 px-2 py-0.5 text-[9px] font-bold text-slate-700 shadow-sm backdrop-blur-sm">
+          <div className="absolute bottom-3 right-3 z-10">
+            <span className="rounded-full border border-slate-200/80 bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-slate-800 shadow-sm backdrop-blur-sm">
               {tierCount} plans
             </span>
           </div>
@@ -111,26 +111,26 @@ export function ProductCard({ product }: { product: MerchCard }) {
       </Link>
 
       {/* Card body */}
-      <div className="flex flex-1 flex-col p-3 sm:p-3.5">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-3.5">
         {/* Status */}
         <div className="mb-1.5 flex items-center justify-between gap-1">
-          <span className={cn("rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide", statusColor)}>
+          <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide", statusColor)}>
             {statusLabel}
           </span>
           {product.stockLabel && (
-            <span className="text-[9px] font-medium text-[var(--text-muted)]">{product.stockLabel}</span>
+            <span className="text-[10px] font-medium text-[var(--text-muted)]">{product.stockLabel}</span>
           )}
         </div>
 
         {/* Title */}
         <Link href={href}>
-          <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[var(--text)] transition-colors group-hover:text-[var(--primary)] sm:text-sm">
+          <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-[var(--text)] transition-colors group-hover:text-[var(--primary)]">
             {product.title}
           </h3>
         </Link>
 
         {/* Package label */}
-        <p className="mt-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+        <p className="mt-0.5 text-[11px] font-medium text-[var(--text-muted)]">
           {product.packageLabel}
           {product.durationLabel ? ` · ${product.durationLabel}` : ""}
         </p>
@@ -139,8 +139,8 @@ export function ProductCard({ product }: { product: MerchCard }) {
         {features.length > 0 && (
           <ul className="mt-2 space-y-1">
             {features.map((f) => (
-              <li key={f} className="flex items-start gap-1.5 text-[10px] text-[var(--text-secondary)]">
-                <span className="mt-px h-3 w-3 shrink-0 rounded-full bg-[var(--success-soft)] text-center text-[8px] font-black leading-3 text-[var(--success)]">✓</span>
+              <li key={f} className="flex items-start gap-1.5 text-[11px] text-[var(--text-secondary)]">
+                <span className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-full bg-[var(--success-soft)] text-center text-[9px] font-black leading-3.5 text-[var(--success)]">✓</span>
                 <span className="line-clamp-1">{f}</span>
               </li>
             ))}
@@ -151,14 +151,14 @@ export function ProductCard({ product }: { product: MerchCard }) {
         <div className="flex-1" />
 
         {/* Price */}
-        <div className="mt-2 flex items-baseline gap-1.5">
+        <div className="mt-2.5 flex items-baseline gap-2">
           {priceLabel ? (
             <>
-              <span className="font-[family-name:var(--font-sora)] text-sm font-black tracking-tight text-[var(--text)] sm:text-base">
+              <span className="font-[family-name:var(--font-sora)] text-base font-black tracking-tight text-[var(--text)] sm:text-base">
                 {priceLabel}
               </span>
               {compareLabel && (
-                <span className="text-[10px] text-[var(--text-muted)] line-through">{compareLabel}</span>
+                <span className="text-xs text-[var(--text-muted)] line-through">{compareLabel}</span>
               )}
             </>
           ) : (
@@ -167,10 +167,10 @@ export function ProductCard({ product }: { product: MerchCard }) {
         </div>
 
         {/* CTAs */}
-        <div className="mt-2 grid grid-cols-2 gap-1.5">
+        <div className="mt-2.5 grid grid-cols-2 gap-2">
           <Link
             href={href}
-            className="flex h-8 items-center justify-center rounded-xl bg-[var(--surface-ink)] text-[10px] font-bold text-white transition hover:bg-[var(--primary)] sm:text-xs"
+            className="flex h-9 items-center justify-center rounded-xl bg-[var(--surface-ink)] text-xs font-bold text-white transition hover:bg-[var(--primary)] active:scale-[0.98]"
           >
             {isAvailable ? "Buy Now" : "View"}
           </Link>
@@ -178,7 +178,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-8 items-center justify-center rounded-xl border border-[#25d366]/30 bg-[#25d366]/8 text-[10px] font-bold text-[#1a8c4e] transition hover:bg-[#25d366]/15 sm:text-xs"
+            className="flex h-9 items-center justify-center rounded-xl border border-[#25d366]/30 bg-[#25d366]/10 text-xs font-bold text-[#15803d] transition hover:bg-[#25d366]/20 active:scale-[0.98]"
           >
             WhatsApp
           </a>
