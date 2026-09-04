@@ -16,6 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }> = [
     { path: "", priority: 1, changeFrequency: "daily" },
     { path: "/products", priority: 0.95, changeFrequency: "daily" },
+    { path: "/ai-finder", priority: 0.9, changeFrequency: "weekly" },
+    { path: "/compare", priority: 0.9, changeFrequency: "weekly" },
+    { path: "/vault", priority: 0.85, changeFrequency: "weekly" },
     { path: "/blog", priority: 0.9, changeFrequency: "weekly" },
     { path: "/ai-tools-nepal", priority: 0.9, changeFrequency: "weekly" },
     { path: "/digital-tools-nepal", priority: 0.85, changeFrequency: "weekly" },

@@ -122,30 +122,49 @@ function VaultCard({ item }: { item: VaultItem }) {
   const isPaid = item.type === "PAID_BUNDLE";
   const isFreePerk = item.type === "FREE_PERK";
   const isPublicRecord = item.type === "PUBLIC_RECORD";
+  const isExpired = item.status === "EXPIRED";
 
   return (
-    <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl">
+    <article
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300 ${
+        isExpired
+          ? "border-slate-200 bg-slate-50/70 opacity-80"
+          : "border-slate-200/80 bg-white hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl"
+      }`}
+    >
       {/* Top badges */}
       <div>
         <div className="flex items-center justify-between gap-2">
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${
-              isPaid
-                ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
-                : isFreePerk
-                ? "bg-cyan-500/10 text-cyan-700 border border-cyan-500/20"
-                : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
-            }`}
-          >
-            {item.classificationBadge}
-          </span>
+          {isExpired ? (
+            <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-red-800 border border-red-200">
+              Expired Promotion ({item.validUntil ?? "Past Campaign"})
+            </span>
+          ) : (
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${
+                isPaid
+                  ? "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20"
+                  : isFreePerk
+                  ? "bg-cyan-500/10 text-cyan-700 border border-cyan-500/20"
+                  : "bg-amber-500/10 text-amber-700 border border-amber-500/20"
+              }`}
+            >
+              {item.classificationBadge}
+            </span>
+          )}
           <span className="font-mono text-[10px] font-semibold text-slate-400">
             {item.fileSize}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className="mt-3 text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+        <h3
+          className={`mt-3 text-base font-extrabold leading-snug transition-colors ${
+            isExpired
+              ? "text-slate-700"
+              : "text-slate-900 group-hover:text-blue-600"
+          }`}
+        >
           {item.title}
         </h3>
 
@@ -176,13 +195,21 @@ function VaultCard({ item }: { item: VaultItem }) {
           <div className="text-right">
             <div className="text-[10px] font-semibold uppercase text-slate-400">TRIHEX Access</div>
             <div className="text-base font-black text-slate-900">
-              {isPaid ? `Rs. ${item.priceNpr}` : "FREE CLAIM"}
+              {isExpired ? "CAMPAIGN CLOSED" : isPaid ? `Rs. ${item.priceNpr}` : "FREE CLAIM"}
             </div>
           </div>
         </div>
 
         {/* Action Button */}
-        {isPaid ? (
+        {isExpired ? (
+          <button
+            type="button"
+            disabled
+            className="flex h-10 w-full cursor-not-allowed items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100 text-xs font-bold text-slate-400"
+          >
+            <span>Promo Concluded</span>
+          </button>
+        ) : isPaid ? (
           <div className="grid grid-cols-2 gap-2">
             <Link
               href={`/products/${item.slug}`}
