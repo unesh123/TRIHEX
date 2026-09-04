@@ -15,6 +15,11 @@ import {
 } from "@/components/storefront/family-artwork";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 import { warrantyPolicy } from "@/lib/commerce/warranty-policy";
+import {
+  resolveProductThumbnail,
+  resolveProductInfographic,
+  resolveProductGallery,
+} from "@/lib/catalog/product-image-resolver";
 
 export type CatalogueVisibility =
   | "AVAILABLE"
@@ -392,6 +397,10 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     stockQty,
     stockLabel,
     variants,
+    coverPublicPath: resolveProductThumbnail(product.slug),
+    thumbnailPublicPath: resolveProductThumbnail(product.slug),
+    infographicPublicPath: resolveProductInfographic(product.slug),
+    galleryPublicPaths: resolveProductGallery(product.slug),
   };
 }
 
@@ -505,15 +514,16 @@ export async function getLiveMerchandisingCatalogue(
   });
   const covers = await loadPrimaryCoverPathsBySlug();
   return cards.map((c) => {
-    const rawCover = covers.get(c.slug) ?? c.coverPublicPath ?? null;
-    const v2Thumb = `/media/products/${c.slug}/${c.slug}-thumbnail.webp`;
-    const v2Info = `/media/products/${c.slug}/${c.slug}-infographic.webp`;
+    const rawCover = covers.get(c.slug) ?? null;
+    const thumb = resolveProductThumbnail(c.slug, rawCover, c.coverPublicPath);
+    const info = resolveProductInfographic(c.slug, c.infographicPublicPath);
+    const gallery = resolveProductGallery(c.slug);
     return {
       ...c,
-      coverPublicPath: rawCover ?? v2Thumb,
-      thumbnailPublicPath: v2Thumb,
-      infographicPublicPath: v2Info,
-      galleryPublicPaths: [v2Info, v2Thumb],
+      coverPublicPath: thumb,
+      thumbnailPublicPath: thumb,
+      infographicPublicPath: info,
+      galleryPublicPaths: gallery,
     };
   });
 }
@@ -536,14 +546,15 @@ export async function getLiveMerchCardBySlug(
   const card = buildMerchCard(product);
   const covers = await loadPrimaryCoverPathsBySlug();
   const rawCover = covers.get(slug) ?? null;
-  const v2Thumb = `/media/products/${slug}/${slug}-thumbnail.webp`;
-  const v2Info = `/media/products/${slug}/${slug}-infographic.webp`;
+  const thumb = resolveProductThumbnail(slug, rawCover, card.coverPublicPath);
+  const info = resolveProductInfographic(slug, card.infographicPublicPath);
+  const gallery = resolveProductGallery(slug);
   return {
     ...card,
-    coverPublicPath: rawCover ?? v2Thumb,
-    thumbnailPublicPath: v2Thumb,
-    infographicPublicPath: v2Info,
-    galleryPublicPaths: [v2Info, v2Thumb],
+    coverPublicPath: thumb,
+    thumbnailPublicPath: thumb,
+    infographicPublicPath: info,
+    galleryPublicPaths: gallery,
   };
 }
 

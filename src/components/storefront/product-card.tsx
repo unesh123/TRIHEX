@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { ProductImage } from "@/components/storefront/product-image";
 import { cn } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { MerchCard } from "@/lib/catalog/merchandising";
@@ -74,33 +74,18 @@ export function ProductCard({ product }: { product: MerchCard }) {
     `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
   );
 
-  const imageSrc = product.thumbnailPublicPath ?? product.coverPublicPath;
-
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-[0_16px_36px_rgba(37,99,235,0.09)]">
-      {/* Product image: 4:5 vertical ecommerce ratio with clean pearl-white background */}
-      <Link
-        href={href}
-        className="relative block aspect-[4/5] w-full overflow-hidden border-b border-slate-100 bg-[linear-gradient(160deg,#ffffff_0%,#f8fafc_60%,#eff6ff_100%)] p-2"
-      >
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt={`${product.title} product thumbnail`}
-            fill
-            className="object-contain p-1 transition-transform duration-500 group-hover:scale-[1.025]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent)]/20">
-            <span className="text-4xl font-black text-white/30">
-              {product.title.charAt(0)}
-            </span>
-          </div>
-        )}
+      {/* Product image: 4:5 vertical ecommerce ratio with resilient ProductImage component */}
+      <Link href={href} className="relative block w-full overflow-hidden">
+        <ProductImage
+          product={product}
+          alt={`${product.title} product thumbnail`}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        />
 
         {/* Category badge */}
-        <div className="absolute left-2.5 top-2.5">
+        <div className="absolute left-2.5 top-2.5 z-10">
           <span className="rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-white shadow-sm backdrop-blur-md">
             {product.categoryLabel}
           </span>
@@ -108,7 +93,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
         {/* Discount badge */}
         {product.discountPercent != null && product.discountPercent > 0 && (
-          <div className="absolute right-2.5 top-2.5">
+          <div className="absolute right-2.5 top-2.5 z-10">
             <span className="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2 py-0.5 text-[10px] font-black text-white shadow-sm">
               −{product.discountPercent}%
             </span>
@@ -117,7 +102,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
         {/* Multi-plan chip */}
         {tierCount > 1 && (
-          <div className="absolute bottom-2.5 right-2.5">
+          <div className="absolute bottom-2.5 right-2.5 z-10">
             <span className="rounded-full border border-slate-200/80 bg-white/90 px-2 py-0.5 text-[9px] font-bold text-slate-700 shadow-sm backdrop-blur-sm">
               {tierCount} plans
             </span>

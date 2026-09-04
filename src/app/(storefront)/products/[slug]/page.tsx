@@ -24,6 +24,7 @@ import {
 } from "@/lib/catalog/product-families";
 import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { getProductCover } from "@/lib/catalog/product-covers";
+import { resolveProductGallery } from "@/lib/catalog/product-image-resolver";
 import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
@@ -240,21 +241,12 @@ export default async function ProductDetailPage({
         <div className="space-y-6">
           <TrustStrip compact />
           <PlanSwitcher plans={familyPlans} currentSlug={product.slug} />
-          {(() => {
-            const v2Info = `/media/products/${product.slug}/${product.slug}-infographic.webp`;
-            const v2Thumb = `/media/products/${product.slug}/${product.slug}-thumbnail.webp`;
-            const galleryList = Array.from(
-              new Set([v2Info, v2Thumb, coverPath].filter(Boolean) as string[]),
-            );
-            return (
-              <ProductGallery
-                slug={product.slug}
-                title={product.title}
-                images={galleryList}
-                priority
-              />
-            );
-          })()}
+          <ProductGallery
+            slug={product.slug}
+            title={product.title}
+            images={resolveProductGallery(product)}
+            priority
+          />
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)] sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">

@@ -60,6 +60,7 @@ export function ProductGallery({
                     src={imgUrl}
                     alt={`${title} view ${idx + 1}`}
                     fill
+                    unoptimized
                     sizes="44px"
                     className="object-contain p-0.5"
                   />

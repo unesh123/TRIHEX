@@ -221,14 +221,20 @@
     "slug": "grok-super-3-months",
     "family": "grok",
     "canonical": "grok-super-3-months.webp",
-    "publicPath": "/media/covers/grok/grok-super-3-months.webp",
+    "publicPath": "/media/products/grok-super-3-months/grok-super-3-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-grok.png",
     "alt": "grok-super-3-months AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/grok-super-3-months/grok-super-3-months-thumbnail.webp",
+    "infographicPath": "/media/products/grok-super-3-months/grok-super-3-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/grok-super-3-months/grok-super-3-months-infographic.webp",
+      "/media/products/grok-super-3-months/grok-super-3-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "grok-super-1-year-fww",
@@ -247,14 +253,20 @@
     "slug": "grok-super-10-months",
     "family": "grok",
     "canonical": "grok-super-10-months.webp",
-    "publicPath": "/media/covers/grok/grok-super-10-months.webp",
+    "publicPath": "/media/products/grok-super-10-months/grok-super-10-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-grok.png",
     "alt": "grok-super-10-months AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/grok-super-10-months/grok-super-10-months-thumbnail.webp",
+    "infographicPath": "/media/products/grok-super-10-months/grok-super-10-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/grok-super-10-months/grok-super-10-months-infographic.webp",
+      "/media/products/grok-super-10-months/grok-super-10-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "supergrok-12-months",
@@ -339,27 +351,39 @@
     "slug": "gemini-pro-cdk-12-months",
     "family": "gemini",
     "canonical": "gemini-pro-cdk-12-months.webp",
-    "publicPath": "/media/covers/gemini/gemini-pro-cdk-12-months.webp",
+    "publicPath": "/media/products/gemini-pro-cdk-12-months/gemini-pro-cdk-12-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-gemini.png",
     "alt": "gemini-pro-cdk-12-months AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/gemini-pro-cdk-12-months/gemini-pro-cdk-12-months-thumbnail.webp",
+    "infographicPath": "/media/products/gemini-pro-cdk-12-months/gemini-pro-cdk-12-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/gemini-pro-cdk-12-months/gemini-pro-cdk-12-months-infographic.webp",
+      "/media/products/gemini-pro-cdk-12-months/gemini-pro-cdk-12-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "gemini-ai-pro-5tb-12m-mail-a",
     "family": "gemini",
     "canonical": "gemini-ai-pro-5tb-12-months-a.webp",
-    "publicPath": "/media/covers/gemini/gemini-ai-pro-5tb-12-months-a.webp",
+    "publicPath": "/media/products/gemini-ai-pro-5tb-12m-mail-a/gemini-ai-pro-5tb-12m-mail-a-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "01_single_product_covers/gemini-star-portrait-2.png",
     "alt": "Gemini AI Pro 5TB twelve-month artwork.",
     "resolutionNote": "HQ_ZIP_SOURCE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/gemini-ai-pro-5tb-12m-mail-a/gemini-ai-pro-5tb-12m-mail-a-thumbnail.webp",
+    "infographicPath": "/media/products/gemini-ai-pro-5tb-12m-mail-a/gemini-ai-pro-5tb-12m-mail-a-infographic.webp",
+    "galleryPaths": [
+      "/media/products/gemini-ai-pro-5tb-12m-mail-a/gemini-ai-pro-5tb-12m-mail-a-infographic.webp",
+      "/media/products/gemini-ai-pro-5tb-12m-mail-a/gemini-ai-pro-5tb-12m-mail-a-thumbnail.webp"
+    ]
   },
   {
     "slug": "gemini-ai-pro-5tb-12m-mail-b",
@@ -433,40 +457,58 @@
     "slug": "capcut-pro-7-days",
     "family": "capcut",
     "canonical": "capcut-pro-7-days.webp",
-    "publicPath": "/media/covers/capcut/capcut-pro-7-days.webp",
+    "publicPath": "/media/products/capcut-pro-7-days/capcut-pro-7-days-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "capcut pro 7 days.jpg",
     "alt": "CapCut Pro 7-Day Access feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/capcut-pro-7-days/capcut-pro-7-days-thumbnail.webp",
+    "infographicPath": "/media/products/capcut-pro-7-days/capcut-pro-7-days-infographic.webp",
+    "galleryPaths": [
+      "/media/products/capcut-pro-7-days/capcut-pro-7-days-infographic.webp",
+      "/media/products/capcut-pro-7-days/capcut-pro-7-days-thumbnail.webp"
+    ]
   },
   {
     "slug": "capcut-pro-30-days",
     "family": "capcut",
     "canonical": "capcut-pro-30-days.webp",
-    "publicPath": "/media/covers/capcut/capcut-pro-30-days.webp",
+    "publicPath": "/media/products/capcut-pro-30-days/capcut-pro-30-days-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-capcut-pro.png",
     "alt": "capcut-pro-30-days AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/capcut-pro-30-days/capcut-pro-30-days-thumbnail.webp",
+    "infographicPath": "/media/products/capcut-pro-30-days/capcut-pro-30-days-infographic.webp",
+    "galleryPaths": [
+      "/media/products/capcut-pro-30-days/capcut-pro-30-days-infographic.webp",
+      "/media/products/capcut-pro-30-days/capcut-pro-30-days-thumbnail.webp"
+    ]
   },
   {
     "slug": "capcut-pro-6-months",
     "family": "capcut",
     "canonical": "capcut-pro-6-months.webp",
-    "publicPath": "/media/covers/capcut/capcut-pro-6-months.webp",
+    "publicPath": "/media/products/capcut-pro-6-months/capcut-pro-6-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-capcut-pro.png",
     "alt": "capcut-pro-6-months AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/capcut-pro-6-months/capcut-pro-6-months-thumbnail.webp",
+    "infographicPath": "/media/products/capcut-pro-6-months/capcut-pro-6-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/capcut-pro-6-months/capcut-pro-6-months-infographic.webp",
+      "/media/products/capcut-pro-6-months/capcut-pro-6-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "canva-pro-1-year",
@@ -506,14 +548,20 @@
     "slug": "canva-edu-1-year",
     "family": "canva",
     "canonical": "canva-edu-1-year.webp",
-    "publicPath": "/media/covers/canva/canva-edu-1-year.webp",
+    "publicPath": "/media/products/canva-edu-1-year/canva-edu-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-canva.png",
     "alt": "canva-edu-1-year AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/canva-edu-1-year/canva-edu-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/canva-edu-1-year/canva-edu-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/canva-edu-1-year/canva-edu-1-year-infographic.webp",
+      "/media/products/canva-edu-1-year/canva-edu-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "coursera-premium-1-year",
@@ -568,14 +616,20 @@
     "slug": "adobe-cc-2-months",
     "family": "adobe",
     "canonical": "adobe-cc-2-months.webp",
-    "publicPath": "/media/covers/adobe/adobe-cc-2-months.webp",
+    "publicPath": "/media/products/adobe-cc-2-months/adobe-cc-2-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-adobe.png",
     "alt": "Adobe Creative Cloud â€” 2 Months premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/adobe-cc-2-months/adobe-cc-2-months-thumbnail.webp",
+    "infographicPath": "/media/products/adobe-cc-2-months/adobe-cc-2-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/adobe-cc-2-months/adobe-cc-2-months-infographic.webp",
+      "/media/products/adobe-cc-2-months/adobe-cc-2-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "chatgpt-plus-1-month-fw",
@@ -630,53 +684,77 @@
     "slug": "office365-100gb-lifetime",
     "family": "microsoft",
     "canonical": "office365-100gb-lifetime.webp",
-    "publicPath": "/media/covers/microsoft/office365-100gb-lifetime.webp",
+    "publicPath": "/media/products/office365-100gb-lifetime/office365-100gb-lifetime-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-m365.png",
     "alt": "office365-100gb-lifetime AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/office365-100gb-lifetime/office365-100gb-lifetime-thumbnail.webp",
+    "infographicPath": "/media/products/office365-100gb-lifetime/office365-100gb-lifetime-infographic.webp",
+    "galleryPaths": [
+      "/media/products/office365-100gb-lifetime/office365-100gb-lifetime-infographic.webp",
+      "/media/products/office365-100gb-lifetime/office365-100gb-lifetime-thumbnail.webp"
+    ]
   },
   {
     "slug": "office365-1tb-lifetime",
     "family": "microsoft",
     "canonical": "office365-1tb-lifetime.webp",
-    "publicPath": "/media/covers/microsoft/office365-1tb-lifetime.webp",
+    "publicPath": "/media/products/office365-1tb-lifetime/office365-1tb-lifetime-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-m365.png",
     "alt": "office365-1tb-lifetime AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/office365-1tb-lifetime/office365-1tb-lifetime-thumbnail.webp",
+    "infographicPath": "/media/products/office365-1tb-lifetime/office365-1tb-lifetime-infographic.webp",
+    "galleryPaths": [
+      "/media/products/office365-1tb-lifetime/office365-1tb-lifetime-infographic.webp",
+      "/media/products/office365-1tb-lifetime/office365-1tb-lifetime-thumbnail.webp"
+    ]
   },
   {
     "slug": "grammarly-pro-1-year",
     "family": "grammarly",
     "canonical": "grammarly-pro-1-year.webp",
-    "publicPath": "/media/covers/grammarly/grammarly-pro-1-year.webp",
+    "publicPath": "/media/products/grammarly-pro-1-year/grammarly-pro-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-grammarly.png",
     "alt": "Grammarly Pro â€” 1 Year premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/grammarly-pro-1-year/grammarly-pro-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/grammarly-pro-1-year/grammarly-pro-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/grammarly-pro-1-year/grammarly-pro-1-year-infographic.webp",
+      "/media/products/grammarly-pro-1-year/grammarly-pro-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "microsoft-365-family-10-months",
     "family": "microsoft",
     "canonical": "microsoft-365-family-10-months.webp",
-    "publicPath": "/media/covers/microsoft/microsoft-365-family-10-months.webp",
+    "publicPath": "/media/products/microsoft-365-family-10-months/microsoft-365-family-10-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-m365.png",
     "alt": "microsoft-365-family-10-months AI product poster",
     "resolutionNote": "AI_GENERATED_POSTER",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/microsoft-365-family-10-months/microsoft-365-family-10-months-thumbnail.webp",
+    "infographicPath": "/media/products/microsoft-365-family-10-months/microsoft-365-family-10-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/microsoft-365-family-10-months/microsoft-365-family-10-months-infographic.webp",
+      "/media/products/microsoft-365-family-10-months/microsoft-365-family-10-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "nordvpn-shared-3-months",
@@ -708,79 +786,115 @@
     "slug": "youtube-premium-1-year",
     "family": "youtube",
     "canonical": "youtube-premium-1-year.webp",
-    "publicPath": "/media/covers/youtube/youtube-premium-1-year.webp",
+    "publicPath": "/media/products/youtube-premium-1-year/youtube-premium-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-youtube.png",
     "alt": "YouTube Premium â€” 1 Year premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/youtube-premium-1-year/youtube-premium-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/youtube-premium-1-year/youtube-premium-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/youtube-premium-1-year/youtube-premium-1-year-infographic.webp",
+      "/media/products/youtube-premium-1-year/youtube-premium-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "figma-edu-2-years",
     "family": "figma",
     "canonical": "figma-edu-2-years.webp",
-    "publicPath": "/media/covers/figma/figma-edu-2-years.webp",
+    "publicPath": "/media/products/figma-edu-2-years/figma-edu-2-years-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-figma.png",
     "alt": "Figma Edu â€” 2 Years premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/figma-edu-2-years/figma-edu-2-years-thumbnail.webp",
+    "infographicPath": "/media/products/figma-edu-2-years/figma-edu-2-years-infographic.webp",
+    "galleryPaths": [
+      "/media/products/figma-edu-2-years/figma-edu-2-years-infographic.webp",
+      "/media/products/figma-edu-2-years/figma-edu-2-years-thumbnail.webp"
+    ]
   },
   {
     "slug": "claude-pro-1-month",
     "family": "claude",
     "canonical": "claude-pro-1-month.webp",
-    "publicPath": "/media/covers/claude/claude-pro-1-month.webp",
+    "publicPath": "/media/products/claude-pro-1-month/claude-pro-1-month-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-claude.png",
     "alt": "Claude Pro â€” 1 Month premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/claude-pro-1-month/claude-pro-1-month-thumbnail.webp",
+    "infographicPath": "/media/products/claude-pro-1-month/claude-pro-1-month-infographic.webp",
+    "galleryPaths": [
+      "/media/products/claude-pro-1-month/claude-pro-1-month-infographic.webp",
+      "/media/products/claude-pro-1-month/claude-pro-1-month-thumbnail.webp"
+    ]
   },
   {
     "slug": "elevenlabs-1-month",
     "family": "elevenlabs",
     "canonical": "elevenlabs-1-month.webp",
-    "publicPath": "/media/covers/elevenlabs/elevenlabs-1-month.webp",
+    "publicPath": "/media/products/elevenlabs-1-month/elevenlabs-1-month-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-elevenlabs.png",
     "alt": "ElevenLabs â€” 1 Month premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/elevenlabs-1-month/elevenlabs-1-month-thumbnail.webp",
+    "infographicPath": "/media/products/elevenlabs-1-month/elevenlabs-1-month-infographic.webp",
+    "galleryPaths": [
+      "/media/products/elevenlabs-1-month/elevenlabs-1-month-infographic.webp",
+      "/media/products/elevenlabs-1-month/elevenlabs-1-month-thumbnail.webp"
+    ]
   },
   {
     "slug": "cursor-pro-1-month",
     "family": "cursor",
     "canonical": "cursor-pro-1-month.webp",
-    "publicPath": "/media/covers/cursor/cursor-pro-1-month.webp",
+    "publicPath": "/media/products/cursor-pro-1-month/cursor-pro-1-month-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-cursor.png",
     "alt": "Cursor Pro â€” 1 Month premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/cursor-pro-1-month/cursor-pro-1-month-thumbnail.webp",
+    "infographicPath": "/media/products/cursor-pro-1-month/cursor-pro-1-month-infographic.webp",
+    "galleryPaths": [
+      "/media/products/cursor-pro-1-month/cursor-pro-1-month-infographic.webp",
+      "/media/products/cursor-pro-1-month/cursor-pro-1-month-thumbnail.webp"
+    ]
   },
   {
     "slug": "notion-business-3-months",
     "family": "notion",
     "canonical": "notion-business-3-months.webp",
-    "publicPath": "/media/covers/notion/notion-business-3-months.webp",
+    "publicPath": "/media/products/notion-business-3-months/notion-business-3-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "poster-brand-notion.png",
     "alt": "Notion Business â€” 3 Months premium product poster.",
     "resolutionNote": "AI_BRAND_COMPOSITE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/notion-business-3-months/notion-business-3-months-thumbnail.webp",
+    "infographicPath": "/media/products/notion-business-3-months/notion-business-3-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/notion-business-3-months/notion-business-3-months-infographic.webp",
+      "/media/products/notion-business-3-months/notion-business-3-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "adobe-creative-cloud-2-months",
@@ -1899,5 +2013,21 @@
       "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-infographic.webp",
       "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-thumbnail.webp"
     ]
+  },
+  {
+    "slug": "fallback-product.webp",
+    "family": "trihex",
+    "canonical": "fallback-product.webp-thumbnail.webp",
+    "publicPath": "/media/products/fallback-product.webp/fallback-product.webp-thumbnail.webp",
+    "thumbnailPath": "/media/products/fallback-product.webp/fallback-product.webp-thumbnail.webp",
+    "infographicPath": "/media/products/fallback-product.webp/fallback-product.webp-infographic.webp",
+    "galleryPaths": [
+      "/media/products/fallback-product.webp/fallback-product.webp-infographic.webp",
+      "/media/products/fallback-product.webp/fallback-product.webp-thumbnail.webp"
+    ],
+    "mode": "ARTWORK_ONLY",
+    "alt": "fallback-product.webp product thumbnail",
+    "artWidth": 1200,
+    "artHeight": 1500
   }
 ]

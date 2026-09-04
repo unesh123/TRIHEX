@@ -92,6 +92,7 @@ export function FeaturePosterLightbox({
             src={activeSrc}
             alt={alt}
             fill
+            unoptimized
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 640px"
             className="object-contain p-2.5 transition duration-500 group-hover:scale-[1.018]"
             priority={priority}
@@ -210,6 +211,7 @@ export function FeaturePosterLightbox({
                 alt={alt}
                 width={1600}
                 height={2400}
+                unoptimized
                 className="max-h-[80vh] w-auto rounded-xl object-contain shadow-2xl ring-1 ring-white/10"
                 priority
               />

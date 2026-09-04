@@ -1,4 +1,4 @@
-﻿import { ProductCard } from "@/components/storefront/product-card";
+import { ProductCard } from "@/components/storefront/product-card";
 import type { ProductCardProps } from "@/components/storefront/product-card";
 import {
   getMerchCardBySlug,
@@ -6,6 +6,7 @@ import {
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import { resolveBrandFamily } from "@/components/storefront/family-artwork";
+import { resolveProductThumbnail } from "@/lib/catalog/product-image-resolver";
 
 function toMerch(product: MerchCard | ProductCardProps): MerchCard {
   if ("title" in product && "brandFamily" in product && "visibility" in product) {
@@ -41,6 +42,8 @@ function toMerch(product: MerchCard | ProductCardProps): MerchCard {
     features: [],
     stockQty: null,
     stockLabel: null,
+    coverPublicPath: resolveProductThumbnail(legacy.slug, null, legacy.coverPublicPath),
+    thumbnailPublicPath: resolveProductThumbnail(legacy.slug, null, legacy.coverPublicPath),
   };
 }
 

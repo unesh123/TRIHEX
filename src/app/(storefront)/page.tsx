@@ -20,8 +20,6 @@ import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
-import { getProductCover } from "@/lib/catalog/product-covers";
-import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import {
   getWhatsAppDisplay,
   productEnquiryUrl,
@@ -115,11 +113,6 @@ export default async function HomePage() {
     })
     .slice(0, 5);
 
-  const heroCover =
-    heroProduct?.coverPublicPath ??
-    getProductCover(heroProduct?.slug ?? "gemini-pro-18-months-link")?.publicPath ??
-    getGeneratedCover(heroProduct?.slug ?? "gemini-pro-18-months-link", heroProduct?.brandFamily) ??
-    "/media/covers/gemini/gemini-pro.webp";
   return (
     <div className="overflow-x-clip">
       <JsonLd
