@@ -29,12 +29,17 @@ export interface VaultItem {
   compareAtPriceNpr?: number | null;
   originalValuation: string;
   fileSize: string;
-  decryptionKey?: string | null;
+  /** Server-only secret reference ID (never exposed in client JS) */
+  fulfillmentSecretId?: string | null;
   downloadUrl?: string | null;
   sourceCitation?: string | null;
   shortDescription: string;
   highlights: string[];
   deliverable: string;
+  validFrom?: string;
+  validUntil?: string;
+  lastVerifiedAt?: string;
+  status: "ACTIVE" | "EXPIRED" | "NEEDS_REVIEW";
   updatedAt: string;
   featured?: boolean;
 }
@@ -53,18 +58,19 @@ export const VAULT_ITEMS: VaultItem[] = [
     compareAtPriceNpr: 2999,
     originalValuation: "Rs. 2,999 (~$22 USD)",
     fileSize: "1.8 GB Cloud Vault",
-    decryptionKey: "lJnuvVmB-NyzaBorvApWJQ",
-    downloadUrl: null, // delivered upon order verification
+    fulfillmentSecretId: "sec-vault-aimoney-2026",
+    downloadUrl: null, // delivered upon verified order with expiring signed token
     shortDescription:
       "Comprehensive 2026 master course on building, automating, and scaling digital asset stores using cutting-edge AI agents and high-converting funnels.",
     highlights: [
       "50+ Uncensored system prompts for research, copy & conversion",
       "Automated dropshipping & digital download blueprint",
       "Plug-and-play landing page templates & email closing sequences",
-      "Fulfillment decryption key included for instant cloud unlock",
+      "Single-use cryptographically signed expiring delivery link",
       "Zero prior technical skills required",
     ],
-    deliverable: "Mega Encrypted Cloud Link + Master Decryption Key",
+    deliverable: "Expiring Signed Single-Use Access Token",
+    status: "ACTIVE",
     updatedAt: "March 2026",
     featured: true,
   },
@@ -80,7 +86,7 @@ export const VAULT_ITEMS: VaultItem[] = [
     compareAtPriceNpr: 2499,
     originalValuation: "Rs. 2,499 ($19 USD)",
     fileSize: "680 MB Vault",
-    decryptionKey: "PSYCH-CLOSE-TRIHEX-2026",
+    fulfillmentSecretId: "sec-vault-psych-close",
     downloadUrl: null,
     shortDescription:
       "Battle-tested sales objection handling scripts, psychology closing frameworks, cold DM outreach playbooks, and negotiation psychology.",
@@ -91,6 +97,7 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Customer decision psychology matrix",
     ],
     deliverable: "Digital Video & PDF Master Vault",
+    status: "ACTIVE",
     updatedAt: "March 2026",
     featured: true,
   },
@@ -106,7 +113,7 @@ export const VAULT_ITEMS: VaultItem[] = [
     compareAtPriceNpr: 5999,
     originalValuation: "$500 (Rs. 67,000+ Value)",
     fileSize: "440 MB Systems & SOPs",
-    decryptionKey: "PASSIVE-REBEL-TRIHEX-VIP",
+    fulfillmentSecretId: "sec-vault-passive-rebel",
     downloadUrl: null,
     shortDescription:
       "Covert inbound client acquisition without personal branding, dancing on social media, or spending thousands on paid ads.",
@@ -117,6 +124,7 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Full SOPs, templates, and execution checklists",
     ],
     deliverable: "Complete Systems Vault & Automation Blueprints",
+    status: "ACTIVE",
     updatedAt: "March 2026",
     featured: true,
   },
@@ -132,7 +140,7 @@ export const VAULT_ITEMS: VaultItem[] = [
     compareAtPriceNpr: 3999,
     originalValuation: "Rs. 3,999 ($30 USD)",
     fileSize: "14.5 GB Video & Repos",
-    decryptionKey: "UDEMY-AI-16PACK-DISPATCH",
+    fulfillmentSecretId: "sec-vault-udemy-16",
     downloadUrl: null,
     shortDescription:
       "16 Complete developer courses covering autonomous AI agents, Cursor Pro mastery, Claude Code terminal workflows, and full-stack AI deployment.",
@@ -143,6 +151,7 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Prompt repositories and ready-to-run GitHub starters",
     ],
     deliverable: "Mega Cloud Archive with Lifetime Access",
+    status: "ACTIVE",
     updatedAt: "March 2026",
     featured: true,
   },
@@ -154,22 +163,25 @@ export const VAULT_ITEMS: VaultItem[] = [
     title: "pCloud 500GB Premium Cloud (90 Days Free)",
     category: "developer-perks",
     type: "FREE_PERK",
-    classificationBadge: "COMMUNITY PROMO PERK",
+    classificationBadge: "EXPIRED PROMO PERK",
     securityLevel: "UNLOCKED",
     priceNpr: 0,
     originalValuation: "$15 Free Value",
     fileSize: "Cloud License Guide",
     downloadUrl: "https://www.pcloud.com/promo/90days500gb",
     shortDescription:
-      "Official 90-day extended trial for pCloud 500GB Swiss encrypted cloud storage with zero-knowledge privacy and high-speed upload.",
+      "Official 90-day extended trial for pCloud 500GB Swiss encrypted cloud storage. (Note: Campaign expired on August 22, 2026).",
     highlights: [
       "500GB Swiss-grade secure cloud storage",
       "Encrypted link sharing with password protection",
       "Automatic photo & document backup across mobile and desktop",
-      "100% Free claim — zero payment required",
+      "Campaign concluded on 22 August 2026",
     ],
-    deliverable: "Instant Promo Activation Guide & Link",
-    updatedAt: "March 2026",
+    deliverable: "Archived Promo Link (Expired)",
+    validUntil: "2026-08-22",
+    lastVerifiedAt: "2026-09-05",
+    status: "EXPIRED",
+    updatedAt: "September 2026",
   },
   {
     id: "p-02",
@@ -192,6 +204,9 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Instant activation via GitHub authentication",
     ],
     deliverable: "Wasmer Edge Setup Guide & Coupon Link",
+    validUntil: "2026-12-31",
+    lastVerifiedAt: "2026-09-05",
+    status: "ACTIVE",
     updatedAt: "March 2026",
   },
   {
@@ -215,6 +230,9 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Official vendor extended trial verification",
     ],
     deliverable: "Direct Vendor Trial Registration",
+    validUntil: "2026-12-31",
+    lastVerifiedAt: "2026-09-05",
+    status: "ACTIVE",
     updatedAt: "March 2026",
   },
   {
@@ -238,6 +256,8 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Instant copy-paste workflow configs",
     ],
     deliverable: "GitHub Config Repo & Workflow Setup Guide",
+    lastVerifiedAt: "2026-09-05",
+    status: "ACTIVE",
     updatedAt: "March 2026",
   },
 
@@ -265,6 +285,8 @@ export const VAULT_ITEMS: VaultItem[] = [
       "100% Free public civic disclosure and journalistic archive",
     ],
     deliverable: "Official Court Docket Index & Download Gateway",
+    lastVerifiedAt: "2026-09-05",
+    status: "ACTIVE",
     updatedAt: "February 2026",
   },
 
@@ -289,6 +311,8 @@ export const VAULT_ITEMS: VaultItem[] = [
       "Compare inflation against Gold, Oil, Real Estate, and AI Compute",
     ],
     deliverable: "Live Interactive Calculator Engine",
+    lastVerifiedAt: "2026-09-05",
+    status: "ACTIVE",
     updatedAt: "March 2026",
   },
 ];

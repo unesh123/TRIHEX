@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { CheckCircle2, ShoppingBag, X } from "lucide-react";
 
-interface PurchaseItem {
+interface SocialProofEvent {
   id: string;
   name: string;
   city: string;
@@ -14,117 +14,78 @@ interface PurchaseItem {
   tag: string;
 }
 
-const BUYERS = [
-  "Rohan S.", "Pooja T.", "Aarav K.", "Bikash M.", "Sneha D.",
-  "Prashant R.", "Ankit B.", "Nisha S.", "Saurav P.", "Kritika M.",
-  "Dipesh G.", "Bibek T.", "Ashish N.", "Priya B.", "Sandesh K.",
-  "Manish D.", "Ujjwal S.", "Rupa K.", "Suman J.", "Ayush B.",
-  "Rabina K.", "Pradeep S.", "Shristi A.", "Nabin T.", "Roshani P."
-];
-
-const CITIES = [
-  "Kathmandu", "Pokhara", "Lalitpur", "Biratnagar", "Butwal",
-  "Dharan", "Chitwan", "Bhaktapur", "Itahari", "Hetauda",
-  "Nepalgunj", "Birgunj", "Birtamode", "Janakpur", "Dhangadhi", "Banepa"
-];
-
-const PRODUCTS: { product: string; slug: string; tag: string }[] = [
-  { product: "ChatGPT Plus Dedicated", slug: "chatgpt-plus-1-month-fw", tag: "AI Assistant" },
-  { product: "Cursor Pro 12M Annual", slug: "cursor-pro-12m", tag: "AI Coding" },
-  { product: "Claude Code API Access", slug: "claude-code-api-access", tag: "Developer" },
-  { product: "Google AI Pro 5TB", slug: "gemini-pro-18-months-link", tag: "Best Value" },
-  { product: "ElevenLabs Creator Voice", slug: "elevenlabs-creator-shared", tag: "Voice AI" },
-  { product: "Manus AI Pro Agent", slug: "manus-ai-pro-12m", tag: "Autonomous" },
-  { product: "Canva Pro 1-Year License", slug: "canva-pro-1-year", tag: "Design" },
-  { product: "CapCut Pro Video Suite", slug: "capcut-pro", tag: "Video" },
-  { product: "Gamma Pro Presentation", slug: "gamma-pro-1-year", tag: "Slide AI" },
-  { product: "Supabase Pro 1-Year", slug: "supabase-pro-1-year", tag: "Cloud DB" },
-  { product: "Lovable AI Pro Builder", slug: "lovable-pro-12m", tag: "App Builder" },
-  { product: "Runway Gen-3 Pro", slug: "runway-pro-12m", tag: "Video Gen" },
-  { product: "Kling AI Ultra Studio", slug: "kling-ultra-26k-credits", tag: "Filmmaking" },
-  { product: "Udemy 16 AI Agent Pack", slug: "udemy-16-developer-ai-agent-pack", tag: "Developer" },
-  { product: "AI Money Maker Vault Course", slug: "ai-money-maker-digital-course-2026", tag: "Vault Drop" },
-  { product: "The Psychology of Closing Bundle", slug: "the-psychology-of-closing-bundle", tag: "Sales Vault" },
-  { product: "The Passive Rebel (Leads Engine)", slug: "the-passive-rebel-antisocial-leads", tag: "Acquisition" },
-  { product: "SuperGrok 3-Month Plan", slug: "supergrok-3-months", tag: "Deep Reasoning" },
-];
-
-const TIMES = ["Just now", "1m ago", "2m ago", "4m ago", "6m ago", "9m ago", "12m ago", "18m ago"];
-
-/**
- * Deterministically generates a pool of 100+ unique recent purchase notifications
- */
-function generateNotificationPool(): PurchaseItem[] {
-  const pool: PurchaseItem[] = [];
-  let id = 1;
-  for (let i = 0; i < BUYERS.length; i++) {
-    for (let j = 0; j < PRODUCTS.length; j++) {
-      const city = CITIES[(i + j) % CITIES.length];
-      const timeAgo = TIMES[(i * 3 + j) % TIMES.length];
-      const prod = PRODUCTS[j];
-      pool.push({
-        id: `np-${id++}`,
-        name: BUYERS[i],
-        city,
-        product: prod.product,
-        slug: prod.slug,
-        timeAgo,
-        tag: prod.tag,
-      });
-      if (pool.length >= 120) return pool;
-    }
-  }
-  return pool;
-}
-
-const NOTIFICATION_POOL = generateNotificationPool();
-
 export function RecentPurchaseToast() {
-  const [current, setCurrent] = useState<PurchaseItem | null>(null);
+  const [events, setEvents] = useState<SocialProofEvent[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [visible, setVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
-    if (isDismissed) return;
+    let isMounted = true;
 
-    let index = Math.floor(Math.random() * NOTIFICATION_POOL.length);
+    async function fetchRecentOrders() {
+      try {
+        const res = await fetch("/api/social-proof/recent");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && data.ok && Array.isArray(data.events) && data.events.length > 0) {
+          setEvents(data.events);
+        }
+      } catch {
+        // Silently omit toast on network error
+      }
+    }
+
+    fetchRecentOrders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isDismissed || events.length === 0) return;
+
     let hideTimer: NodeJS.Timeout;
 
-    // Show initial toast after 4.5 seconds
+    // Show initial toast after 5 seconds if we have real events
     const initialTimer = setTimeout(() => {
       startTransition(() => {
-        setCurrent(NOTIFICATION_POOL[index]);
         setVisible(true);
       });
 
-      // Auto-hide after 6 seconds
       hideTimer = setTimeout(() => {
         setVisible(false);
       }, 6000);
-    }, 4500);
+    }, 5000);
 
-    // Set recurring rotation interval (every 18 seconds)
+    // Rotate through real orders every 22 seconds
     const intervalTimer = setInterval(() => {
-      index = (index + 1) % NOTIFICATION_POOL.length;
+      setCurrentIndex((prev) => (prev + 1) % events.length);
       startTransition(() => {
-        setCurrent(NOTIFICATION_POOL[index]);
         setVisible(true);
       });
 
       hideTimer = setTimeout(() => {
         setVisible(false);
       }, 6000);
-    }, 18000);
+    }, 22000);
 
     return () => {
       clearTimeout(initialTimer);
       clearTimeout(hideTimer);
       clearInterval(intervalTimer);
     };
-  }, [isDismissed]);
+  }, [events, isDismissed]);
 
-  if (!current || !visible) return null;
+  // Strictly return null if no real completed orders exist or dismissed
+  if (events.length === 0 || !visible || isDismissed) {
+    return null;
+  }
+
+  const current = events[currentIndex];
+  if (!current) return null;
 
   return (
     <aside
@@ -150,7 +111,7 @@ export function RecentPurchaseToast() {
               Verified Order
             </span>
             <span>•</span>
-            <span className="truncate">{current.city}, NP</span>
+            <span className="truncate">{current.city}</span>
             <span>•</span>
             <span className="text-slate-400 shrink-0">{current.timeAgo}</span>
           </div>

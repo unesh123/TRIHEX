@@ -939,7 +939,7 @@ export const SEED_VAULT_PRODUCTS: SeedProduct[] = [
     slug: "ai-money-maker-digital-course-2026",
     brandSlug: "trihex",
     categorySlug: "digital-assets",
-    sourceListingText: "TRIHEX Vault Drop — AI Money Maker Digital Products Course (2026) [DECRYPTION_KEY: lJnuvVmB-NyzaBorvApWJQ]",
+    sourceListingText: "TRIHEX Vault Drop — AI Money Maker Digital Products Course (2026)",
     shortDescription:
       "Comprehensive 2026 master course on building, automating, and scaling digital asset stores using cutting-edge AI agents and high-converting funnels.",
     productType: "OWNED_ASSET",
@@ -970,7 +970,7 @@ export const SEED_VAULT_PRODUCTS: SeedProduct[] = [
     slug: "the-psychology-of-closing-bundle",
     brandSlug: "trihex",
     categorySlug: "digital-assets",
-    sourceListingText: "TRIHEX Vault Drop — The Psychology of Closing + All Bundles [DECRYPTION_KEY: PSYCH-CLOSE-TRIHEX-2026]",
+    sourceListingText: "TRIHEX Vault Drop — The Psychology of Closing + All Bundles",
     shortDescription:
       "Battle-tested sales objection handling scripts, psychology closing frameworks, cold DM outreach playbooks, and negotiation psychology.",
     productType: "OWNED_ASSET",
@@ -1001,7 +1001,7 @@ export const SEED_VAULT_PRODUCTS: SeedProduct[] = [
     slug: "the-passive-rebel-antisocial-leads",
     brandSlug: "trihex",
     categorySlug: "digital-assets",
-    sourceListingText: "TRIHEX Vault Drop — The Passive Rebel (Antisocial Leads Generation) [DECRYPTION_KEY: PASSIVE-REBEL-TRIHEX-VIP]",
+    sourceListingText: "TRIHEX Vault Drop — The Passive Rebel (Antisocial Leads Generation)",
     shortDescription:
       "Covert inbound client acquisition without personal branding, dancing on social media, or spending on paid ads.",
     productType: "OWNED_ASSET",
@@ -1032,7 +1032,7 @@ export const SEED_VAULT_PRODUCTS: SeedProduct[] = [
     slug: "udemy-16-developer-ai-agent-pack",
     brandSlug: "trihex",
     categorySlug: "learning",
-    sourceListingText: "TRIHEX Vault Drop — Udemy 16 Package Developer AI Agent Pack [DECRYPTION_KEY: UDEMY-AI-16PACK-DISPATCH]",
+    sourceListingText: "TRIHEX Vault Drop — Udemy 16 Package Developer AI Agent Pack",
     shortDescription:
       "16 Complete developer courses covering autonomous AI agents, Cursor Pro mastery, Claude Code terminal workflows, and full-stack AI deployment.",
     productType: "OWNED_ASSET",

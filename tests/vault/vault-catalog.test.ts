@@ -19,22 +19,23 @@ describe("TRIHEX Classified Vault & Developer Loots", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("paid vault products have valid decryption keys and deliverable metadata", () => {
+  it("paid vault products have server secret refs and zero leaked plaintext keys", () => {
     const paid = VAULT_ITEMS.filter((i) => i.type === "PAID_BUNDLE");
     expect(paid.length).toBeGreaterThanOrEqual(4);
 
     for (const item of paid) {
       expect(item.priceNpr).toBeGreaterThan(0);
-      expect(item.decryptionKey).toBeTruthy();
-      expect(typeof item.decryptionKey).toBe("string");
+      expect(item.fulfillmentSecretId).toBeTruthy();
+      expect((item as unknown as Record<string, unknown>).decryptionKey).toBeUndefined();
       expect(item.deliverable).toBeTruthy();
       expect(item.highlights.length).toBeGreaterThanOrEqual(3);
     }
 
-    // Explicitly verify the requested AI Money Maker decryption key
+    // Explicitly verify the AI Money Maker product has NO plaintext decryption key in catalog
     const aiMoneyMaker = getVaultItemBySlug("ai-money-maker-digital-course-2026");
     expect(aiMoneyMaker).toBeDefined();
-    expect(aiMoneyMaker?.decryptionKey).toBe("lJnuvVmB-NyzaBorvApWJQ");
+    expect((aiMoneyMaker as unknown as Record<string, unknown>)?.decryptionKey).toBeUndefined();
+    expect(aiMoneyMaker?.fulfillmentSecretId).toBe("sec-vault-aimoney-2026");
     expect(aiMoneyMaker?.priceNpr).toBe(499);
   });
 
@@ -97,5 +98,48 @@ describe("TRIHEX Classified Vault & Developer Loots", () => {
     );
     expect(gridFile).toContain("grid-cols-1");
     expect(gridFile).toContain("sm:grid-cols-2");
+  });
+
+  it("cryptographically signs, verifies, and rejects tampered delivery tokens", async () => {
+    const { createSignedDeliveryToken, verifySignedDeliveryToken } = await import(
+      "@/lib/fulfillment/secrets-store"
+    );
+
+    const validToken = createSignedDeliveryToken({
+      orderId: "ord-test-123",
+      orderNumber: "THX-9999",
+      sku: "THX-VAULT-AIMONEY-2026",
+      secretId: "sec-vault-aimoney-2026",
+      expiresInHours: 72,
+    });
+
+    expect(validToken).toBeTruthy();
+    expect(validToken.split(".").length).toBe(2);
+
+    const verified = verifySignedDeliveryToken(validToken);
+    expect(verified).not.toBeNull();
+    expect(verified?.orderNumber).toBe("THX-9999");
+    expect(verified?.secretId).toBe("sec-vault-aimoney-2026");
+
+    // Tampered token test
+    const tamperedToken = validToken.slice(0, -4) + "XXXX";
+    expect(verifySignedDeliveryToken(tamperedToken)).toBeNull();
+
+    // Expired token test
+    const expiredToken = createSignedDeliveryToken({
+      orderId: "ord-test-expired",
+      orderNumber: "THX-EXPIRED",
+      sku: "THX-VAULT-AIMONEY-2026",
+      secretId: "sec-vault-aimoney-2026",
+      expiresInHours: -1, // Expired 1 hour ago
+    });
+    expect(verifySignedDeliveryToken(expiredToken)).toBeNull();
+  });
+
+  it("identifies expired promotions like pCloud automatically", () => {
+    const pcloud = getVaultItemBySlug("pcloud-500gb-90-days-voucher");
+    expect(pcloud).toBeDefined();
+    expect(pcloud?.status).toBe("EXPIRED");
+    expect(pcloud?.validUntil).toBe("2026-08-22");
   });
 });

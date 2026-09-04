@@ -14,37 +14,29 @@ import { resolveProofViewUrl } from "@/lib/storage/proof-url";
 import { normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import { KeyRound } from "lucide-react";
 
-function getVaultDeliverable(name: string, sku: string) {
-  const norm = (name + " " + sku).toLowerCase();
-  if (norm.includes("money") || norm.includes("aimoney")) {
-    return {
-      title: "AI Money Maker Course (2026)",
-      key: "lJnuvVmB-NyzaBorvApWJQ",
-      deliverable: "Encrypted Mega Cloud Repository",
-    };
-  }
-  if (norm.includes("psychology") || norm.includes("closing") || norm.includes("psych-close")) {
-    return {
-      title: "The Psychology of Closing Bundle",
-      key: "PSYCH-CLOSE-TRIHEX-2026",
-      deliverable: "Digital Video & PDF Master Vault",
-    };
-  }
-  if (norm.includes("passive") || norm.includes("rebel") || norm.includes("antisocial")) {
-    return {
-      title: "The Passive Rebel (Antisocial Leads)",
-      key: "PASSIVE-REBEL-TRIHEX-VIP",
-      deliverable: "Covert Traffic Blueprint & SOPs",
-    };
-  }
-  if (norm.includes("udemy") || norm.includes("16-developer") || norm.includes("16pack")) {
-    return {
-      title: "Udemy 16 Package AI Agent Pack",
-      key: "UDEMY-AI-16PACK-DISPATCH",
-      deliverable: "16 Video Masterclasses Archive",
-    };
-  }
-  return null;
+import {
+  resolveSecretIdForSku,
+  getDeliverableBySecretId,
+  createSignedDeliveryToken,
+} from "@/lib/fulfillment/secrets-store";
+
+function getVaultDeliverableInfo(name: string, sku: string, orderId: string, orderNumber: string) {
+  const secretId = resolveSecretIdForSku(name + " " + sku);
+  if (!secretId) return null;
+  const deliverable = getDeliverableBySecretId(secretId);
+  if (!deliverable) return null;
+  const token = createSignedDeliveryToken({
+    orderId,
+    orderNumber,
+    sku,
+    secretId,
+    expiresInHours: 72,
+  });
+  return {
+    ...deliverable,
+    token,
+    downloadUrl: `/api/fulfillment/access?token=${token}`,
+  };
 }
 
 export const dynamic = "force-dynamic";
@@ -253,22 +245,35 @@ export default async function AdminOrderDetailPage({
                     Unit {formatNpr(item.unitPriceMinor)}
                   </p>
                   {(() => {
-                    const vault = getVaultDeliverable(item.productName, item.sku);
+                    const vault = getVaultDeliverableInfo(
+                      item.productName,
+                      item.sku,
+                      order.id,
+                      order.humanReadableOrderNumber
+                    );
                     if (!vault) return null;
                     return (
                       <div className="mt-2.5 rounded-lg border border-emerald-500/40 bg-emerald-50 p-2.5 text-xs text-emerald-900">
                         <div className="flex items-center justify-between font-bold">
                           <span className="flex items-center gap-1.5 text-emerald-800">
                             <KeyRound className="h-3.5 w-3.5 text-emerald-600" />
-                            Decryption Key: <code className="rounded border border-emerald-300 bg-white px-1.5 py-0.5 font-mono text-emerald-800 select-all">{vault.key}</code>
+                            Deliverable: <span className="font-semibold text-emerald-950">{vault.title}</span>
                           </span>
                           <span className="rounded bg-emerald-200/80 px-2 py-0.5 text-[9px] font-extrabold uppercase text-emerald-800">
-                            Vault Deliverable
+                            Server-Secured
                           </span>
                         </div>
                         <p className="mt-1 text-[11px] text-emerald-700">
-                          Deliverable: {vault.deliverable} · Provide this master decryption key to the buyer upon payment confirmation.
+                          Order-scoped token generated (valid 72h). Customer will access package via signed delivery URL upon payment verification.
                         </p>
+                        {vault.licenseCode && (
+                          <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[11px] text-emerald-800">
+                            <span>License / Passcode:</span>
+                            <code className="rounded border border-emerald-300 bg-white px-1.5 py-0.5 font-bold select-all">
+                              {vault.licenseCode}
+                            </code>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
