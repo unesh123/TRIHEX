@@ -142,4 +142,30 @@ describe("TRIHEX Classified Vault & Developer Loots", () => {
     expect(pcloud?.status).toBe("EXPIRED");
     expect(pcloud?.validUntil).toBe("2026-08-22");
   });
+
+  it("aggregates entries across catalog, deals, prompts, and research into Unified Vault", async () => {
+    const { getAllVaultEntries, getHomepageVaultEntries } = await import("@/lib/vault/vault-aggregator");
+
+    const all = getAllVaultEntries();
+    expect(all.length).toBeGreaterThan(5);
+
+    // Verify entity types are represented
+    const entityTypes = new Set(all.map((e) => e.entityType));
+    expect(entityTypes.has("PRODUCT")).toBe(true);
+    expect(entityTypes.has("DEAL")).toBe(true);
+    expect(entityTypes.has("PROMPT_PACK")).toBe(true);
+
+    // Every item has valid provenance and display price
+    for (const item of all) {
+      expect(item.provenance).toBeTruthy();
+      expect(item.displayPrice).toBeTruthy();
+      expect(item.destinationUrl).toBeTruthy();
+      expect(item.title).toBeTruthy();
+    }
+
+    // Homepage showcase returns balanced subset <= 6 items
+    const homepage = getHomepageVaultEntries();
+    expect(homepage.length).toBeLessThanOrEqual(6);
+    expect(homepage.length).toBeGreaterThan(0);
+  });
 });

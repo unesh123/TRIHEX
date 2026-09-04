@@ -17,6 +17,8 @@ import { ProductGrid } from "@/components/storefront/product-grid";
 import { ServicesAtlas } from "@/components/storefront/services-atlas";
 import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
+import { HomepageVaultSection } from "@/components/vault/homepage-vault-section";
+import { formatRelativeAge } from "@/lib/nepal/forex-shared";
 import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
 import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
@@ -361,6 +363,9 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── UNIFIED FLAGSHIP TRIHEX VAULT DROPS ── */}
+      <HomepageVaultSection />
+
       {/* ── LIVE DEAL RADAR PREVIEW (HOMEPAGE 4.0) ── */}
       {verifiedDeals.length > 0 && (
         <section className="border-b border-slate-800 bg-slate-950 py-12 sm:py-16 text-white">
@@ -399,7 +404,7 @@ export default async function HomePage() {
                         {deal.vendor}
                       </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        {deal.verificationScore}% Verified
+                        {deal.verificationScore}% Verified · {formatRelativeAge(deal.lastVerifiedAt || deal.createdAt)}
                       </span>
                     </div>
                     <h3 className="text-sm font-bold text-white leading-snug">
@@ -408,6 +413,11 @@ export default async function HomePage() {
                     <p className="text-xs text-slate-400 line-clamp-2">
                       {deal.summary}
                     </p>
+                    {deal.eligibility && (
+                      <p className="text-[11px] text-amber-300/80 font-mono">
+                        Eligibility: {deal.eligibility}
+                      </p>
+                    )}
                   </div>
 
                   <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">

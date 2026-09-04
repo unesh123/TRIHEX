@@ -210,6 +210,10 @@ export function getAllPrompts(filter?: {
   });
 }
 
+export function getCuratedPrompts(): Prompt[] {
+  return getAllPrompts({ onlyOriginal: true });
+}
+
 export function getPromptBySlug(slug: string): Prompt | undefined {
   return promptStore.find((p) => p.slug === slug);
 }
