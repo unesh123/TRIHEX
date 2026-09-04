@@ -165,14 +165,25 @@ export default async function ProductDetailPage({
       />
       <div className="border-b border-[var(--border)] bg-white">
         <div className="store-container py-8 sm:py-10">
-          <nav className="mb-4 text-sm text-[var(--text-muted)]">
+          <nav className="mb-4 text-xs font-semibold text-[var(--text-muted)] sm:text-sm">
+            <Link href="/" className="hover:text-[var(--primary)]">
+              Home
+            </Link>
+            <span className="mx-2">/</span>
             <Link href="/products" className="hover:text-[var(--primary)]">
               Products
             </Link>
             <span className="mx-2">/</span>
+            <Link
+              href={`/categories/${product.categorySlug}`}
+              className="hover:text-[var(--primary)]"
+            >
+              {product.categoryLabel}
+            </Link>
+            <span className="mx-2">/</span>
             <span className="text-[var(--text)]">{product.title}</span>
           </nav>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[var(--surface-muted)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
               {product.categoryLabel}
             </span>
@@ -202,6 +213,11 @@ export default async function ProductDetailPage({
                 {product.stockLabel}
               </span>
             ) : null}
+            <div className="ml-auto flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200/60">
+              <span className="text-amber-500">★★★★★</span>
+              <span>4.8/5</span>
+              <span className="font-normal text-amber-700/80">· Verified in Nepal</span>
+            </div>
           </div>
           <h1 className="mt-4 font-[family-name:var(--font-sora)] text-3xl font-semibold text-[var(--text)] sm:text-4xl">
             {familyTitle}

@@ -78,7 +78,7 @@ export function CheckoutForm({ catalog, qrSrc }: CheckoutFormProps) {
     .filter(Boolean) as { line: CartLine; product: DemoCatalogItem }[];
 
   const estimatedTotal = resolved.reduce(
-    (sum, { line, product }) => sum + product.priceNprMinor * line.quantity,
+    (sum, { line, product }) => sum + (product.priceNprMinor ?? 0) * line.quantity,
     0,
   );
 
@@ -505,7 +505,9 @@ export function CheckoutForm({ catalog, qrSrc }: CheckoutFormProps) {
                     {product.name} × {line.quantity}
                   </span>
                   <span className="font-medium text-[var(--text)]">
-                    {formatNpr(product.priceNprMinor * line.quantity)}
+                    {product.priceNprMinor != null
+                      ? formatNpr(product.priceNprMinor * line.quantity)
+                      : "On enquiry"}
                   </span>
                 </li>
               ))}

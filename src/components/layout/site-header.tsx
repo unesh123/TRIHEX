@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Truck,
+  User,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -26,11 +27,13 @@ import {
 } from "@/lib/whatsapp";
 
 const NAV = [
-  { href: "/products", label: "Shop" },
-  { href: "/categories", label: "Categories" },
-  { href: "/automation-services", label: "Services" },
-  { href: "/blog", label: "Guides" },
+  { href: "/products", label: "All Products" },
+  { href: "/ai-tools-nepal", label: "AI Tools" },
+  { href: "/categories/developer-tools", label: "Developer" },
+  { href: "/categories/design", label: "Creative" },
+  { href: "/categories/productivity", label: "Productivity" },
   { href: "/deals", label: "Deals" },
+  { href: "/blog", label: "Guides" },
 ] as const;
 
 const MOBILE_ACTIONS = [
@@ -38,6 +41,7 @@ const MOBILE_ACTIONS = [
   { href: "/products", label: "Browse", icon: PackageSearch },
   { href: "/search", label: "Search", icon: Search },
   { href: "/track-order", label: "Track", icon: Truck },
+  { href: "/account", label: "Account", icon: User },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
 ] as const;
 
@@ -94,6 +98,12 @@ export function SiteHeader() {
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
             >
               Track order
+            </Link>
+            <Link
+              href="/account"
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            >
+              Account
             </Link>
             <a
               href={waHref}

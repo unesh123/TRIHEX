@@ -92,11 +92,26 @@ export default async function HomePage() {
     shopProducts.find((product) => product.slug.includes("gemini-pro-18")) ??
     shopProducts.find((product) => product.purchasable) ??
     shopProducts[0];
+  const trendingProducts = shopProducts
+    .filter((product) => {
+      const slug = product.slug.toLowerCase();
+      return (
+        product.featured ||
+        slug.includes("chatgpt") ||
+        slug.includes("claude-pro") ||
+        slug.includes("gemini-pro") ||
+        slug.includes("cursor-pro") ||
+        slug.includes("capcut") ||
+        slug.includes("elevenlabs")
+      );
+    })
+    .slice(0, 5);
+
   const heroCover =
     heroProduct?.coverPublicPath ??
     getProductCover(heroProduct?.slug ?? "gemini-pro-18-months-link")?.publicPath ??
     getGeneratedCover(heroProduct?.slug ?? "gemini-pro-18-months-link", heroProduct?.brandFamily) ??
-    "/media/covers/gemini/gemini-pro-18-month-upgrade.webp";
+    "/media/covers/gemini/gemini-pro.webp";
   return (
     <div className="overflow-x-clip">
       <JsonLd
@@ -274,6 +289,31 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {trendingProducts.length > 0 && (
+        <section className="border-b border-[var(--border)] bg-white py-12 sm:py-16">
+          <div className="store-container">
+            <Reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <span className="premium-kicker">🔥 Trending in Nepal</span>
+                <h2 className="mt-3 font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
+                  Most Popular AI &amp; Digital Tools
+                </h2>
+                <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
+                  Top verified subscriptions trusted by developers, creators, and professionals across Nepal.
+                </p>
+              </div>
+              <Link
+                href="/products"
+                className="text-xs font-bold text-[var(--primary)] hover:underline sm:text-sm"
+              >
+                View all packages →
+              </Link>
+            </Reveal>
+            <ProductGrid products={trendingProducts} />
+          </div>
+        </section>
+      )}
 
       <section id="all-products" className="scroll-mt-24 py-14 sm:py-18">
         <div className="store-container">

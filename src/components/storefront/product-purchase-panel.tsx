@@ -80,10 +80,10 @@ export function ProductPurchasePanel({
 
         return {
           id: v.sku,
-          durationLabel: v.durationLabel || durationLabel || "Standard plan",
+          durationLabel: v.durationLabel ?? durationLabel ?? "Standard plan",
           accessLabel: v.variantName || "Standard",
-          warrantyLabel: v.warrantyLabel || "Standard policy",
-          activationLabel: v.activationLabel || "Direct activation",
+          warrantyLabel: v.warrantyLabel ?? "No warranty",
+          activationLabel: v.activationLabel ?? "Direct activation",
           availability: isAvail,
           priceNpr,
           compareAtPriceNpr,
@@ -98,7 +98,7 @@ export function ProductPurchasePanel({
         id: variantSku ?? productSlug,
         durationLabel: durationLabel ?? "Standard plan",
         accessLabel: "Standard access",
-        warrantyLabel: "Standard policy",
+        warrantyLabel: "No warranty",
         activationLabel: "Direct activation",
         availability: purchasable ? "available" : "under_review",
         priceNpr,

@@ -146,6 +146,28 @@
     @apply overflow-x-auto rounded-2xl border border-[var(--border)] bg-white shadow-[0_10px_28px_rgba(13,28,43,.045)];
   }
 
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  .glass-panel-dark {
+    background: rgba(13, 28, 43, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   @keyframes fadeUp {
     from {
       opacity: 0;

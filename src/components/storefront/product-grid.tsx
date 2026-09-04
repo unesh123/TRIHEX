@@ -1,4 +1,4 @@
-import { ProductCard } from "@/components/storefront/product-card";
+﻿import { ProductCard } from "@/components/storefront/product-card";
 import type { ProductCardProps } from "@/components/storefront/product-card";
 import {
   getMerchCardBySlug,
@@ -33,8 +33,7 @@ function toMerch(product: MerchCard | ProductCardProps): MerchCard {
     compareAtPriceNprMinor: null,
     discountPercent: null,
     showPrice: true,
-    visibility:
-      legacy.stockStatus === "out_of_stock" ? "OUT_OF_STOCK" : "AVAILABLE",
+    visibility: legacy.stockStatus === "out_of_stock" ? "OUT_OF_STOCK" : "AVAILABLE",
     purchasable: legacy.stockStatus !== "out_of_stock",
     variantSku: "",
     featured: Boolean(legacy.featured),
@@ -53,9 +52,10 @@ export function ProductGrid({
   emptyMessage?: string;
 }) {
   const normalizedCards = products.map(toMerch);
-  const cards = normalizedCards.length > 0 && normalizedCards.every((card) => card.isFamilyCard)
-    ? normalizedCards
-    : withFamilyGrouping(normalizedCards);
+  const cards =
+    normalizedCards.length > 0 && normalizedCards.every((card) => card.isFamilyCard)
+      ? normalizedCards
+      : withFamilyGrouping(normalizedCards);
 
   if (!cards.length) {
     return (
@@ -66,7 +66,7 @@ export function ProductGrid({
   }
 
   return (
-    <div className="mx-auto grid max-w-2xl grid-cols-1 gap-5 sm:max-w-none sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 xl:gap-4">
       {cards.map((product) => (
         <ProductCard key={product.slug} product={product} />
       ))}

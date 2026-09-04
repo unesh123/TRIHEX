@@ -1,194 +1,196 @@
 import Link from "next/link";
-import { ArrowUpRight, Check, Clock3, MessageCircle, PackageCheck } from "lucide-react";
-import { ProductCover } from "@/components/storefront/product-cover";
-import {
-  formatStorePrice,
-  visibilityLabelForCard,
-  type MerchCard,
-} from "@/lib/catalog/merchandising";
-import { productEnquiryUrl } from "@/lib/whatsapp";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import type { MerchCard } from "@/lib/catalog/merchandising";
 
-/** Legacy card shape used by demo catalog helpers. */
 export type StockStatus =
+  | "available"
+  | "out_of_stock"
+  | "under_review"
   | "in_stock"
   | "low_stock"
-  | "out_of_stock"
   | "made_to_order";
 
+// Legacy interface for backwards compatibility
 export interface ProductCardProps {
   slug: string;
   name: string;
-  shortDescription?: string;
   brandName?: string;
   categoryName?: string;
-  duration?: string;
+  priceNprMinor: number | null;
+  compareAtPriceNprMinor?: number | null;
+  discountPercent?: number | null;
+  duration?: string | null;
+  stockStatus?: StockStatus;
+  features?: string[];
+  coverPublicPath?: string | null;
+  shortDescription?: string;
+  warranty?: string | null;
   activationType: string;
-  warranty?: string;
-  priceNprMinor: number;
-  stockStatus: StockStatus;
   fulfillmentEstimate: string;
-  authorizationVerified?: boolean;
   featured?: boolean;
-  className?: string;
+  authorizationVerified?: boolean;
 }
 
-export function ProductCard({
-  product,
-  className,
-}: {
-  product: MerchCard;
-  className?: string;
-}) {
-  const href = `/products/${product.slug}`;
-  const status = visibilityLabelForCard(product);
-  const statusTone =
-    product.visibility === "AVAILABLE"
-      ? "bg-[var(--success-soft)] text-[var(--success)]"
-      : product.visibility === "BLOCKED" || product.visibility === "OUT_OF_STOCK"
-        ? "bg-[var(--danger-soft)] text-[var(--danger)]"
-        : "bg-[var(--warning-soft)] text-[var(--warning)]";
+function formatPrice(minor: number | null | undefined): string {
+  if (minor == null) return "";
+  const major = Math.round(minor / 100);
+  return `Rs. ${major.toLocaleString("en-IN")}`;
+}
 
-  const wa = productEnquiryUrl({
-    productName: product.title,
-    variantName: product.packageLabel,
-    slug: product.slug,
-    priceLabel:
-      product.showPrice && product.priceNprMinor != null
-        ? formatStorePrice(product.priceNprMinor)
-        : null,
-    compareAtLabel:
-      product.compareAtPriceNprMinor != null
-        ? formatStorePrice(product.compareAtPriceNprMinor)
-        : null,
-    features: product.features,
-  });
-  const tierCount = product.variants ? product.variants.length : 1;
-  const hasMultipleTiers = tierCount > 1 || product.isFamilyCard;
-  const primaryActionLabel = hasMultipleTiers
-    ? `View ${tierCount} Plans`
-    : product.purchasable
-      ? "Buy Now"
-      : "Request Availability";
-  const primaryActionHref = (hasMultipleTiers || product.purchasable) ? href : wa;
+export function ProductCard({ product }: { product: MerchCard }) {
+  const href = `/products/${product.slug}`;
+  const isAvailable = product.purchasable;
+  const isOutOfStock = product.visibility === "OUT_OF_STOCK";
+
+  const statusLabel = isAvailable
+    ? "Available"
+    : isOutOfStock
+      ? "Out of Stock"
+      : "Check Availability";
+
+  const statusColor = isAvailable
+    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/20"
+    : isOutOfStock
+      ? "bg-red-500/15 text-red-400 border-red-500/20"
+      : "bg-amber-500/15 text-amber-400 border-amber-500/20";
+
+  const priceLabel = product.showPrice && product.priceNprMinor != null
+    ? formatPrice(product.priceNprMinor)
+    : null;
+
+  const compareLabel =
+    product.compareAtPriceNprMinor != null &&
+    product.priceNprMinor != null &&
+    product.compareAtPriceNprMinor > product.priceNprMinor
+      ? formatPrice(product.compareAtPriceNprMinor)
+      : null;
+
+  const features = (product.features ?? []).slice(0, 3);
+  const tierCount = product.variants?.length ?? 0;
+
+  const waHref = buildWhatsAppUrl(
+    `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
+  );
 
   return (
-    <article
-      className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_10px_28px_rgba(13,28,43,.055)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/35 hover:shadow-[0_22px_48px_rgba(13,28,43,.13)] focus-within:border-[var(--primary)]/55 focus-within:shadow-[0_18px_42px_rgba(13,28,43,.11)]",
-        className,
-      )}
-    >
-      <Link href={href} className="relative block overflow-hidden bg-[linear-gradient(145deg,#eef3f8,#fbfdff)] p-2.5 sm:p-3">
-        <ProductCover
-          slug={product.slug}
-          family={product.brandFamily}
-          title={`${product.title} product visual`}
-          coverPublicPath={product.coverPublicPath}
-          className="aspect-square rounded-[1.05rem] border-0 bg-[linear-gradient(145deg,#eaf0f7,#ffffff)] transition duration-500 group-hover:scale-[1.02]"
-        />
-        <div className="absolute left-5 top-5 flex flex-wrap items-center gap-1.5">
-          <span className="rounded-lg border border-white/80 bg-white/92 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-secondary)] shadow-sm backdrop-blur">
-            {product.durationLabel ?? product.packageLabel}
-          </span>
-          {tierCount > 1 && (
-            <span className="rounded-full border border-[var(--primary)]/30 bg-[var(--primary-soft)] px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[var(--primary)] shadow-sm backdrop-blur">
-              {tierCount} Tiers
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[0_16px_40px_rgba(13,28,43,0.12)]">
+      {/* Product image */}
+      <Link href={href} className="relative block overflow-hidden bg-[#07111d]" style={{ aspectRatio: "4/3" }}>
+        {product.coverPublicPath ? (
+          <Image
+            src={product.coverPublicPath}
+            alt={`${product.title} product image`}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary)]/20 to-[var(--accent)]/20">
+            <span className="text-4xl font-black text-white/30">
+              {product.title.charAt(0)}
             </span>
-          )}
-          {product.discountPercent != null && product.discountPercent > 0 ? (
-            <span className="rounded-full bg-[var(--danger)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-white shadow-sm">−{product.discountPercent}%</span>
-          ) : null}
+          </div>
+        )}
+
+        {/* Category badge */}
+        <div className="absolute left-2 top-2">
+          <span className="rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[1px] text-white/90 backdrop-blur-sm">
+            {product.categoryLabel}
+          </span>
         </div>
-        <span className="absolute bottom-5 right-5 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/92 text-[var(--primary)] shadow-sm backdrop-blur transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          <span className="sr-only">View {product.title}</span>
-        </span>
+
+        {/* Discount badge */}
+        {product.discountPercent != null && product.discountPercent > 0 && (
+          <div className="absolute right-2 top-2">
+            <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-extrabold text-white shadow-sm">
+              −{product.discountPercent}%
+            </span>
+          </div>
+        )}
+
+        {/* Multi-plan chip */}
+        {tierCount > 1 && (
+          <div className="absolute bottom-2 right-2">
+            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-bold text-white/80 backdrop-blur-sm">
+              {tierCount} plans
+            </span>
+          </div>
+        )}
       </Link>
 
-      <div className="flex flex-1 flex-col p-4.5 sm:p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[var(--primary)]">{product.categoryLabel}</span>
-          <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.09em]", statusTone)}>{status}</span>
-          {product.stockLabel && !product.isFamilyCard ? (
-            <span className="text-[10px] font-semibold text-[var(--text-muted)]">{product.stockLabel}</span>
-          ) : null}
+      {/* Card body */}
+      <div className="flex flex-1 flex-col p-3 sm:p-3.5">
+        {/* Status */}
+        <div className="mb-1.5 flex items-center justify-between gap-1">
+          <span className={cn("rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide", statusColor)}>
+            {statusLabel}
+          </span>
+          {product.stockLabel && (
+            <span className="text-[9px] font-medium text-[var(--text-muted)]">{product.stockLabel}</span>
+          )}
         </div>
 
-        <div className="mt-3">
-          <p className="text-xs font-semibold text-[var(--text-muted)]">{product.brandName}</p>
-          <Link href={href}>
-            <h3 className="mt-1 font-[family-name:var(--font-sora)] text-[1.15rem] font-semibold leading-snug tracking-[-0.035em] text-[var(--text)] transition group-hover:text-[var(--primary)]">
-              {product.title}
-            </h3>
+        {/* Title */}
+        <Link href={href}>
+          <h3 className="line-clamp-2 text-xs font-extrabold leading-snug text-[var(--text)] transition-colors group-hover:text-[var(--primary)] sm:text-sm">
+            {product.title}
+          </h3>
+        </Link>
+
+        {/* Package label */}
+        <p className="mt-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+          {product.packageLabel}
+          {product.durationLabel ? ` · ${product.durationLabel}` : ""}
+        </p>
+
+        {/* Features */}
+        {features.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {features.map((f) => (
+              <li key={f} className="flex items-start gap-1.5 text-[10px] text-[var(--text-secondary)]">
+                <span className="mt-px h-3 w-3 shrink-0 rounded-full bg-[var(--success-soft)] text-center text-[8px] font-black leading-3 text-[var(--success)]">✓</span>
+                <span className="line-clamp-1">{f}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Price */}
+        <div className="mt-2 flex items-baseline gap-1.5">
+          {priceLabel ? (
+            <>
+              <span className="font-[family-name:var(--font-sora)] text-sm font-black tracking-tight text-[var(--text)] sm:text-base">
+                {priceLabel}
+              </span>
+              {compareLabel && (
+                <span className="text-[10px] text-[var(--text-muted)] line-through">{compareLabel}</span>
+              )}
+            </>
+          ) : (
+            <span className="text-xs font-semibold text-[var(--text-muted)]">Price on inquiry</span>
+          )}
+        </div>
+
+        {/* CTAs */}
+        <div className="mt-2 grid grid-cols-2 gap-1.5">
+          <Link
+            href={href}
+            className="flex h-8 items-center justify-center rounded-xl bg-[var(--surface-ink)] text-[10px] font-bold text-white transition hover:bg-[var(--primary)] sm:text-xs"
+          >
+            {isAvailable ? "Buy Now" : "View"}
           </Link>
-          {product.isFamilyCard && product.familyPlans && product.familyPlans.length > 1 ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {product.familyPlans.slice(0, 4).map((plan) => (
-                <Link
-                  key={plan.slug}
-                  href={`/products/${plan.slug}`}
-                  className="rounded-md bg-[var(--page-soft)] px-2 py-1 text-[10px] font-bold text-[var(--text-secondary)] transition hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
-                >
-                  {plan.label}
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-1.5 line-clamp-1 text-sm text-[var(--text-secondary)]">{product.packageLabel}</p>
-          )}
-        </div>
-
-        <div className="mt-4 rounded-xl border border-[var(--border)]/70 bg-[var(--page-soft)]/60 px-3 py-2.5">
-          <p className="flex items-start gap-2 text-xs leading-relaxed text-[var(--text-secondary)]">
-            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--success)]" aria-hidden="true" />
-            <span className="line-clamp-1">{product.features[0] ?? "Package details confirmed before fulfillment."}</span>
-          </p>
-          <p className="mt-1.5 flex items-center gap-2 text-[11px] font-semibold text-[var(--text-muted)]">
-            <Clock3 className="h-3.5 w-3.5 text-[var(--primary)]" aria-hidden="true" />
-            <span className="line-clamp-1">{product.fulfillmentEstimate}</span>
-          </p>
-        </div>
-
-        <div className="mt-5 flex items-end justify-between gap-3 border-t border-[var(--border)] pt-4">
-          <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[var(--text-muted)]">
-              {product.isFamilyCard ? "From" : product.showPrice ? "Price" : "On enquiry"}
-            </p>
-            {product.showPrice && product.priceNprMinor != null ? (
-              <>
-                <p className="mt-1 font-[family-name:var(--font-sora)] text-xl font-bold tracking-[-0.035em] text-[var(--text)]">{formatStorePrice(product.priceNprMinor)}</p>
-                {product.compareAtPriceNprMinor != null ? (
-                  <p className="mt-0.5 text-[11px] text-[var(--text-muted)] line-through">{formatStorePrice(product.compareAtPriceNprMinor)}</p>
-                ) : null}
-              </>
-            ) : (
-              <p className="mt-1 text-xs font-bold text-[var(--primary)]">Check Availability & Price</p>
-            )}
-          </div>
-          {product.stockLabel ? <PackageCheck className="h-5 w-5 text-[var(--primary)]/55" aria-hidden="true" /> : null}
-        </div>
-
-        <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
-          {primaryActionHref.startsWith("/") ? (
-            <Link
-              href={primaryActionHref}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
-            >
-              {primaryActionLabel}
-            </Link>
-          ) : (
-            <a
-              href={primaryActionHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
-            >
-              {primaryActionLabel}
-            </a>
-          )}
-          <a href={wa} target="_blank" rel="noopener noreferrer" aria-label={`Ask about ${product.title} on WhatsApp`} className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-strong)] bg-white text-[var(--text-secondary)] transition hover:border-[var(--success)] hover:bg-[var(--success-soft)] hover:text-[var(--success)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
-            <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-8 items-center justify-center rounded-xl border border-[#25d366]/30 bg-[#25d366]/8 text-[10px] font-bold text-[#1a8c4e] transition hover:bg-[#25d366]/15 sm:text-xs"
+          >
+            WhatsApp
           </a>
         </div>
       </div>
