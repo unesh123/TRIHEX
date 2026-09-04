@@ -29,6 +29,8 @@ import {
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
+  { href: "/ai-finder", label: "AI Finder 🎯" },
+  { href: "/compare", label: "Compare" },
   { href: "/vault", label: "Vault ⚡" },
   { href: "/categories", label: "Categories" },
   { href: "/track-order", label: "Track order" },

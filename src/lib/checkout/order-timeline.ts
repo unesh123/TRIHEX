@@ -24,10 +24,17 @@ export function getPublicOrderTimeline(
     deliveredAt: order.fulfillmentDeliveredAt ?? null,
   });
 
+  const messageMap: Record<string, string> = {
+    placed: "Order received. Ready for eSewa, Khalti, or mobile banking payment.",
+    review: "Payment proof uploaded. Operations desk verifying receipt.",
+    paid: "Payment verified. Subscription provisioning in progress.",
+    delivered: "Fulfillment delivered. Access unlocked and warranty guarantee active.",
+  };
+
   return steps.map((s) => ({
     at: s.at ?? order.createdAt,
-    status: s.key.toUpperCase(),
-    message: s.label,
+    status: s.label,
+    message: messageMap[s.key] ?? s.label,
     done: s.done,
     active: s.active,
   }));

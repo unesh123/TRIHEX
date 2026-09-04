@@ -31,6 +31,10 @@ import { cn } from "@/lib/utils";
 import { TrustStrip } from "@/components/storefront/trust-strip";
 import { StickyMobileBuyBar } from "@/components/storefront/sticky-mobile-buy-bar";
 import { ProductReviews } from "@/components/storefront/product-reviews";
+import { PDPFeatureGrid } from "@/components/storefront/pdp-feature-grid";
+import { PDPTargetAudience } from "@/components/storefront/pdp-target-audience";
+import { PDPFulfillmentTimeline } from "@/components/storefront/pdp-fulfillment-timeline";
+import { PDPVerifiedClaims } from "@/components/storefront/pdp-verified-claims";
 import {
   JsonLd,
   breadcrumbJsonLd,
@@ -248,33 +252,24 @@ export default async function ProductDetailPage({
             priority
           />
 
-          <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)] sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-              Plan features
-            </p>
-            <h2 className="mt-1 font-[family-name:var(--font-sora)] text-lg font-semibold text-[var(--text)] sm:text-xl">
-              What this package includes
-            </h2>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Authoritative inclusions verified upon fulfillment.
-            </p>
-            <ul className="mt-4 space-y-2.5">
-              {features.slice(0, 4).map((f) => (
-                <li
-                  key={f}
-                  className="flex gap-3 rounded-xl bg-[var(--page-soft)] px-3 py-2.5 text-sm text-[var(--text-secondary)]"
-                >
-                  <span
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--success-soft)] text-[11px] font-bold text-[var(--success)]"
-                    aria-hidden
-                  >
-                    ✓
-                  </span>
-                  <span className="leading-snug">{f}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <PDPVerifiedClaims slug={product.slug} />
+
+          <PDPFeatureGrid
+            productTitle={product.title}
+            slug={product.slug}
+            features={features}
+          />
+
+          <PDPTargetAudience
+            categorySlug={product.categorySlug}
+            productTitle={product.title}
+          />
+
+          <PDPFulfillmentTimeline
+            activationLabel={product.activationLabel}
+            deliveryEstimate={meta.delivery}
+            warrantyLabel={product.warrantyLabel ?? undefined}
+          />
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)]">
             <h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold text-[var(--text)]">
