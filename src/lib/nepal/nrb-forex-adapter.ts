@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { createHash } from "node:crypto";
+import { NepalFeedResult } from "./types";
 
 export * from "./forex-shared";
 import { ForexSnapshot, ForexFreshnessStatus, BASELINE_NRB_RATES, formatRelativeAge, CurrencyRate } from "./forex-shared";
@@ -164,4 +165,17 @@ export async function fetchNrbForexRates(): Promise<ForexSnapshot> {
 /** Reset in-memory snapshot cache for tests */
 export function resetForexCacheForTest(snapshot?: ForexSnapshot | null): void {
   previousSnapshotCache = snapshot || null;
+}
+
+export async function fetchNrbForexFeed(): Promise<NepalFeedResult<ForexSnapshot>> {
+  const snapshot = await fetchNrbForexRates();
+  return {
+    status: snapshot.freshnessStatus,
+    data: snapshot,
+    sourceName: snapshot.source,
+    sourceUrl: "https://www.nrb.org.np/api/forex/v1/rates",
+    sourceTimestamp: snapshot.publishedAt,
+    fetchedAt: snapshot.fetchedAt,
+    notice: snapshot.freshnessStatus === "STALE" ? "Official offline baseline active due to NRB API unavailability." : undefined,
+  };
 }

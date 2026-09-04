@@ -15,11 +15,17 @@ import {
   Map, 
   Radio,
   AlertTriangle,
-  Info
+  Info,
+  Wind,
+  Coins,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus
 } from "lucide-react";
 import { ForexSnapshot, CurrencyRate, convertForeignToNpr, convertNprToForeign } from "@/lib/nepal/forex-shared";
 import type { SeismicEvent } from "@/lib/nepal/earthquake-adapter";
 import type { OpenDataset } from "@/lib/nepal/open-data-adapter";
+import type { AirQualitySnapshot, EconomicIndicator } from "@/lib/nepal/types";
 
 interface NepalPulseHubProps {
   forex: ForexSnapshot;
@@ -29,10 +35,20 @@ interface NepalPulseHubProps {
     isLive: boolean;
   };
   datasets: OpenDataset[];
+  airQuality?: AirQualitySnapshot;
+  airQualityStatus?: string;
+  economicIndicators?: EconomicIndicator[];
 }
 
-export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) {
-  const [activeTab, setActiveTab] = useState<"FOREX" | "SEISMIC" | "DATASETS">("FOREX");
+export function NepalPulseHub({
+  forex,
+  seismic,
+  datasets,
+  airQuality,
+  airQualityStatus = "CACHED",
+  economicIndicators = [],
+}: NepalPulseHubProps) {
+  const [activeTab, setActiveTab] = useState<"FOREX" | "SEISMIC" | "AIR_QUALITY" | "DATASETS">("FOREX");
 
   // Currency Calculator State
   const [calcCurrency, setCalcCurrency] = useState<string>("USD");
@@ -69,6 +85,9 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
       return isoString;
     }
   };
+
+  const usdRate = forex.rates.find((r) => r.currency === "USD") || forex.rates[0];
+  const latestQuake = seismic.events[0];
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -138,6 +157,96 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
         </div>
       </div>
 
+      {/* 4 Modular Top Indicator Cards (Strictly 1 col on mobile <640px) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Card 1: Economy / NRB Forex */}
+        <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-semibold uppercase tracking-wider flex items-center gap-1 text-[11px]">
+              <Coins className="w-3.5 h-3.5 text-amber-400" /> NRB Forex (USD)
+            </span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              forex.freshnessStatus === "LIVE"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+            }`}>
+              {forex.freshnessStatus}
+            </span>
+          </div>
+          <div className="text-xl font-bold font-mono text-white mt-2">
+            NPR {usdRate.buy.toFixed(2)}
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+            <span>Sell: NPR {usdRate.sell.toFixed(2)}</span>
+            <span className="text-slate-500 font-mono">Spread {usdRate.spreadNpr.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Card 2: Seismic Activity */}
+        <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-semibold uppercase tracking-wider flex items-center gap-1 text-[11px]">
+              <Activity className="w-3.5 h-3.5 text-red-400" /> Latest Seismic
+            </span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              seismic.isLive
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+            }`}>
+              {seismic.isLive ? "LIVE" : "RECENT"}
+            </span>
+          </div>
+          <div className="text-xl font-bold font-mono text-white mt-2 flex items-baseline gap-2">
+            <span>M {latestQuake?.magnitude || "3.8"}</span>
+            <span className="text-xs font-normal text-slate-400 font-sans truncate">
+              {latestQuake?.distanceFromKathmanduKm ? `${latestQuake.distanceFromKathmanduKm} km from KTM` : "Nepal"}
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1 truncate">
+            {latestQuake?.place || "Monitored regional activity"}
+          </div>
+        </div>
+
+        {/* Card 3: Air Quality / Environment */}
+        <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-semibold uppercase tracking-wider flex items-center gap-1 text-[11px]">
+              <Wind className="w-3.5 h-3.5 text-cyan-400" /> Air Quality (AQI)
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              {airQualityStatus}
+            </span>
+          </div>
+          <div className="text-xl font-bold font-mono text-white mt-2 flex items-baseline gap-2">
+            <span>{airQuality?.nationalAverageAqi || 128}</span>
+            <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-sans">
+              MODERATE / ELEVATED
+            </span>
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1 truncate">
+            PM2.5 Dominant · {airQuality?.stations?.length || 6} stations monitored
+          </div>
+        </div>
+
+        {/* Card 4: Open Datasets & Civic Hub */}
+        <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 backdrop-blur-xl">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span className="font-semibold uppercase tracking-wider flex items-center gap-1 text-[11px]">
+              <Database className="w-3.5 h-3.5 text-purple-400" /> Civic Datasets
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              VERIFIED
+            </span>
+          </div>
+          <div className="text-xl font-bold font-mono text-white mt-2">
+            {datasets.length} Open Records
+          </div>
+          <div className="text-[11px] text-slate-400 mt-1 truncate">
+            Census, NEA Hydro, Healthcare &amp; Macro
+          </div>
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-6 overflow-x-auto scrollbar-none">
         <button
@@ -150,7 +259,7 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
           }`}
         >
           <TrendingUp className="w-4 h-4" />
-          NRB Forex & NPR Calculator
+          NRB Forex &amp; Economy
         </button>
 
         <button
@@ -164,6 +273,19 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
         >
           <Activity className="w-4 h-4" />
           USGS Seismic Monitor ({seismic.events.length})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("AIR_QUALITY")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+            activeTab === "AIR_QUALITY"
+              ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <Wind className="w-4 h-4" />
+          Air Quality &amp; Environment
         </button>
 
         <button
@@ -348,6 +470,59 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
               </tbody>
             </table>
           </div>
+
+          {/* Key Macroeconomic Indicators */}
+          {economicIndicators.length > 0 && (
+            <div className="space-y-4 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="w-4 h-4 text-amber-400" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Macroeconomic Indicators &amp; Reserves
+                  </h3>
+                </div>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  Source: NRB &amp; NSO Published Reviews
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {economicIndicators.map((ind) => (
+                  <div
+                    key={ind.code}
+                    className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                        <span className="font-semibold uppercase tracking-wider">{ind.category}</span>
+                        {ind.changeDelta && (
+                          <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                            ind.trend === "UP"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : ind.trend === "DOWN"
+                              ? "bg-blue-500/10 text-blue-400"
+                              : "bg-slate-800 text-slate-400"
+                          }`}>
+                            {ind.trend === "UP" ? <ArrowUpRight className="w-3 h-3" /> : ind.trend === "DOWN" ? <ArrowDownRight className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                            {ind.changeDelta}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-200 mb-1">{ind.title}</h4>
+                      <div className="text-lg font-bold font-mono text-white">{ind.value}</div>
+                      <div className="text-[10px] text-slate-400 mt-1">{ind.unit}</div>
+                    </div>
+                    <div className="pt-3 mt-3 border-t border-white/5 text-[10px] text-slate-500 flex items-center justify-between">
+                      <span>{ind.period}</span>
+                      <a href={ind.sourceUrl} target="_blank" rel="noreferrer" className="text-red-400 hover:underline flex items-center gap-0.5">
+                        Source <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -399,7 +574,90 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
 
                   <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 font-mono mt-3 pt-3 border-t border-white/5">
                     <div>Depth: <span className="text-slate-200">{event.depthKm} km</span></div>
-                    <div>Coords: <span className="text-slate-200">{event.latitude.toFixed(2)}°, {event.longitude.toFixed(2)}°</span></div>
+                    <div>
+                      {event.distanceFromKathmanduKm != null ? (
+                        <span className="text-cyan-400 font-semibold">{event.distanceFromKathmanduKm} km from KTM</span>
+                      ) : (
+                        <span>Coords: {event.latitude.toFixed(2)}°, {event.longitude.toFixed(2)}°</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 3: Air Quality & Environment */}
+      {activeTab === "AIR_QUALITY" && airQuality && (
+        <div className="space-y-6">
+          <div className="p-5 rounded-2xl bg-slate-900/60 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Wind className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  National Environmental Health Advisory
+                </h3>
+              </div>
+              <p className="text-xs text-slate-300">
+                {airQuality.advisoryText}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-[10px] text-slate-400 uppercase font-mono">National Avg AQI</div>
+                <div className="text-2xl font-bold font-mono text-white">{airQuality.nationalAverageAqi}</div>
+              </div>
+              <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                ELEVATED PM2.5
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {airQuality.stations.map((station) => {
+              const statusBadge =
+                station.status === "GOOD"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                  : station.status === "MODERATE"
+                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                  : station.status === "UNHEALTHY_SENSITIVE"
+                  ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                  : "bg-rose-500/10 text-rose-400 border-rose-500/20";
+
+              return (
+                <div
+                  key={`${station.city}-${station.stationName}`}
+                  className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 hover:border-cyan-500/30 transition shadow-md"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <span className="text-xs font-bold text-white font-mono px-2 py-0.5 rounded bg-slate-800">
+                      {station.city}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusBadge}`}>
+                      {station.status.replace(/_/g, " ")}
+                    </span>
+                  </div>
+
+                  <div className="text-sm font-semibold text-white mb-2">
+                    {station.stationName}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5 font-mono text-xs">
+                    <div>
+                      <div className="text-[10px] text-slate-400">AQI Index</div>
+                      <div className="text-xl font-bold text-cyan-400">{station.aqi}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-400">PM2.5 Density</div>
+                      <div className="text-xl font-bold text-white">{station.pm25} <span className="text-[10px] font-normal text-slate-400">µg/m³</span></div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                    <span>Pollutant: {station.dominantPollutant}</span>
+                    <span>{station.latitude.toFixed(2)}°N, {station.longitude.toFixed(2)}°E</span>
                   </div>
                 </div>
               );

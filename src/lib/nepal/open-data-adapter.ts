@@ -1,3 +1,5 @@
+import { NepalFeedResult } from "./types";
+
 export interface OpenDataset {
   id: string;
   title: string;
@@ -102,4 +104,16 @@ export function getOpenDatasets(category?: string): OpenDataset[] {
 
 export function getDatasetBySlug(slug: string): OpenDataset | undefined {
   return VERIFIED_NEPAL_DATASETS.find((d) => d.slug === slug);
+}
+
+export async function fetchOpenDataFeed(): Promise<NepalFeedResult<OpenDataset[]>> {
+  const now = new Date().toISOString();
+  return {
+    status: "CACHED",
+    data: VERIFIED_NEPAL_DATASETS,
+    sourceName: "National Statistics Office & Open Data Nepal Registry",
+    sourceUrl: "https://opendatanepal.com",
+    fetchedAt: now,
+    notice: "Verified official government open datasets.",
+  };
 }

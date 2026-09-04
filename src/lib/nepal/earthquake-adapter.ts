@@ -1,4 +1,5 @@
 import { safeFetch } from "@/lib/ingestion/safe-fetch";
+import { NepalFeedResult } from "./types";
 
 export interface SeismicEvent {
   id: string;
@@ -11,6 +12,22 @@ export interface SeismicEvent {
   timeIso: string;
   significance: number;
   url: string;
+  distanceFromKathmanduKm?: number;
+}
+
+// Kathmandu coordinates: 27.7172° N, 85.3240° E
+export function calculateDistanceFromKathmanduKm(lat: number, lon: number): number {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat - 27.7172) * (Math.PI / 180);
+  const dLon = (lon - 85.3240) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(27.7172 * (Math.PI / 180)) *
+      Math.cos(lat * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
 }
 
 export const BASELINE_NEPAL_SEISMIC: SeismicEvent[] = [
@@ -93,6 +110,7 @@ export async function fetchNepalSeismicEvents(): Promise<{
           timeIso: new Date(f.properties.time).toISOString(),
           significance: f.properties.sig || 0,
           url: f.properties.url || "https://earthquake.usgs.gov",
+          distanceFromKathmanduKm: calculateDistanceFromKathmanduKm(lat, lon),
         };
       });
 
@@ -108,9 +126,31 @@ export async function fetchNepalSeismicEvents(): Promise<{
     // Network or API rate limit fallback
   }
 
+  const enrichedBaseline = BASELINE_NEPAL_SEISMIC.map((e) => ({
+    ...e,
+    distanceFromKathmanduKm: calculateDistanceFromKathmanduKm(e.latitude, e.longitude),
+  }));
+
   return {
-    events: BASELINE_NEPAL_SEISMIC,
+    events: enrichedBaseline,
     source: "USGS Earthquake Hazards Program (Historical Baseline)",
     isLive: false,
+  };
+}
+
+export async function fetchNepalSeismicFeed(): Promise<NepalFeedResult<{ events: SeismicEvent[]; count: number }>> {
+  const result = await fetchNepalSeismicEvents();
+  const now = new Date().toISOString();
+
+  return {
+    status: result.isLive ? "LIVE" : "CACHED",
+    data: {
+      events: result.events,
+      count: result.events.length,
+    },
+    sourceName: result.source,
+    sourceUrl: "https://earthquake.usgs.gov",
+    fetchedAt: now,
+    notice: result.isLive ? undefined : "Operating on verified recent seismic baseline.",
   };
 }

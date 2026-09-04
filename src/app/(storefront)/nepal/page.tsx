@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
 import { fetchNepalSeismicEvents } from "@/lib/nepal/earthquake-adapter";
 import { getOpenDatasets } from "@/lib/nepal/open-data-adapter";
+import { fetchNepalAirQualityFeed } from "@/lib/nepal/air-quality-adapter";
+import { fetchNepalEconomicFeed } from "@/lib/nepal/macroeconomic-adapter";
 import { NepalPulseHub } from "@/components/nepal/nepal-pulse-hub";
 
 export const dynamic = "force-dynamic";
@@ -22,16 +24,25 @@ export const metadata: Metadata = {
 };
 
 export default async function NepalPulsePage() {
-  const [forex, seismic] = await Promise.all([
+  const [forex, seismic, airQualityFeed, economicFeed] = await Promise.all([
     fetchNrbForexRates(),
     fetchNepalSeismicEvents(),
+    fetchNepalAirQualityFeed(),
+    fetchNepalEconomicFeed(),
   ]);
 
   const datasets = getOpenDatasets();
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
-      <NepalPulseHub forex={forex} seismic={seismic} datasets={datasets} />
+      <NepalPulseHub
+        forex={forex}
+        seismic={seismic}
+        datasets={datasets}
+        airQuality={airQualityFeed.data}
+        airQualityStatus={airQualityFeed.status}
+        economicIndicators={economicFeed.data}
+      />
     </main>
   );
 }
