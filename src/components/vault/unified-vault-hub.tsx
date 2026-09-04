@@ -8,7 +8,7 @@ import {
   VaultPriceMode,
   VaultProvenance,
 } from "@/lib/vault/vault-types";
-import { filterVaultEntries } from "@/lib/vault/vault-aggregator";
+import { filterVaultEntries } from "@/lib/vault/vault-filters";
 import { SilentTaxCalculator } from "@/components/vault/silent-tax-calculator";
 import {
   Flame,
