@@ -12,9 +12,18 @@ export type PromptCategory =
   | "PRODUCTIVITY"
   | "WRITING";
 
+export type PromptDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+
+export type PromptQualityStatus =
+  | "UNREVIEWED"
+  | "COMMUNITY"
+  | "CURATED"
+  | "TRIHEX_VERIFIED";
+
 export interface PromptVariable {
   name: string;
   label?: string;
+  placeholder?: string;
   description?: string;
   defaultValue?: string;
   required?: boolean;
@@ -22,6 +31,8 @@ export interface PromptVariable {
 
 export interface Prompt {
   id: string;
+  sourceId?: string;
+  externalId?: string;
   slug: string;
   title: string;
   description: string;
@@ -37,9 +48,21 @@ export interface Prompt {
   isOriginalTrihex: boolean;
   modelCompatibility: string[]; // e.g. ["Claude 3.7", "GPT-4o", "DeepSeek-R1", "Cursor", "Midjourney v6"]
   status: "PUBLISHED" | "DRAFT" | "ARCHIVED";
+  difficulty?: PromptDifficulty;
+  qualityStatus?: PromptQualityStatus;
   contentHash: string;
+  syncedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PromptVersion {
+  id: string;
+  promptId: string;
+  version: number;
+  content: string;
+  contentHash: string;
+  capturedAt: string;
 }
 
 export function extractPromptVariables(content: string): PromptVariable[] {
@@ -61,6 +84,7 @@ export function extractPromptVariables(content: string): PromptVariable[] {
       varsMap.set(rawName, {
         name: rawName,
         label,
+        placeholder: `Enter ${label}...`,
         defaultValue: "",
         required: true,
       });

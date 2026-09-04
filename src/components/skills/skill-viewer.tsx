@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { 
   FileCode, 
   FileText, 
   Copy, 
   Check, 
   ShieldCheck, 
+  ShieldAlert,
   FolderTree, 
   Terminal, 
-  Layers,
   Cpu,
-  Info
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Hash
 } from "lucide-react";
-import { AgentSkill, SkillFile } from "@/lib/skills/types";
+import { AgentSkill } from "@/lib/skills/types";
+import { scanAgentSkill, SkillSecurityScanResult } from "@/lib/skills/security-scanner";
 
 interface SkillViewerProps {
   skill: AgentSkill;
@@ -22,8 +26,14 @@ interface SkillViewerProps {
 export function SkillViewer({ skill }: SkillViewerProps) {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [copiedHash, setCopiedHash] = useState(false);
+  const [showFindings, setShowFindings] = useState(false);
 
   const activeFile = skill.files[activeFileIndex] || skill.files[0];
+
+  const scanResult: SkillSecurityScanResult = useMemo(() => {
+    return scanAgentSkill(skill);
+  }, [skill]);
 
   const handleCopy = () => {
     if (!activeFile) return;
@@ -32,19 +42,121 @@ export function SkillViewer({ skill }: SkillViewerProps) {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const handleCopyHash = () => {
+    navigator.clipboard.writeText(scanResult.sha256Checksum);
+    setCopiedHash(true);
+    setTimeout(() => setCopiedHash(false), 2500);
+  };
+
   return (
     <div className="space-y-6">
       {/* Security & Sandboxing Banner */}
-      <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-300">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>
-            <strong>Inert Code Verification:</strong> This skill contains static instructions and scripts designed for agent environments. Code is sandboxed and never executed automatically in browser.
-          </span>
+      <div className={`rounded-2xl border p-4 text-xs transition-all ${
+        scanResult.riskLevel === "LOW"
+          ? "bg-emerald-950/30 border-emerald-500/20 text-emerald-300"
+          : scanResult.riskLevel === "MEDIUM"
+          ? "bg-amber-950/30 border-amber-500/30 text-amber-300"
+          : "bg-rose-950/30 border-rose-500/40 text-rose-300"
+      }`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-2.5">
+            {scanResult.riskLevel === "LOW" ? (
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+            ) : (
+              <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5 sm:mt-0" />
+            )}
+            <div>
+              <div className="font-semibold flex items-center gap-2">
+                <span>
+                  {scanResult.riskLevel === "LOW"
+                    ? "Inert Code Verified (Safe for Agent Execution)"
+                    : "External code — review before execution"}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
+                  scanResult.riskLevel === "LOW"
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                    : scanResult.riskLevel === "MEDIUM"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                    : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                }`}>
+                  Risk: {scanResult.riskLevel}
+                </span>
+              </div>
+              <p className="text-[11px] opacity-80 mt-0.5">
+                Static analysis scanned {scanResult.scannedFilesCount} files ({scanResult.scannedBytes} bytes). Sandboxed for agent environments.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            {scanResult.findings.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowFindings(!showFindings)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-medium transition-all"
+              >
+                <AlertTriangle className="w-3 h-3 text-amber-400" />
+                <span>{scanResult.findings.length} findings</span>
+                {showFindings ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleCopyHash}
+              title="Copy SHA-256 Integrity Checksum"
+              className="inline-flex items-center gap-1 font-mono text-[10px] px-2 py-1 rounded bg-black/40 border border-white/10 hover:border-white/20 text-slate-300 transition-all"
+            >
+              <Hash className="w-3 h-3 opacity-60" />
+              <span>{scanResult.sha256Checksum.slice(0, 8)}...</span>
+              {copiedHash ? (
+                <Check className="w-3 h-3 text-emerald-400 ml-1" />
+              ) : (
+                <Copy className="w-3 h-3 opacity-60 ml-1" />
+              )}
+            </button>
+
+            <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/5 border border-white/10">
+              v{skill.version}
+            </span>
+          </div>
         </div>
-        <span className="shrink-0 font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">
-          v{skill.version}
-        </span>
+
+        {/* Expandable Security Findings */}
+        {showFindings && scanResult.findings.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+            <div className="text-[11px] font-semibold tracking-wide text-slate-300">
+              Detected Patterns:
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {scanResult.findings.map((f, idx) => (
+                <div
+                  key={`${f.ruleId}-${idx}`}
+                  className="p-2 rounded-lg bg-black/40 border border-white/10 text-[11px] flex flex-col gap-1"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-slate-400">
+                      {f.filePath}:{f.lineNumber}
+                    </span>
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold ${
+                      f.severity === "CRITICAL"
+                        ? "bg-rose-500/20 text-rose-300"
+                        : f.severity === "HIGH"
+                        ? "bg-orange-500/20 text-orange-300"
+                        : "bg-amber-500/20 text-amber-300"
+                    }`}>
+                      {f.severity}
+                    </span>
+                  </div>
+                  <div className="text-slate-200">{f.message}</div>
+                  <pre className="font-mono text-[10px] text-slate-400 bg-slate-900/80 px-2 py-1 rounded overflow-x-auto">
+                    {f.snippet}
+                  </pre>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main File Explorer Container */}
