@@ -505,7 +505,260 @@ async function main() {
     `,
   });
 
-  console.log("All 20+ luxury feature infographic posters generated successfully!");
+  // 21. Claude Code & API Access
+  await renderPoster({
+    destPath: "public/media/covers/claude/claude-code-api-access.webp",
+    slug: "claude-code-api-access",
+    category: "CLAUDE 3.7 SONNET",
+    badge: "1 MONTH PRO",
+    brandName: "Anthropic Claude",
+    productTitle: "CLAUDE CODE & API",
+    subtitle: "Frontier Hybrid Reasoning & Terminal Agent Access",
+    accentA: "#D97706",
+    accentB: "#F59E0B",
+    glowColor: "#D97706",
+    features: [
+      "Claude 3.7 Sonnet Hybrid Reasoning & Extended Thinking Mode",
+      "High-Speed Terminal CLI Coding Agent Integration",
+      "Massive 200,000 Token Context Window & Codebase Search",
+      "Full API Key & Web Interface Access with Replacement Warranty",
+    ],
+    footerNote: "1 Month Verified Access · Instant Key Delivery · 100% Nepali Support",
+    iconSymbol: `
+      <circle cx="40" cy="40" r="28" fill="url(#accentGrad)"/>
+      <path d="M26 40 Q40 22 54 40 Q40 58 26 40 Z" fill="#0f172a"/>
+    `,
+  });
+
+  // 22. Google Gemini AI Pro 18 Months
+  await renderPoster({
+    destPath: "public/media/covers/gemini/gemini-pro-18-month-upgrade.webp",
+    slug: "gemini-pro-18-months-link",
+    category: "GOOGLE DEEPMIND",
+    badge: "18 MONTHS PRO",
+    brandName: "Google Gemini",
+    productTitle: "GEMINI 2.5 PRO",
+    subtitle: "2M Context Window, Deep Research & 5TB Google One Cloud",
+    accentA: "#1A73E8",
+    accentB: "#8AB4F8",
+    glowColor: "#1A73E8",
+    features: [
+      "Frontier Gemini 2.5 Pro & Gemini 2.0 Flash Reasoning Models",
+      "Massive 2,000,000 Token Context Window (Code, Audio & Video)",
+      "Includes 5TB Google One Cloud Storage & Deep Research Agent",
+      "Seamless Direct Upgrade Link to Your Own Google Account",
+    ],
+    footerNote: "18 Months Long-Term Upgrade · 0% Ban Risk · 6M & 1Yr+ Warranty Plans",
+    iconSymbol: `
+      <polygon points="40,12 50,30 68,40 50,50 40,68 30,50 12,40 30,30" fill="url(#accentGrad)"/>
+    `,
+  });
+
+  // 23. CapCut Pro
+  await renderPoster({
+    destPath: "public/media/covers/capcut/capcut-pro-6-months.webp",
+    slug: "capcut-pro",
+    category: "CREATIVE VIDEO AI",
+    badge: "MULTI-TIER ACCESS",
+    brandName: "CapCut Pro",
+    productTitle: "CAPCUT PRO",
+    subtitle: "AI Video Editing, Auto Captions & 4K 60FPS Cloud Suite",
+    accentA: "#00F2FE",
+    accentB: "#4FACFE",
+    glowColor: "#00F2FE",
+    features: [
+      "All Pro AI Effects, Transitions, Keyframes & Auto-Cut",
+      "Auto Multilingual Captions & Smart Background Removal",
+      "Ultra HD 4K 60FPS High-Bitrate Direct Social Export",
+      "Cloud Project Sync across Windows, Mac, iOS & Android",
+    ],
+    footerNote: "7D, 1M, 3M & 6M Plans · 100% Guaranteed Official Login · Full Warranty",
+    iconSymbol: `
+      <polygon points="20,20 60,35 20,50" fill="url(#accentGrad)"/>
+      <polygon points="60,30 20,45 60,60" fill="url(#accentGrad)"/>
+    `,
+  });
+
+  // 24. ElevenLabs Creator
+  await renderPoster({
+    destPath: "public/media/covers/elevenlabs/elevenlabs-creator-shared.webp",
+    slug: "elevenlabs-creator-shared",
+    category: "AI VOICE & AUDIO",
+    badge: "CREATOR SHARED",
+    brandName: "ElevenLabs",
+    productTitle: "ELEVENLABS CREATOR",
+    subtitle: "Ultra-Realistic AI Voice Cloning & Text-to-Speech",
+    accentA: "#10B981",
+    accentB: "#059669",
+    glowColor: "#10B981",
+    features: [
+      "100,000 Monthly Character Generation Credits",
+      "Hyper-Realistic Voice Cloning with Instant Sample Audio",
+      "Commercial Rights Included for YouTube, Reels & Podcasts",
+      "Shared Workspace Plan with 2M to 9M Flexible Durations",
+    ],
+    footerNote: "Wholesale Shared Workspace Seat · 2M to 9M Plans · Replacement Guarantee",
+    iconSymbol: `
+      <rect x="22" y="24" width="8" height="32" rx="4" fill="url(#accentGrad)"/>
+      <rect x="36" y="16" width="8" height="48" rx="4" fill="url(#accentGrad)"/>
+      <rect x="50" y="24" width="8" height="32" rx="4" fill="url(#accentGrad)"/>
+    `,
+  });
+
+  // 25. ChatGPT Plus Full Warranty
+  await renderPoster({
+    destPath: "public/media/covers/chatgpt/chatgpt-plus-1-month-fw.webp",
+    slug: "chatgpt-plus-1-month-fw",
+    category: "OPENAI FRONTIER AI",
+    badge: "FULL WARRANTY",
+    brandName: "OpenAI ChatGPT",
+    productTitle: "CHATGPT PLUS",
+    subtitle: "GPT-4o, OpenAI o1 Reasoning, Canvas & DALL·E 3",
+    accentA: "#10A37F",
+    accentB: "#14B8A6",
+    glowColor: "#10A37F",
+    features: [
+      "Full Access to GPT-4o & OpenAI o1 Deep Thinking Model",
+      "Interactive Canvas Workspace for Coding & Writing",
+      "DALL·E 3 Image Generation & Advanced Voice Mode",
+      "Zero Ban Risk Private Account with Full Replacement Warranty",
+    ],
+    footerNote: "1M & 3M Options · Business Seat Available · 100% Nepali Support",
+    iconSymbol: `
+      <circle cx="40" cy="40" r="28" fill="none" stroke="url(#accentGrad)" stroke-width="5"/>
+      <circle cx="40" cy="40" r="12" fill="#10A37F"/>
+    `,
+  });
+
+  // 26. Canva Pro 1 Year
+  await renderPoster({
+    destPath: "public/media/covers/canva/canva-pro-1-year.webp",
+    slug: "canva-pro-1-year",
+    category: "DESIGN & BRANDING",
+    badge: "1 YEAR UNLIMITED",
+    brandName: "Canva Pro",
+    productTitle: "CANVA PRO 1 YEAR",
+    subtitle: "100M+ Premium Stock Photos, Videos & Magic AI Studio",
+    accentA: "#7D2AE8",
+    accentB: "#00C4CC",
+    glowColor: "#7D2AE8",
+    features: [
+      "Unlimited Access to 100M+ Premium Stock Assets & Audio",
+      "One-Click Background Remover & Magic Resize to Any Ratio",
+      "Magic AI Studio: Text to Image, Magic Eraser & Expander",
+      "Activated Directly on Your Personal Email ID with Full Warranty",
+    ],
+    footerNote: "1 Year Full Access · Your Own Private Email · 100% Replacement Warranty",
+    iconSymbol: `
+      <circle cx="40" cy="40" r="28" fill="url(#accentGrad)"/>
+      <text x="40" y="52" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="34" font-weight="900">C</text>
+    `,
+  });
+
+  // 27. Kling AI Standard Credits
+  await renderPoster({
+    destPath: "public/media/covers/kling/kling-standard-680-750-credits.webp",
+    slug: "kling-standard-680-750-credits",
+    category: "AI VIDEO CREATIVE",
+    badge: "750 CREDITS",
+    brandName: "Kling AI",
+    productTitle: "KLING AI STANDARD",
+    subtitle: "High-Definition 1080p Cinematic Video Generation",
+    accentA: "#EAB308",
+    accentB: "#CA8A04",
+    glowColor: "#EAB308",
+    features: [
+      "680 - 750 Monthly High-Definition Video Generation Credits",
+      "Kling 1.5 HD Cinematic Camera Physics & Realistic Motion",
+      "Prompt-to-Video & Image-to-Video with High Priority Queue",
+      "Commercial License for Social Media Creators & Filmmakers",
+    ],
+    footerNote: "Direct Login Activation · High Speed Queue · 100% Nepal Support",
+    iconSymbol: `
+      <polygon points="26,18 64,40 26,62" fill="url(#accentGrad)"/>
+      <line x1="26" y1="18" x2="26" y2="62" stroke="#ffffff" stroke-width="4"/>
+    `,
+  });
+
+  // 28. Kling AI Ultra Credits
+  await renderPoster({
+    destPath: "public/media/covers/kling/kling-ultra-26k-credits.webp",
+    slug: "kling-ultra-26k-credits",
+    category: "ENTERPRISE VIDEO AI",
+    badge: "26,000 CREDITS",
+    brandName: "Kling AI",
+    productTitle: "KLING AI ULTRA",
+    subtitle: "26,000 High-Tier Video Credits for Production Studios",
+    accentA: "#F59E0B",
+    accentB: "#EF4444",
+    glowColor: "#F59E0B",
+    features: [
+      "26,000 Huge Enterprise Video Credits Pool for Studio Use",
+      "Ultra High-Bitrate 1080p / 4K Upgraded Video Generation",
+      "Complex Camera Controls, Dynamic Lighting & Motion Brushes",
+      "Top-Tier Dedicated Priority Rendering Pipeline",
+    ],
+    footerNote: "Production Agency Tier · Instant Account Delivery · Replacement Warranty",
+    iconSymbol: `
+      <circle cx="40" cy="40" r="28" fill="url(#accentGrad)"/>
+      <polygon points="34,26 54,40 34,54" fill="#0f172a"/>
+    `,
+  });
+
+  // 29. Higgsfield Pro Cinema
+  await renderPoster({
+    destPath: "public/media/covers/video/higgsfield-pro-12m.webp",
+    slug: "higgsfield-pro-12m",
+    category: "CINEMA AI VIDEO",
+    badge: "12 MONTHS CINEMA",
+    brandName: "Higgsfield AI",
+    productTitle: "HIGGSFIELD PRO",
+    subtitle: "Hollywood-Grade AI Video Direction & Character Dynamics",
+    accentA: "#8B5CF6",
+    accentB: "#EC4899",
+    glowColor: "#8B5CF6",
+    features: [
+      "Hollywood-Grade Cinematic AI Camera Movements & Physics",
+      "Hyper-Realistic Human Character Consistency & Facial Dynamics",
+      "Unlimited High-Resolution Video Generation & Upscaling",
+      "Dedicated 12M Pro Access + 1M, 3M, 6M Shared Seats Available",
+    ],
+    footerNote: "1M, 3M, 6M Shared & 12M Dedicated Plans · Instant Delivery · Full Warranty",
+    iconSymbol: `
+      <circle cx="40" cy="40" r="28" fill="none" stroke="url(#accentGrad)" stroke-width="6"/>
+      <polygon points="36,28 52,40 36,52" fill="url(#accentGrad)"/>
+    `,
+  });
+
+  // 30. Manus AI Pro
+  await renderPoster({
+    destPath: "public/media/covers/ai/manus-ai-pro-12m.webp",
+    slug: "manus-ai-pro-12m",
+    category: "AUTONOMOUS AGENTS",
+    badge: "12 MONTHS PRO",
+    brandName: "Manus AI",
+    productTitle: "MANUS AI PRO",
+    subtitle: "General-Purpose Autonomous Virtual Employee & Web Agent",
+    accentA: "#6366F1",
+    accentB: "#8B5CF6",
+    glowColor: "#6366F1",
+    features: [
+      "Fully Autonomous Agent: Executes Complex Web Workflows End-to-End",
+      "Deep Competitive Market Research, Data Scraping & PPT Creation",
+      "Multi-Step Code Execution, Testing & Full File Generation",
+      "Dedicated 12M Plan + 1M, 3M, 6M Shared Agentic Seats Available",
+    ],
+    footerNote: "1M, 3M, 6M Shared & 12M Dedicated Plans · Instant Setup · Nepal Support",
+    iconSymbol: `
+      <rect x="20" y="20" width="40" height="40" rx="10" fill="url(#accentGrad)"/>
+      <circle cx="34" cy="36" r="4" fill="#ffffff"/>
+      <circle cx="46" cy="36" r="4" fill="#ffffff"/>
+      <path d="M32 46 Q40 52 48 46" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    `,
+  });
+
+  console.log("All 30 luxury feature infographic posters generated successfully!");
 }
 
 main().catch(console.error);
+

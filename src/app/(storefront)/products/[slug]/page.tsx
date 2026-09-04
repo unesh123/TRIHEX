@@ -224,9 +224,9 @@ export default async function ProductDetailPage({
         <div className="space-y-6">
           <TrustStrip compact />
           <PlanSwitcher plans={familyPlans} currentSlug={product.slug} />
-          {product.coverPublicPath ? (
+          {coverPath ? (
             <FeaturePosterLightbox
-              src={product.coverPublicPath}
+              src={coverPath}
               alt={`${product.title} feature infographic`}
               title={product.title}
               className="max-w-xl"
