@@ -68,6 +68,7 @@ const P0_ENABLED = new Set<AdminModuleId>([
   "search_analytics",
   "sources",
   "system_health",
+  "integrations",
 ]);
 
 function parseList(raw: string | undefined): Set<string> {
