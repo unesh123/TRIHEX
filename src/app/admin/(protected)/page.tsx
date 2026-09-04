@@ -13,6 +13,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 import { auditCatalogClaims } from "@/lib/catalog/claims-engine";
+import { getAllDealCandidates } from "@/lib/deals/store";
+import { getAllPrompts } from "@/lib/prompts/store";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +57,8 @@ export default async function AdminOverviewPage() {
   const revenue = await getVerifiedRevenueStats();
   const paidOrders = await getPaidOrdersCount();
   const claimsAudit = auditCatalogClaims();
+  const deals = getAllDealCandidates();
+  const prompts = getAllPrompts();
 
   if (isDatabaseConfigured()) {
     try {
@@ -200,6 +204,18 @@ export default async function AdminOverviewPage() {
           tone={claimsAudit.expired.length > 0 ? "warning" : "default"}
           hint="Automated expiration active (e.g. pCloud)"
         />
+        <KpiCard
+          label="Deal Radar Offers"
+          value={`${deals.length} Total`}
+          tone={deals.filter((d) => d.status === "VERIFIED").length > 0 ? "warning" : "default"}
+          hint={`${deals.filter((d) => d.status === "VERIFIED").length} in verified review queue`}
+        />
+        <KpiCard
+          label="Prompt Intelligence"
+          value={`${prompts.length} Prompts`}
+          tone="default"
+          hint={`${prompts.filter((p) => p.isOriginalTrihex).length} TRIHEX Original Lab Prompts`}
+        />
       </div>
 
       <div className="mt-7 rounded-2xl border border-[var(--success)]/18 bg-[linear-gradient(135deg,var(--success-soft),#fbfffd)] px-5 py-4 text-sm leading-relaxed text-[var(--text-secondary)] shadow-sm">
@@ -214,6 +230,12 @@ export default async function AdminOverviewPage() {
         <section className="admin-surface p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3"><h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.03em] text-text">Quick links</h2><span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-text-muted">Shortcuts</span></div>
           <div className="mt-4 flex flex-wrap gap-2">
+            <Button href="/admin/deal-radar" variant="primary" size="sm">
+              Deal Radar
+            </Button>
+            <Button href="/admin/prompts" variant="secondary" size="sm">
+              Prompts
+            </Button>
             <Button href="/admin/products" variant="secondary" size="sm">
               Products & images
             </Button>

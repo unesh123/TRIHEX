@@ -16,6 +16,9 @@ export type AuditAction =
   | "COMPLIANCE_REVIEWED"
   | "ADMIN_LOGIN"
   | "SETTINGS_UPDATED"
+  | "DEAL_VERIFIED"
+  | "DEAL_APPROVED"
+  | "DEAL_REJECTED"
   | "SYSTEM_EVENT";
 
 export interface AuditEvent {

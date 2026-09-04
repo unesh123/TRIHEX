@@ -17,6 +17,11 @@ import { ProductGrid } from "@/components/storefront/product-grid";
 import { ServicesAtlas } from "@/components/storefront/services-atlas";
 import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
+import { getPublishedDeals } from "@/lib/deals/store";
+import { getAllPrompts } from "@/lib/prompts/store";
+import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
+import { fetchNepalSeismicEvents } from "@/lib/nepal/earthquake-adapter";
+import { Flame, Cpu, MapPin, Activity, ArrowRight, Radio } from "lucide-react";
 import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
@@ -59,7 +64,16 @@ function formatNpr(value: number | null | undefined) {
 }
 
 export default async function HomePage() {
-  const all = await getLiveMerchandisingCatalogue();
+  const [all, liveForex, liveSeismic] = await Promise.all([
+    getLiveMerchandisingCatalogue(),
+    fetchNrbForexRates(),
+    fetchNepalSeismicEvents(),
+  ]);
+
+  const verifiedDeals = getPublishedDeals().slice(0, 3);
+  const featuredPrompts = getAllPrompts({ onlyOriginal: true }).slice(0, 3);
+  const usdRate = liveForex.rates.find((r) => r.currency === "USD") || liveForex.rates[0];
+
   const clean = all.filter((product) => {
     const title = (product.title ?? "").toLowerCase();
     const slug = (product.slug ?? "").toLowerCase();
@@ -347,6 +361,77 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── LIVE DEAL RADAR PREVIEW (HOMEPAGE 4.0) ── */}
+      {verifiedDeals.length > 0 && (
+        <section className="border-b border-slate-800 bg-slate-950 py-12 sm:py-16 text-white">
+          <div className="store-container">
+            <Reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  TRIHEX Deal Radar · Live Verified
+                </span>
+                <h2 className="mt-3 font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight sm:text-3xl text-white">
+                  Developer Deals, Cloud Credits &amp; Free Tiers
+                </h2>
+                <p className="mt-1 text-xs text-slate-400 sm:text-sm">
+                  Secondary verified against official vendor documentation. No expired vouchers.
+                </p>
+              </div>
+              <Link
+                href="/deals"
+                className="text-xs font-bold text-blue-400 hover:text-blue-300 sm:text-sm flex items-center gap-1"
+              >
+                View all verified deals <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </Reveal>
+
+            {/* Strictly 1 card per row on mobile (< 640px) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {verifiedDeals.map((deal) => (
+                <div
+                  key={deal.id}
+                  className="flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/80 p-5 hover:border-blue-500/40 transition shadow-sm"
+                >
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-blue-400 uppercase tracking-wider text-[11px]">
+                        {deal.vendor}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        {deal.verificationScore}% Verified
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-white leading-snug">
+                      {deal.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 line-clamp-2">
+                      {deal.summary}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                    <span className="font-mono text-emerald-400 font-semibold text-xs">
+                      {deal.detectedValueNprMinor
+                        ? `~NPR ${(deal.detectedValueNprMinor / 100).toLocaleString()}`
+                        : "Free Tier"}
+                    </span>
+                    <a
+                      href={deal.officialVendorUrl || deal.sourceClaimUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-white hover:text-blue-300 transition"
+                    >
+                      Claim Deal →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section id="all-products" className="scroll-mt-24 py-14 sm:py-18">
         <div className="store-container">
           <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-5">
@@ -369,6 +454,35 @@ export default async function HomePage() {
             </Link>
           </Reveal>
           <ProductGrid products={shopProducts} />
+        </div>
+      </section>
+
+      {/* ── NEPAL PULSE LIVE TICKER & GEODETIC BANNER ── */}
+      <section className="border-b border-slate-200/80 bg-gradient-to-r from-red-950/30 via-slate-900 to-blue-950/30 py-8 text-white">
+        <div className="store-container flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-400 uppercase tracking-wider">
+              <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" /> Live Nepal Pulse Feeds
+            </div>
+            <div className="text-sm font-bold text-white">
+              Official NRB Forex: 1 USD = NPR {usdRate.buy.toFixed(2)} (Buy) · USGS Seismic: {liveSeismic.events.length} monitored events
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/nepal"
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition flex items-center gap-1.5"
+            >
+              Forex &amp; Data Hub <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <Link
+              href="/map"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20"
+            >
+              <MapPin className="w-3.5 h-3.5" /> Interactive Map
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -29,6 +29,7 @@
 *.pem
 *.exe
 cursor-hook-test.txt
+.claude/
 
 # debug
 npm-debug.log*

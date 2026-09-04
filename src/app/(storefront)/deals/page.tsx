@@ -1,23 +1,30 @@
-import { StorefrontPageShell } from "@/components/storefront/page-shell";
-import { ProductGrid } from "@/components/storefront/product-grid";
-import { getDemoProductsByBrand } from "@/lib/catalog/demo-catalog";
+import { Metadata } from "next";
+import { getPublishedDeals } from "@/lib/deals/store";
+import { DealRadarHub } from "@/components/deals/deal-radar-hub";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: "TRIHEX Deal Radar · Verified Developer & AI Deals in Nepal",
+  description:
+    "Discover verified developer software deals, cloud infrastructure credits, student packages, and AI trials. Checked against vendor terms with automatic expiration.",
+  openGraph: {
+    title: "TRIHEX Deal Radar · Verified Software & AI Deals",
+    description: "Verified developer deals, cloud credits, and AI tool trials in Nepal.",
+    url: "https://trihexdigital.shop/deals",
+    siteName: "TRIHEX DIGITAL",
+  },
+  alternates: {
+    canonical: "https://trihexdigital.shop/deals",
+  },
+};
+
 export default function DealsPage() {
-  const products = getDemoProductsByBrand("trihex");
+  const publishedDeals = getPublishedDeals();
 
   return (
-    <StorefrontPageShell
-      title="Current offers"
-      description="Standard TRIHEX pricing on owned digital products and services. We do not show inflated reference prices or fake percentage discounts."
-    >
-      <p className="mb-8 rounded-md border border-border bg-surface-raised/50 px-3 py-2 text-sm text-text-muted">
-        Every price listed is the actual checkout price unless noted at order time.
-        Promotional pricing, when offered, will be labeled explicitly with start and
-        end dates.
-      </p>
-      <ProductGrid products={products} />
-    </StorefrontPageShell>
+    <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+      <DealRadarHub initialDeals={publishedDeals} />
+    </main>
   );
 }

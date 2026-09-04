@@ -26,6 +26,14 @@ const NAV_GROUPS: AdminNavGroup[] = [
     items: [{ href: "/admin", label: "Dashboard", module: "overview" }],
   },
   {
+    id: "intelligence",
+    label: "Intelligence OS",
+    items: [
+      { href: "/admin/deal-radar", label: "Deal Radar", module: "deal_radar", permission: "products:edit" },
+      { href: "/admin/prompts", label: "Prompts & Templates", module: "prompts", permission: "products:edit" },
+    ],
+  },
+  {
     id: "commerce",
     label: "Commerce",
     items: [
