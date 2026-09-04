@@ -36,6 +36,15 @@ export interface DealRevision {
   createdAt: string;
 }
 
+export interface VerificationEvidenceItem {
+  field: string;
+  candidateValue?: string;
+  detectedValue?: string;
+  match: boolean;
+  scoreContribution: number;
+  reason: string;
+}
+
 export interface DealVerificationReport {
   score: number; // 0 - 100
   vendorUrl: string;
@@ -47,7 +56,15 @@ export interface DealVerificationReport {
   detectedVendorTextSnippet?: string;
   detectedExpirationDate?: string;
   requiresCreditCard?: boolean;
+  evidence?: VerificationEvidenceItem[];
 }
+
+export type SaleRightsStatus =
+  | "FREE_LINK_ONLY"
+  | "COMMERCIAL_RESELL_ALLOWED"
+  | "TRIHEX_SERVICE"
+  | "OWNER_ASSET"
+  | "UNKNOWN";
 
 export interface DealCandidate {
   id: string;
@@ -59,6 +76,7 @@ export interface DealCandidate {
   summary: string;
   dealType: DealType;
   detectedValueNprMinor?: number; // minor units e.g. 500000 = NPR 5,000
+  currency?: string;
   promoCode?: string;
   eligibility?: string; // e.g. "New accounts only", "Students with .edu email"
   cardRequired: boolean;
@@ -73,6 +91,7 @@ export interface DealCandidate {
   vendorClaimSummary?: string;
   status: DealCandidateStatus;
   approvalType?: DealApprovalType;
+  saleRightsStatus?: SaleRightsStatus;
   assignedProductId?: string; // if approved as paid bundle on TRIHEX
   revisions: DealRevision[];
   category: "AI_DEV" | "CLOUD" | "DESIGN" | "PRODUCTIVITY" | "EDUCATION" | "INFRASTRUCTURE";
