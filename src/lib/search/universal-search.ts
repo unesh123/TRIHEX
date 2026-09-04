@@ -7,6 +7,9 @@ import { getAllResearchItems } from "@/lib/vault/research-registry";
 import { getOpenDatasets } from "@/lib/nepal/open-data-adapter";
 import { VAULT_ITEMS } from "@/lib/catalog/vault-items";
 
+import { recordSearchQuery } from "./analytics";
+export * from "./analytics";
+
 export type SearchEntityType =
   | "PRODUCT"
   | "DEAL"
@@ -38,7 +41,11 @@ export interface UniversalSearchGroup {
 
 export async function performUniversalSearch(
   query: string,
-  limitPerCategory = 4
+  limitPerCategory = 4,
+  options?: {
+    ipHash?: string;
+    trackAnalytics?: boolean;
+  }
 ): Promise<{
   totalCount: number;
   groups: UniversalSearchGroup[];
@@ -262,5 +269,16 @@ export async function performUniversalSearch(
   }
 
   const totalCount = groups.reduce((sum, g) => sum + g.count, 0);
+
+  if (options?.trackAnalytics !== false && q.length >= 2) {
+    recordSearchQuery({
+      query,
+      resultCount: totalCount,
+      ipHash: options?.ipHash,
+    }).catch((err) => {
+      console.error("[universal-search] Analytics logging failed:", err);
+    });
+  }
+
   return { totalCount, groups };
 }

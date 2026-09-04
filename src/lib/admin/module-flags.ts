@@ -27,6 +27,9 @@ export type AdminModuleId =
   | "settings_security"
   | "deal_radar"
   | "prompts"
+  | "search_analytics"
+  | "sources"
+  | "system_health"
   // Hidden until fully implemented (P1/P2)
   | "variants"
   | "lots"
@@ -62,6 +65,9 @@ const P0_ENABLED = new Set<AdminModuleId>([
   "settings_security",
   "deal_radar",
   "prompts",
+  "search_analytics",
+  "sources",
+  "system_health",
 ]);
 
 function parseList(raw: string | undefined): Set<string> {
