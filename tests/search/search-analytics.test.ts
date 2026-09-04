@@ -12,15 +12,22 @@ describe("Search Analytics & Zero-Result Intelligence Engine", () => {
     resetSearchAnalyticsForTest();
   });
 
-  it("anonymizes IP addresses deterministically with SHA-256", () => {
-    const hash1 = hashIpForAnalytics("192.168.1.100");
-    const hash2 = hashIpForAnalytics("192.168.1.100");
-    const hash3 = hashIpForAnalytics("10.0.0.1");
+  it("anonymizes IP addresses with rotating keyed HMAC-SHA256", () => {
+    const d1 = new Date("2026-09-01T12:00:00Z");
+    const d2 = new Date("2026-09-01T14:00:00Z"); // same week
+    const d3 = new Date("2026-10-15T12:00:00Z"); // different week
+
+    const hash1 = hashIpForAnalytics("192.168.1.100", d1);
+    const hash2 = hashIpForAnalytics("192.168.1.100", d2);
+    const hashDifferentIp = hashIpForAnalytics("10.0.0.1", d1);
+    const hashDifferentWeek = hashIpForAnalytics("192.168.1.100", d3);
 
     expect(hash1).toBe(hash2);
-    expect(hash1).not.toBe(hash3);
+    expect(hash1).not.toBe(hashDifferentIp);
+    expect(hash1).not.toBe(hashDifferentWeek); // Rotated!
     expect(hash1.length).toBe(16);
   });
+
 
   it("records queries and aggregates zero-result demand insights", async () => {
     await recordSearchQuery({

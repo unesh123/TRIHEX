@@ -1,3 +1,8 @@
+/**
+ * Heuristic Static Security Scanner
+ * Fast, isomorphic pattern-based static vulnerability analysis for agent skill scripts.
+ * Evaluates scripts against RCE, reverse shells, root destruction, and credential exfiltration.
+ */
 import { AgentSkill } from "./types";
 
 export type SkillRiskLevel = "LOW" | "MEDIUM" | "HIGH" | "REVIEW_REQUIRED";

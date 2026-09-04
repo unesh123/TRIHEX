@@ -120,3 +120,43 @@ export async function runWithJobLock<T>(
     await lock.release();
   }
 }
+
+/**
+ * Executes a callback within a transaction-scoped PostgreSQL advisory lock (pg_try_advisory_xact_lock).
+ * The lock is automatically released by PostgreSQL when the transaction commits or rolls back,
+ * preventing any session-level lock leakage through pooled or serverless connections.
+ */
+export async function withTransactionAdvisoryLock<T>(
+  jobName: string,
+  handler: () => Promise<T>
+): Promise<{ ran: true; result: T } | { ran: false; reason: string }> {
+  const db = getDb();
+  if (db && typeof (db as any).transaction === "function") {
+    try {
+      return await (db as any).transaction(async (tx: any) => {
+        const lockId = hashLockKey(jobName);
+        const result = await tx.execute(
+          sql`SELECT pg_try_advisory_xact_lock(${lockId}) as acquired;`
+        );
+        const acquired = Boolean(result[0]?.acquired);
+        if (!acquired) {
+          return {
+            ran: false,
+            reason: `Transaction lock for "${jobName}" could not be acquired (concurrent run active).`,
+          };
+        }
+        const res = await handler();
+        return { ran: true, result: res };
+      });
+    } catch (err: any) {
+      if (err?.message?.includes("could not be acquired")) {
+        return { ran: false, reason: err.message };
+      }
+      throw err;
+    }
+  }
+
+  // Fallback to runWithJobLock when transaction or DB is not available
+  return runWithJobLock(jobName, handler);
+}
+

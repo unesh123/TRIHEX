@@ -3,6 +3,7 @@ import {
   hashLockKey,
   acquireJobLock,
   runWithJobLock,
+  withTransactionAdvisoryLock,
 } from "@/lib/jobs/distributed-lock";
 import { executeJobByName, REGISTERED_JOBS } from "@/lib/jobs/registry";
 
@@ -74,4 +75,27 @@ describe("Distributed Job Locking & Scheduler Engine", () => {
     expect(result.ok).toBe(false);
     expect(result.errorCategory).toBe("JOB_NOT_FOUND");
   });
+
+  it("withTransactionAdvisoryLock executes safely and releases lock on normal exit or crash", async () => {
+    const jobKey = `tx-lock-test-${Date.now()}`;
+
+    const res1 = await withTransactionAdvisoryLock(jobKey, async () => {
+      return { status: "PROCESSED" };
+    });
+    expect(res1.ran).toBe(true);
+    if (res1.ran) expect(res1.result.status).toBe("PROCESSED");
+
+    // Crash simulation releases lock
+    await expect(
+      withTransactionAdvisoryLock(jobKey, async () => {
+        throw new Error("Worker crash simulation");
+      })
+    ).rejects.toThrow("Worker crash simulation");
+
+    // Immediately available for next invocation
+    const res2 = await withTransactionAdvisoryLock(jobKey, async () => "RECOVERED");
+    expect(res2.ran).toBe(true);
+    if (res2.ran) expect(res2.result).toBe("RECOVERED");
+  });
 });
+

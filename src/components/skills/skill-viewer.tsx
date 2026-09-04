@@ -69,7 +69,7 @@ export function SkillViewer({ skill }: SkillViewerProps) {
               <div className="font-semibold flex items-center gap-2">
                 <span>
                   {scanResult.riskLevel === "LOW"
-                    ? "Inert Code Verified (Safe for Agent Execution)"
+                    ? "Inert Code Verified (Heuristic Pattern Audit Passed)"
                     : "External code — review before execution"}
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
@@ -83,7 +83,7 @@ export function SkillViewer({ skill }: SkillViewerProps) {
                 </span>
               </div>
               <p className="text-[11px] opacity-80 mt-0.5">
-                Static analysis scanned {scanResult.scannedFilesCount} files ({scanResult.scannedBytes} bytes). Sandboxed for agent environments.
+                Heuristic static security scanner audited {scanResult.scannedFilesCount} files ({scanResult.scannedBytes} bytes). External code. Review before execution.
               </p>
             </div>
           </div>

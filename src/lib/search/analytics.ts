@@ -60,11 +60,30 @@ let inMemorySearchLogs: SearchAnalyticsItem[] = [
   },
 ];
 
+import { createHmac } from "node:crypto";
+
 /**
- * Anonymizes an IP address with SHA-256 for privacy compliance.
+ * Anonymizes an IP address with rotating keyed HMAC-SHA256.
+ * Uses a rotating weekly bucket (YYYY-WW) and secret salt to prevent rainbow-table correlation.
  */
-export function hashIpForAnalytics(ip: string): string {
-  return createHash("sha256").update(ip + "TRIHEX_SEARCH_SALT").digest("hex").slice(0, 16);
+export function hashIpForAnalytics(ip: string, date: Date = new Date()): string {
+  if (!ip || ip.trim() === "") return "";
+  const secretKey =
+    process.env.ANALYTICS_HASH_SECRET ||
+    process.env.IP_HASH_SALT ||
+    "trihex_privacy_rotating_entropy";
+
+  const year = date.getUTCFullYear();
+  const weekNumber = Math.ceil(
+    ((date.getTime() - new Date(Date.UTC(year, 0, 1)).getTime()) / 86400000 + 1) / 7
+  );
+  const epochBucket = `${year}-W${weekNumber}`;
+  const normalizedIp = ip.trim().toLowerCase();
+
+  return createHmac("sha256", secretKey)
+    .update(`${normalizedIp}:${epochBucket}`)
+    .digest("hex")
+    .slice(0, 16);
 }
 
 /**
