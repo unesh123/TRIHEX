@@ -13,8 +13,9 @@ import {
   Calculator, 
   ShieldCheck, 
   Map, 
-  FileText,
-  Radio
+  Radio,
+  AlertTriangle,
+  Info
 } from "lucide-react";
 import { ForexSnapshot, CurrencyRate, convertForeignToNpr, convertNprToForeign } from "@/lib/nepal/nrb-forex-adapter";
 import { SeismicEvent } from "@/lib/nepal/earthquake-adapter";
@@ -38,17 +39,19 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
   const [calcForeignAmount, setCalcForeignAmount] = useState<string>("100");
   const [calcNprAmount, setCalcNprAmount] = useState<string>("");
   const [calcDirection, setCalcDirection] = useState<"FOREIGN_TO_NPR" | "NPR_TO_FOREIGN">("FOREIGN_TO_NPR");
+  const [rateType, setRateType] = useState<"BUY" | "SELL">("BUY");
 
   const selectedRate = forex.rates.find((r) => r.currency === calcCurrency) || forex.rates[0];
+  const appliedRate = rateType === "BUY" ? selectedRate.buy : selectedRate.sell;
 
   // Recalculate converted value
   const convertedValue = (() => {
     if (calcDirection === "FOREIGN_TO_NPR") {
       const amt = Number.parseFloat(calcForeignAmount) || 0;
-      return convertForeignToNpr(amt, selectedRate.buy, selectedRate.unit);
+      return convertForeignToNpr(amt, appliedRate, selectedRate.unit);
     } else {
       const amt = Number.parseFloat(calcNprAmount) || 0;
-      return convertNprToForeign(amt, selectedRate.sell, selectedRate.unit);
+      return convertNprToForeign(amt, appliedRate, selectedRate.unit);
     }
   })();
 
@@ -82,7 +85,7 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
               Nepal Economic & Geodetic Data Hub
             </h1>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Live official foreign exchange rates from Nepal Rastra Bank, real-time seismic monitor via USGS Nepal FDSN, and curated open civic datasets.
+              Official foreign exchange rates from Nepal Rastra Bank, real-time seismic monitor via USGS Nepal FDSN, and curated open civic datasets.
             </p>
           </div>
 
@@ -97,19 +100,40 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
           </div>
         </div>
 
-        {/* Live Status Bar */}
+        {/* Live Status Bar with Factual Freshness Badges */}
         <div className="mt-8 pt-6 border-t border-white/5 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400">
-          <div className="flex items-center gap-4 flex-wrap">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-              <ShieldCheck className="w-4 h-4" /> {forex.source}
-            </span>
+          <div className="flex items-center gap-3 flex-wrap">
+            {forex.freshnessStatus === "LIVE" ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                LIVE · NRB Official Feed
+              </span>
+            ) : forex.freshnessStatus === "CACHED" ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold">
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                CACHED · {forex.ageLabel || "Recent snapshot"} · NRB
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 font-semibold">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                STALE · Offline Baseline (NRB Unreachable)
+              </span>
+            )}
+
             <span className="hidden sm:inline text-slate-600">•</span>
             <span className="flex items-center gap-1.5 text-blue-400 font-medium">
               <Activity className="w-4 h-4" /> {seismic.source}
             </span>
           </div>
-          <div className="font-mono text-slate-400">
-            Rates date: <span className="text-white font-semibold">{forex.date}</span>
+
+          <div className="font-mono text-slate-400 flex items-center gap-2">
+            <span>Rates date:</span>
+            <span className="text-white font-semibold">{forex.date}</span>
+            {forex.freshnessStatus !== "LIVE" && (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                {forex.freshnessStatus}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -160,12 +184,41 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
       {activeTab === "FOREX" && (
         <div className="space-y-8">
           {/* Interactive Calculator Box */}
-          <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5 sm:p-6 backdrop-blur-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <Calculator className="w-4 h-4 text-red-400" />
-              <h2 className="text-base font-bold text-white">
-                Live Official Currency Converter (NPR)
-              </h2>
+          <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5 sm:p-6 backdrop-blur-xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Calculator className="w-4 h-4 text-red-400" />
+                <h2 className="text-base font-bold text-white">
+                  Official Currency Converter (NPR)
+                </h2>
+              </div>
+
+              {/* Rate Type Selector: Buy vs Sell */}
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950 border border-white/10 text-xs">
+                <span className="text-[11px] text-slate-400 px-2 font-medium">Rate:</span>
+                <button
+                  type="button"
+                  onClick={() => setRateType("BUY")}
+                  className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                    rateType === "BUY"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  NRB Buy Rate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRateType("SELL")}
+                  className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                    rateType === "SELL"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  NRB Sell Rate
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
@@ -226,17 +279,26 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
               {/* Result Card */}
               <div className="p-4 rounded-xl bg-slate-950 border border-red-500/20 text-center sm:text-left">
                 <div className="text-[11px] font-medium text-slate-400">
-                  {calcDirection === "FOREIGN_TO_NPR" ? "Converted Amount (NPR Buy)" : `Converted Amount (${selectedRate.currency} Sell)`}
+                  {calcDirection === "FOREIGN_TO_NPR"
+                    ? `Converted (NPR ${rateType})`
+                    : `Converted (${selectedRate.currency} ${rateType})`}
                 </div>
                 <div className="text-2xl font-bold text-white font-mono mt-0.5">
                   {calcDirection === "FOREIGN_TO_NPR"
                     ? `NPR ${convertedValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                     : `${selectedRate.currency} ${convertedValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-1">
-                  Rate: 1 {selectedRate.currency} = NPR {(selectedRate.buy / selectedRate.unit).toFixed(2)}
+                <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                  Applied {rateType} rate: 1 {selectedRate.currency} = NPR {(appliedRate / selectedRate.unit).toFixed(2)} · Spread: NPR {selectedRate.spreadNpr.toFixed(2)}
                 </div>
               </div>
+            </div>
+
+            <div className="text-[11px] text-slate-500 flex items-center gap-1.5 pt-1 border-t border-white/5">
+              <Info className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+              <span>
+                <strong>Rate distinction:</strong> NRB Buy rate is applied when converting foreign currency into NPR (inward transfers). NRB Sell rate is applied when purchasing foreign currency with NPR (outward trade).
+              </span>
             </div>
           </div>
 
@@ -250,6 +312,7 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
                   <th className="px-4 sm:px-6 py-3.5">Buy (NPR)</th>
                   <th className="px-4 sm:px-6 py-3.5">Sell (NPR)</th>
                   <th className="px-4 sm:px-6 py-3.5">Spread</th>
+                  <th className="px-4 sm:px-6 py-3.5">24h Delta</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 font-mono text-xs sm:text-sm">
@@ -270,6 +333,15 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
                     </td>
                     <td className="px-4 sm:px-6 py-3.5 text-slate-400 text-xs">
                       {rate.spreadNpr.toFixed(2)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3.5 text-xs font-mono">
+                      {rate.deltaPercent && rate.deltaPercent > 0 ? (
+                        <span className="text-emerald-400 font-medium">+{rate.deltaPercent}%</span>
+                      ) : rate.deltaPercent && rate.deltaPercent < 0 ? (
+                        <span className="text-rose-400 font-medium">{rate.deltaPercent}%</span>
+                      ) : (
+                        <span className="text-slate-500">0.00%</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -321,23 +393,13 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
                     </div>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-white mt-2 leading-snug">
+                  <h3 className="text-sm font-semibold text-white mb-1">
                     {event.place}
                   </h3>
 
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-mono">
-                    <div>Depth: {event.depthKm} km</div>
-                    <div>
-                      {event.latitude.toFixed(2)}°N, {event.longitude.toFixed(2)}°E
-                    </div>
-                    <a
-                      href={event.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-400 hover:underline flex items-center gap-0.5"
-                    >
-                      USGS <ExternalLink className="w-2.5 h-2.5" />
-                    </a>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 font-mono mt-3 pt-3 border-t border-white/5">
+                    <div>Depth: <span className="text-slate-200">{event.depthKm} km</span></div>
+                    <div>Coords: <span className="text-slate-200">{event.latitude.toFixed(2)}°, {event.longitude.toFixed(2)}°</span></div>
                   </div>
                 </div>
               );
@@ -346,52 +408,53 @@ export function NepalPulseHub({ forex, seismic, datasets }: NepalPulseHubProps) 
         </div>
       )}
 
-      {/* Tab 3: Open Datasets */}
+      {/* Tab 3: Curated Open Data Nepal Sets */}
       {activeTab === "DATASETS" && (
         <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-red-400" />
+              <span>Public interest open records and economic datasets from Open Data Nepal (opendatanepal.com)</span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {datasets.map((ds) => (
               <div
                 key={ds.id}
-                className="flex flex-col rounded-2xl border border-white/10 bg-slate-900/70 p-5 hover:border-blue-500/40 hover:bg-slate-900/90 transition-all shadow-md"
+                className="rounded-2xl border border-white/10 bg-slate-900/70 p-5 hover:border-red-500/40 hover:bg-slate-900/90 transition-all shadow-md flex flex-col justify-between"
               >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-blue-500/10 text-blue-300 border border-blue-500/20 font-mono">
-                    {ds.category}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    {ds.formats.map((fmt) => (
-                      <span
-                        key={fmt}
-                        className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-mono font-semibold"
-                      >
-                        {fmt}
-                      </span>
-                    ))}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[11px] font-semibold">
+                      {ds.category}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {ds.recordsCount ? `${ds.recordsCount} records` : ds.organization}
+                    </span>
                   </div>
+
+                  <h3 className="text-sm font-semibold text-white mb-1.5">
+                    {ds.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                    {ds.description}
+                  </p>
                 </div>
 
-                <h3 className="text-sm font-bold text-white mb-1 leading-snug">
-                  {ds.title}
-                </h3>
-
-                <p className="text-xs text-slate-300 leading-relaxed mb-4 flex-1">
-                  {ds.description}
-                </p>
-
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-slate-400">
-                  <div className="text-[11px] truncate max-w-[200px]">
-                    Source: <span className="text-slate-200">{ds.organization}</span>
-                  </div>
-
+                <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    Updated: {ds.lastUpdated}
+                  </span>
                   {ds.downloadUrl && (
                     <a
                       href={ds.downloadUrl}
                       target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-xs font-semibold transition"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-red-400 hover:text-red-300 font-semibold"
                     >
-                      Access Data <ExternalLink className="w-3 h-3" />
+                      View Source <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
                 </div>
