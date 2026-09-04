@@ -18,6 +18,7 @@ import { ServicesAtlas } from "@/components/storefront/services-atlas";
 import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
 import { HomepageVaultSection } from "@/components/vault/homepage-vault-section";
+import { ReturningUserFeed } from "@/components/personalization/returning-user-feed";
 import { formatRelativeAge } from "@/lib/nepal/forex-shared";
 import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
@@ -365,6 +366,9 @@ export default async function HomePage() {
 
       {/* ── UNIFIED FLAGSHIP TRIHEX VAULT DROPS ── */}
       <HomepageVaultSection />
+
+      {/* ── RETURNING USER PERSONALIZATION & WATCHLIST ── */}
+      <ReturningUserFeed />
 
       {/* ── LIVE DEAL RADAR PREVIEW (HOMEPAGE 4.0) ── */}
       {verifiedDeals.length > 0 && (
