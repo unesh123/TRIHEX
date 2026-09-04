@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { ServicesAtlas } from "@/components/storefront/services-atlas";
+import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
@@ -92,9 +93,9 @@ export default async function HomePage() {
     shopProducts.find((product) => product.purchasable) ??
     shopProducts[0];
   const heroCover =
-    getGeneratedCover(heroProduct?.slug ?? "gemini-pro-18-months-link", heroProduct?.brandFamily) ??
     heroProduct?.coverPublicPath ??
     getProductCover(heroProduct?.slug ?? "gemini-pro-18-months-link")?.publicPath ??
+    getGeneratedCover(heroProduct?.slug ?? "gemini-pro-18-months-link", heroProduct?.brandFamily) ??
     "/media/covers/gemini/gemini-pro-18-month-upgrade.webp";
   return (
     <div className="overflow-x-clip">
@@ -330,6 +331,8 @@ export default async function HomePage() {
           ) : null}
         </div>
       </section>
+
+      <PricingTrustSection />
 
       <section className="border-t border-[var(--border)] bg-[var(--page-soft)] py-14 sm:py-16">
         <div className="store-container">

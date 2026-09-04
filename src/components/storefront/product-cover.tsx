@@ -24,27 +24,21 @@ export function ProductCover({
   priority?: boolean;
   coverPublicPath?: string | null;
 }) {
-  const generatedPath = getGeneratedCover(slug, family);
   const manifest: ProductCoverEntry | null = getProductCover(slug);
-  const cover: ProductCoverEntry | null = generatedPath
+  const generatedPath = getGeneratedCover(slug, family);
+  const resolvedPath =
+    coverPublicPath || manifest?.publicPath || generatedPath || null;
+
+  const cover: ProductCoverEntry | null = resolvedPath
     ? {
         slug,
         family: String(family),
-        canonical: generatedPath.split("/").pop() ?? slug,
-        publicPath: generatedPath,
+        canonical: resolvedPath.split("/").pop() ?? slug,
+        publicPath: resolvedPath,
         mode: "ARTWORK_ONLY",
-        alt: title,
+        alt: manifest?.alt || title,
       }
-    : coverPublicPath
-    ? {
-        slug,
-        family: String(family),
-        canonical: coverPublicPath.split("/").pop() ?? slug,
-        publicPath: coverPublicPath,
-        mode: "ARTWORK_ONLY",
-        alt: title,
-      }
-    : manifest;
+    : null;
 
   if (isRasterCover(cover) && cover) {
     const isRemote = cover.publicPath.startsWith("http");

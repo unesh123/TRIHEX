@@ -4,6 +4,7 @@ import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclai
 import { ProductSearchAutocomplete } from "@/components/storefront/product-search-autocomplete";
 import { TrustStrip } from "@/components/storefront/trust-strip";
 import { EmptyState } from "@/components/storefront/empty-state";
+import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
@@ -233,6 +234,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       ) : (
         <ProductGrid products={products} />
       )}
+
+      <div className="mt-14 -mx-4 sm:-mx-6 lg:-mx-8">
+        <PricingTrustSection />
+      </div>
 
       <div className="mt-10">
         <ComplianceDisclaimer />

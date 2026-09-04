@@ -131,23 +131,32 @@ export function orderVerificationMessage(opts: {
   orderNumber: string;
   amountNprWhole: number;
   paymentMethod: string;
+  productName?: string;
+  variantName?: string;
 }): string {
   const method = opts.paymentMethod
     .replace(/_/g, " ")
     .replace(/\bMANUAL\b/gi, "")
     .trim();
-  return [
-    "Hello TRIHEX DIGITAL 👋",
+  const lines = [
+    "Namaste TRIHEX DIGITAL 👋",
     "",
-    "I have completed payment. Please verify.",
+    "I have completed my payment. Please verify and initiate activation.",
     "",
-    `• Order: ${opts.orderNumber}`,
-    `• Amount paid: NPR ${opts.amountNprWhole.toLocaleString("en-NP")}`,
-    `• Payment method: ${method}`,
+    `• Order Number: ${opts.orderNumber}`,
+  ];
+  if (opts.productName) {
+    lines.push(`• Item: ${opts.productName}${opts.variantName ? ` (${opts.variantName})` : ""}`);
+  }
+  lines.push(
+    `• Amount Paid: NPR ${opts.amountNprWhole.toLocaleString("en-NP")}`,
+    `• Payment Method: ${method}`,
     "",
-    "I am sending the payment screenshot in this WhatsApp chat now.",
-    "Please confirm once verified. Thank you!",
-  ].join("\n");
+    "Payment screenshot is attached / uploaded on your website.",
+    "Please verify and send my activation details here on WhatsApp.",
+    "Thank you!",
+  );
+  return lines.join("\n");
 }
 
 /** Customer asks about payment / order status after placing order. */
@@ -207,6 +216,8 @@ export function orderVerificationUrl(opts: {
   orderNumber: string;
   amountNprWhole: number;
   paymentMethod: string;
+  productName?: string;
+  variantName?: string;
 }): string {
   return buildWhatsAppUrl(orderVerificationMessage(opts));
 }

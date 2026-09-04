@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { BuyNowButton } from "@/components/storefront/buy-now-button";
+import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { formatNpr } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { productEnquiryUrl } from "@/lib/whatsapp";
@@ -58,6 +60,7 @@ export function ProductPurchasePanel({
   const currentVariantSku = activeVariant?.sku ?? variantSku;
 
   const dynamicWaUrl = useMemo(() => {
+    if (activePrice == null && !activeVariant && whatsappHref) return whatsappHref;
     return productEnquiryUrl({
       productName: productTitle ?? productSlug,
       variantName: activeVariant?.variantName ?? durationLabel ?? "Plan",
@@ -65,7 +68,7 @@ export function ProductPurchasePanel({
       priceLabel: activePrice != null ? formatNpr(activePrice) : null,
       compareAtLabel: activeCompareAt != null ? formatNpr(activeCompareAt) : null,
     });
-  }, [productTitle, productSlug, activeVariant, durationLabel, activePrice, activeCompareAt]);
+  }, [productTitle, productSlug, activeVariant, durationLabel, activePrice, activeCompareAt, whatsappHref]);
 
   return (
     <div className="space-y-4">

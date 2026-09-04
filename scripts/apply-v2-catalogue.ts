@@ -18,7 +18,7 @@ interface VariantDef {
   costNpr?: number;
   stockQty?: number | null;
   durationValue: number;
-  durationUnit: "days" | "months" | "years" | "lifetime";
+  durationUnit: "days" | "months" | "years" | "lifetime" | "session" | "one_time";
   purchasable?: boolean;
 }
 
@@ -656,7 +656,7 @@ const CATALOGUE_V2: ProductDef[] = [
     featured: false,
     coverPath: "/media/covers/design/mobbin-12m.webp",
     features: [
-      "300,000+ Real Mobile & Web App Screens",
+      "300,000+ Real Mobile & Web App Screens & UI Flows",
       "Complete User Journey Flows & UX Patterns",
       "Filter by Platform, Pattern & Component",
       "10x Seat Shared Access Tier",
@@ -809,10 +809,10 @@ const CATALOGUE_V2: ProductDef[] = [
     featured: true,
     coverPath: "/media/covers/chatgpt/chatgpt-plus-1-month-fw.webp",
     features: [
-      "Access to GPT-4o and GPT-4 Models",
-      "Faster Response Times During Peak Hours",
-      "Priority Access to New Frontier Features",
+      "Access to GPT-4o, o1 reasoning, advanced voice mode & Canvas",
+      "Priority Access to New Frontier Features & Tools",
       "Full 1-Month Replacement Warranty Included",
+      "Fast Direct Activation / Workspace Setup",
     ],
     variants: [
       {
@@ -951,7 +951,7 @@ const CATALOGUE_V2: ProductDef[] = [
     featured: true,
     coverPath: "/media/covers/kling/kling-ultra-26k-credits.webp",
     features: [
-      "26,000 Generation Credits for Serious Creators",
+      "26,000 Generation Credits Included for cinematic AI video",
       "Cinematic Ultra HD Video Outputs",
       "Priority GPU Processing Queue",
       "Commercial Use Ready with Full Monetization",
@@ -1104,7 +1104,7 @@ const CATALOGUE_V2: ProductDef[] = [
     featured: false,
     coverPath: "/media/covers/automation/n8n-starter-1-year.webp",
     features: [
-      "500+ Built-In Integrations & Webhooks",
+      "500+ Built-In Integrations & Webhook Triggers",
       "Autonomous AI Agent Workflows",
       "Visual Drag-and-Drop Node Builder",
       "Custom JavaScript & Python Execution",
@@ -1135,7 +1135,7 @@ const CATALOGUE_V2: ProductDef[] = [
     featured: true,
     coverPath: "/media/covers/video/veo3-ultra-flow-credits.webp",
     features: [
-      "45,000 Generation Credits for Video AI",
+      "45,000 Generation Credits for 1080p AI video generation",
       "Google AI Flow Extension Support",
       "Cinematic Text-to-Video & Image-to-Video",
       "High-Resolution Visual Rendering",
@@ -1209,8 +1209,8 @@ const CATALOGUE_V2: ProductDef[] = [
         compareAtNpr: 4999,
         costNpr: 0,
         stockQty: 10,
-        durationValue: 60,
-        durationUnit: "days",
+        durationValue: 1,
+        durationUnit: "session",
         purchasable: true,
       },
     ],
@@ -1239,8 +1239,8 @@ const CATALOGUE_V2: ProductDef[] = [
         compareAtNpr: 6999,
         costNpr: 0,
         stockQty: 10,
-        durationValue: 60,
-        durationUnit: "days",
+        durationValue: 1,
+        durationUnit: "session",
         purchasable: true,
       },
     ],
@@ -1438,7 +1438,9 @@ async function main() {
             ? "MONTH"
             : v.durationUnit === "years"
               ? "YEAR"
-              : "ONE_TIME";
+              : v.durationUnit === "session"
+                ? "SESSION"
+                : "ONE_TIME";
 
       if (existingVar[0]) {
         await db

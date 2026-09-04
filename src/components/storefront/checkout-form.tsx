@@ -213,6 +213,10 @@ export function CheckoutForm({ catalog, qrSrc }: CheckoutFormProps) {
         paymentMethod: data.paymentMethod ?? paymentMethod,
         total: String(totalMinor),
       });
+      if (resolved.length > 0 && resolved[0]?.product?.name) {
+        const pName = resolved[0].product.name;
+        params.set("product", resolved.length > 1 ? `${pName} (+${resolved.length - 1} more)` : pName);
+      }
       if (data.secureToken) params.set("token", data.secureToken);
       if (proofOk) {
         params.set("proof", "1");

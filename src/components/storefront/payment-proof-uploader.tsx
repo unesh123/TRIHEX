@@ -91,9 +91,18 @@ export function PaymentProofUploader({
       }
       setStatus("ok");
       setMessage(
-        "Order complete on your side. Screenshot received — message WhatsApp so we can verify and deliver your package.",
+        "Order registered & proof received! Opening WhatsApp now to confirm verification with +977 9702910130...",
       );
       form.reset();
+      if (whatsappUrl && typeof window !== "undefined") {
+        setTimeout(() => {
+          try {
+            window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+          } catch {
+            // Popup blocked by browser, manual button is displayed
+          }
+        }, 500);
+      }
     } catch {
       setStatus("error");
       setMessage(

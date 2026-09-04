@@ -40,6 +40,7 @@ export function ProductCard({
   product: MerchCard;
   className?: string;
 }) {
+  const href = `/products/${product.slug}`;
   const status = visibilityLabelForCard(product);
   const statusTone =
     product.visibility === "AVAILABLE"
@@ -62,14 +63,14 @@ export function ProductCard({
         : null,
     features: product.features,
   });
-  const href = `/products/${product.slug}`;
-  const primaryActionLabel = product.isFamilyCard
-    ? "View plans"
-    : product.purchasable
-      ? "Buy now"
-      : "Check Availability & Price";
-
   const tierCount = product.variants ? product.variants.length : 1;
+  const hasMultipleTiers = tierCount > 1 || product.isFamilyCard;
+  const primaryActionLabel = hasMultipleTiers
+    ? `View ${tierCount} Plans`
+    : product.purchasable
+      ? "Buy Now"
+      : "Request Availability";
+  const primaryActionHref = (hasMultipleTiers || product.purchasable) ? href : wa;
 
   return (
     <article
@@ -169,12 +170,20 @@ export function ProductCard({
         </div>
 
         <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
-          {product.isFamilyCard ? (
-            <Link href={href} className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
-              Choose a plan
+          {primaryActionHref.startsWith("/") ? (
+            <Link
+              href={primaryActionHref}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+            >
+              {primaryActionLabel}
             </Link>
           ) : (
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+            <a
+              href={primaryActionHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--surface-ink)] px-3 text-sm font-bold text-white transition hover:bg-[var(--primary)] focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+            >
               {primaryActionLabel}
             </a>
           )}

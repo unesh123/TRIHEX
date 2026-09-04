@@ -1,12 +1,14 @@
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { Button } from "@/components/ui/button";
 import { PaymentProofUploader } from "@/components/storefront/payment-proof-uploader";
+import { AutoOpenWhatsapp } from "@/components/storefront/auto-open-whatsapp";
 import {
   orderVerificationUrl,
   paymentStatusInquiryUrl,
 } from "@/lib/whatsapp";
 import { formatNpr } from "@/lib/money";
 import { resolveStorefrontBankQrPath } from "@/lib/payments/resolve-bank-qr";
+import { getOrderByNumber } from "@/lib/checkout/order-store";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,7 @@ interface CheckoutSuccessPageProps {
     token?: string;
     proof?: string;
     proofError?: string;
+    product?: string;
   }>;
 }
 
@@ -39,12 +42,29 @@ export default async function CheckoutSuccessPage({
   const amountWhole = Math.round(totalMinor / 100);
   const proofUploaded = params.proof === "1";
 
+  let productLabel: string | undefined = params.product?.trim();
+  if (!productLabel && orderNumber) {
+    try {
+      const order = await getOrderByNumber(orderNumber);
+      if (order && order.lines.length > 0) {
+        const first = order.lines[0]!;
+        productLabel =
+          order.lines.length > 1
+            ? `${first.productName} (${first.variantName}) + ${order.lines.length - 1} more`
+            : `${first.productName} (${first.variantName})`;
+      }
+    } catch {
+      // safe fallback
+    }
+  }
+
   const waVerifyUrl =
     orderNumber && amountWhole > 0
       ? orderVerificationUrl({
           orderNumber,
           amountNprWhole: amountWhole,
           paymentMethod,
+          productName: productLabel,
         })
       : null;
 
@@ -80,13 +100,18 @@ export default async function CheckoutSuccessPage({
             </p>
           ) : null}
 
-          {proofUploaded ? (
+          {proofUploaded && waVerifyUrl ? (
+            <AutoOpenWhatsapp
+              whatsappUrl={waVerifyUrl}
+              orderNumber={orderNumber ?? "Your Order"}
+            />
+          ) : proofUploaded ? (
             <div className="rounded-2xl border border-[var(--success)]/35 bg-[var(--success-soft)] p-4 text-sm">
               <p className="font-semibold text-[var(--text)]">
                 Payment screenshot uploaded
               </p>
               <p className="mt-1 text-[var(--text-secondary)]">
-                Your order is in processing. Next: message WhatsApp and confirm
+                Your order is in processing. Next: message WhatsApp (+977 9702910130) and confirm
                 verification so we can deliver the package.
               </p>
             </div>
@@ -104,7 +129,7 @@ export default async function CheckoutSuccessPage({
             </p>
           ) : null}
 
-          {waVerifyUrl ? (
+          {!proofUploaded && waVerifyUrl ? (
             <div className="rounded-2xl border border-[#25D366]/35 bg-[#25D366]/10 p-4">
               <p className="text-sm font-semibold text-[var(--text)]">
                 Message WhatsApp for verification

@@ -5,7 +5,6 @@ import { ProductCover } from "@/components/storefront/product-cover";
 import { FeaturePosterLightbox } from "@/components/storefront/feature-poster-lightbox";
 import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclaimer";
 import { ProductPurchasePanel } from "@/components/storefront/product-purchase-panel";
-import { Button } from "@/components/ui/button";
 import {
   detailMetaForSlug,
   featuresForSlug,
@@ -23,6 +22,7 @@ import {
   productFamilyKey,
 } from "@/lib/catalog/product-families";
 import { getGeneratedCover } from "@/lib/catalog/generated-covers";
+import { getProductCover } from "@/lib/catalog/product-covers";
 import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
@@ -111,7 +111,9 @@ export default async function ProductDetailPage({
     : featuresForSlug(product.slug);
   const meta = detailMetaForSlug(product.slug);
   const coverPath =
-    getGeneratedCover(product.slug, product.brandFamily) ?? product.coverPublicPath;
+    product.coverPublicPath ??
+    getProductCover(product.slug)?.publicPath ??
+    getGeneratedCover(product.slug, product.brandFamily);
   const waUrl = productEnquiryUrl({
     productName: product.title,
     variantName: product.packageLabel,

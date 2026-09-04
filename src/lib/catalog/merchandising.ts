@@ -171,12 +171,12 @@ function activationLabel(fulfillmentType: string): string {
 function fulfillmentEstimate(fulfillmentType: string): string {
   switch (fulfillmentType) {
     case "DOWNLOADABLE_OWNED_ASSET":
-      return "Usually within minutes after payment verification";
+      return "Instant delivery via dashboard";
     case "CONSULTATION":
     case "MANAGED_SETUP_SERVICE":
-      return "Scheduling within 1–2 business days";
+      return "Session scheduled within 1–2 days";
     default:
-      return "Typically within a few hours after payment verification";
+      return "Delivery: Usually 2 to 6 hours";
   }
 }
 
@@ -260,7 +260,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
   else if (stockQty != null && stockQty > 0 && stockQty <= 5)
     stockLabel = `Only ${stockQty} left`;
   else if (stockQty != null && stockQty > 5)
-    stockLabel = `${stockQty} in stock`;
+    stockLabel = "Ready to activate";
 
   const variants: MerchCardVariant[] = (product.variants ?? []).map((v) => {
     const vPrice =
@@ -289,7 +289,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     else if (vStockQty != null && vStockQty > 0 && vStockQty <= 5)
       vStockLabel = `Only ${vStockQty} left`;
     else if (vStockQty != null && vStockQty > 5)
-      vStockLabel = `${vStockQty} in stock`;
+      vStockLabel = "Ready to activate";
 
     return {
       sku: v.sku,
