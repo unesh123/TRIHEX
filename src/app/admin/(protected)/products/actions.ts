@@ -402,13 +402,19 @@ export async function createProductAction(formData: FormData): Promise<void> {
     })
     .returning();
 
+  const durationVal = Number(formData.get("durationValue") ?? 1) || 1;
+  const durationUnitRaw = String(formData.get("durationUnit") ?? "MONTH");
+  const durationUnit = ["DAY", "WEEK", "MONTH", "YEAR", "ONE_TIME"].includes(durationUnitRaw)
+    ? durationUnitRaw
+    : "MONTH";
+
   const sku = `THX-${slug.slice(0, 12).toUpperCase()}-${Date.now().toString().slice(-4)}`;
   await db.insert(schema.productVariants).values({
     productId: row.id,
     sku,
-    variantName: "Standard",
-    durationValue: 1,
-    durationUnit: "MONTH",
+    variantName: `${durationVal} ${durationUnit.toLowerCase() === "month" ? "Month" : durationUnit.toLowerCase() === "year" ? "Year" : "Term"} Access`,
+    durationValue: durationVal,
+    durationUnit: durationUnit as never,
     supplierCurrency: "USD",
     supplierCostMinor: 0,
     supplierCostUsdMinor: 0,

@@ -1703,5 +1703,15 @@
     "artWidth": 1200,
     "artHeight": 900,
     "lowResReplacementRecommended": false
+  },
+  {
+    "slug": "udemy-16-developer-ai-agent-pack",
+    "family": "developer",
+    "canonical": "udemy-16-pack.webp",
+    "publicPath": "/media/covers/developer/udemy-16-pack.webp",
+    "mode": "ARTWORK_ONLY",
+    "alt": "Udemy 16 Course Pack + AI Agent Prompts poster",
+    "artWidth": 1200,
+    "artHeight": 900
   }
 ]
