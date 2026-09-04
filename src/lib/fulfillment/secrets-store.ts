@@ -27,6 +27,14 @@ function getSigningSecret(): string {
   return secret || "trihex_sec_dev_fallback_signing_key_strictly_dev_only";
 }
 
+export function isSecretConfigured(): boolean {
+  const secret =
+    process.env.FULFILLMENT_SIGNING_SECRET ||
+    process.env.AUTH_SECRET ||
+    process.env.SESSION_SECRET;
+  return !!secret && secret.length >= 32;
+}
+
 export interface DeliveryTokenPayload {
   orderId: string;
   orderNumber: string;
