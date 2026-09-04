@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <defs>
+    <!-- Top prism gradients -->
+    <linearGradient id="top-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="top-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#0f2b66" />
+    </linearGradient>
+    <linearGradient id="top-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+
+    <!-- Right prism gradients -->
+    <linearGradient id="right-face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="right-side" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="right-inner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#075985" />
+    </linearGradient>
+
+    <!-- Left prism gradients -->
+    <linearGradient id="left-face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="left-side" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="left-inner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3730a3" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0284c7" flood-opacity="0.25" />
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#4f46e5" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <g filter="url(#soft-glow)">
+    <!-- Top Hex Prism Block -->
+    <!-- Top Face -->
+    <polygon points="256,48 376,117 256,186 136,117" fill="url(#top-top)" />
+    <!-- Left Face -->
+    <polygon points="136,117 256,186 256,325 136,256" fill="url(#top-left)" />
+    <!-- Right Face -->
+    <polygon points="256,186 376,117 376,256 256,325" fill="url(#top-right)" />
+
+    <!-- Left Prism (Indigo/Violet) Intertwining -->
+    <polygon points="106,204 226,273 226,412 106,343" fill="url(#left-face)" />
+    <polygon points="106,204 226,273 166,308 46,239" fill="url(#left-side)" />
+    <polygon points="46,239 166,308 166,447 46,378" fill="url(#left-inner)" />
+
+    <!-- Right Prism (Cyan/Aqua) Intertwining -->
+    <polygon points="286,273 406,204 466,239 346,308" fill="url(#right-side)" />
+    <polygon points="286,273 346,308 346,447 286,412" fill="url(#right-inner)" />
+    <polygon points="346,308 466,239 466,378 346,447" fill="url(#right-face)" />
+
+    <!-- Central Isometric Hollow Accent -->
+    <polygon points="256,220 296,243 296,290 256,313 216,290 216,243" fill="#ffffff" fill-opacity="0.08" />
+  </g>
+</svg>
