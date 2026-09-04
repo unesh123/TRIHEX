@@ -482,6 +482,8 @@ export function rejectDeal(
   return updated;
 }
 
+export const updateDealCandidate = updateDeal;
+
 export function updateDeal(
   candidateId: string,
   updates: Partial<DealCandidate>,

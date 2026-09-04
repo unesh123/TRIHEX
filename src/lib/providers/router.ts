@@ -8,7 +8,7 @@ import { getProvidersByCapability } from "./registry";
 import { invokeGeminiReasoning } from "./adapters/gemini";
 import { invokeOpenAIReasoning } from "./adapters/openai";
 import { invokeYouComSearch } from "./adapters/youcom";
-import { checkBudgetGuard, recordUsageCost } from "./budget";
+import { checkBudgetGuard, recordUsageCost, recordFailoverEvent } from "./budget";
 
 export async function reason(request: ReasoningRequest): Promise<ReasoningResponse> {
   const budget = checkBudgetGuard(5);
@@ -28,18 +28,19 @@ export async function reason(request: ReasoningRequest): Promise<ReasoningRespon
     try {
       if (provider.id === "gemini") {
         const response = await invokeGeminiReasoning(request);
-        recordUsageCost(response.estimatedCostCents ?? 2);
+        recordUsageCost(response.estimatedCostCents ?? 2, "gemini");
         return response;
       }
 
       if (provider.id === "openai") {
         const response = await invokeOpenAIReasoning(request);
-        recordUsageCost(response.estimatedCostCents ?? 3);
+        recordUsageCost(response.estimatedCostCents ?? 3, "openai");
         return response;
       }
     } catch (err: any) {
       lastError = err;
       console.warn(`[ProviderRouter] Provider ${provider.id} failed, attempting failover:`, err?.message);
+      recordFailoverEvent(provider.id, "failover_target", err?.message || "Provider error");
     }
   }
 

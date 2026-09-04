@@ -30,10 +30,12 @@ const NAV_GROUPS: AdminNavGroup[] = [
     label: "Intelligence OS",
     items: [
       { href: "/admin/deal-radar", label: "Deal Radar", module: "deal_radar", permission: "products:edit" },
+      { href: "/admin/queue", label: "Verification Queue", module: "deal_radar", permission: "products:edit" },
       { href: "/admin/prompts", label: "Prompts & Templates", module: "prompts", permission: "products:edit" },
       { href: "/admin/search-analytics", label: "Search & Demand", module: "search_analytics", permission: "products:edit" },
       { href: "/admin/sources", label: "Sources & Feeds", module: "sources", permission: "settings:manage" },
       { href: "/admin/integrations", label: "Provider Integrations", module: "integrations", permission: "settings:manage" },
+      { href: "/admin/usage", label: "AI Usage & Budgets", module: "integrations", permission: "settings:manage" },
       { href: "/admin/system-health", label: "System Health", module: "system_health", permission: "settings:manage" },
     ],
   },
