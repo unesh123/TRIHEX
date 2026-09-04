@@ -68,7 +68,9 @@ export function ProductCard({
     ? "View plans"
     : product.purchasable
       ? "Buy now"
-      : "Check availability";
+      : "Check Availability & Price";
+
+  const tierCount = product.variants ? product.variants.length : 1;
 
   return (
     <article
@@ -83,12 +85,17 @@ export function ProductCard({
           family={product.brandFamily}
           title={`${product.title} product visual`}
           coverPublicPath={product.coverPublicPath}
-          className="aspect-[1.24] rounded-[1.05rem] border-0 bg-[linear-gradient(145deg,#eaf0f7,#ffffff)] transition duration-500 group-hover:scale-[1.018]"
+          className="aspect-square rounded-[1.05rem] border-0 bg-[linear-gradient(145deg,#eaf0f7,#ffffff)] transition duration-500 group-hover:scale-[1.02]"
         />
         <div className="absolute left-5 top-5 flex flex-wrap items-center gap-1.5">
           <span className="rounded-full border border-white/70 bg-white/92 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-secondary)] shadow-sm backdrop-blur">
             {product.durationLabel ?? product.packageLabel}
           </span>
+          {tierCount > 1 && (
+            <span className="rounded-full border border-[var(--primary)]/30 bg-[var(--primary-soft)] px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[var(--primary)] shadow-sm backdrop-blur">
+              {tierCount} Tiers
+            </span>
+          )}
           {product.discountPercent != null && product.discountPercent > 0 ? (
             <span className="rounded-full bg-[var(--danger)] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-white shadow-sm">−{product.discountPercent}%</span>
           ) : null}
@@ -156,7 +163,7 @@ export function ProductCard({
                 ) : null}
               </>
             ) : (
-              <p className="mt-1 text-sm font-bold text-[var(--text-secondary)]">Ask TRIHEX</p>
+              <p className="mt-1 text-xs font-bold text-[var(--primary)]">Check Availability & Price</p>
             )}
           </div>
           {product.stockLabel ? <PackageCheck className="h-5 w-5 text-[var(--primary)]/55" aria-hidden="true" /> : null}

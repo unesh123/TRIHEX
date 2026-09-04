@@ -49,7 +49,7 @@ export function ProductCover({
           alt={cover.alt || title}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
-          className="object-contain p-2"
+          className="object-cover transition duration-500"
           priority={priority}
           unoptimized={isRemote}
         />

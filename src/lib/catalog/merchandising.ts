@@ -22,6 +22,20 @@ export type CatalogueVisibility =
   | "HIDDEN"
   | "BLOCKED";
 
+export interface MerchCardVariant {
+  sku: string;
+  variantName: string;
+  durationLabel: string | null;
+  durationValue: number | null;
+  durationUnit: string | null;
+  priceNprMinor: number | null;
+  compareAtPriceNprMinor: number | null;
+  discountPercent: number | null;
+  purchasable: boolean;
+  stockQty: number | null;
+  stockLabel: string | null;
+}
+
 export interface MerchCard {
   slug: string;
   brandSlug: string;
@@ -55,6 +69,8 @@ export interface MerchCard {
   /** Visible stock qty from admin (null = unlimited / made-to-order). */
   stockQty: number | null;
   stockLabel: string | null;
+  /** All variants associated with this product (for tiers & warranty) */
+  variants?: MerchCardVariant[];
   /** Optional live DB / admin-uploaded cover override */
   coverPublicPath?: string | null;
   /** Same product line, other duration plans (for chips / switcher) */
@@ -246,6 +262,50 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
   else if (stockQty != null && stockQty > 5)
     stockLabel = `${stockQty} in stock`;
 
+  const variants: MerchCardVariant[] = (product.variants ?? []).map((v) => {
+    const vPrice =
+      v.manualSellingPriceNprMinor ??
+      (product.brandSlug === "trihex" ? v.minimumProfitNprMinor ?? null : null);
+    const vCostNprMinor =
+      v.supplierCostUsdMinor != null
+        ? Math.round((v.supplierCostUsdMinor / 100) * 160 * 100)
+        : null;
+    const vCompareAt =
+      vPrice != null
+        ? honestCompareAtNprMinor({
+            sellNprMinor: vPrice,
+            listNprMinor: v.compareAtPriceNprMinor,
+            costNprMinor: vCostNprMinor,
+          })
+        : null;
+    const vDiscount =
+      vCompareAt != null && vPrice != null
+        ? discountPercentFromList(vPrice, vCompareAt)
+        : null;
+    const vStockQty =
+      v.seedVisibleQuantity === undefined ? null : v.seedVisibleQuantity;
+    let vStockLabel: string | null = null;
+    if (vStockQty === 0) vStockLabel = "Out of stock";
+    else if (vStockQty != null && vStockQty > 0 && vStockQty <= 5)
+      vStockLabel = `Only ${vStockQty} left`;
+    else if (vStockQty != null && vStockQty > 5)
+      vStockLabel = `${vStockQty} in stock`;
+
+    return {
+      sku: v.sku,
+      variantName: v.variantName,
+      durationLabel: durationLabel(v.durationValue, v.durationUnit),
+      durationValue: v.durationValue,
+      durationUnit: v.durationUnit,
+      priceNprMinor: vPrice,
+      compareAtPriceNprMinor: vCompareAt,
+      discountPercent: vDiscount,
+      purchasable: v.purchasable ?? false,
+      stockQty: vStockQty,
+      stockLabel: vStockLabel,
+    };
+  }).sort((a, b) => (a.priceNprMinor ?? 0) - (b.priceNprMinor ?? 0));
+
   return {
     slug: product.slug,
     brandSlug: product.brandSlug,
@@ -276,6 +336,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     features: featuresForSlug(product.slug, product.longDescription),
     stockQty,
     stockLabel,
+    variants,
   };
 }
 

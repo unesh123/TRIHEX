@@ -320,12 +320,30 @@ const DEFAULT_FEATURES = [
   "Payment verified before fulfillment",
 ];
 
-/** Parse admin-entered features from longDescription (one bullet per line). */
 export function parseFeaturesText(text: string | null | undefined): string[] {
   if (!text?.trim()) return [];
+  const trimmed = text.trim();
+  const cleanLine = (s: string) =>
+    s
+      .replace(/^(\s*[-•*]\s*|\s*\d+[.)]\s*|^\s*["'\[\]]+)+/, "")
+      .replace(/["'\[\]]+$/, "")
+      .trim();
+
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => cleanLine(String(item)))
+          .filter((item) => item.length > 0);
+      }
+    } catch {
+      // fallback to newline split
+    }
+  }
   return text
     .split(/\r?\n/)
-    .map((l) => l.replace(/^[-•*\d.)\s]+/, "").trim())
+    .map(cleanLine)
     .filter((l) => l.length > 0);
 }
 

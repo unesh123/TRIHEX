@@ -70,7 +70,20 @@ export function requireEnv<K extends keyof Env>(key: K): NonNullable<Env[K]> {
 
 export function isDatabaseConfigured(): boolean {
   normalizeEnvAliases();
-  return Boolean(process.env.DATABASE_URL);
+  let url = process.env.DATABASE_URL?.trim();
+  if (!url || url.includes("[SENSITIVE]")) return false;
+  if (
+    (url.startsWith('"') && url.endsWith('"')) ||
+    (url.startsWith("'") && url.endsWith("'"))
+  ) {
+    url = url.slice(1, -1).trim();
+  }
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol.startsWith("postgres");
+  } catch {
+    return false;
+  }
 }
 
 export function isSupabaseConfigured(): boolean {

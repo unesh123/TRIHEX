@@ -150,7 +150,10 @@ export default async function HomePage() {
 
           <Reveal delay={0.1} className="relative mx-auto w-full max-w-xl lg:max-w-none">
             <div className="absolute -inset-8 rounded-[3rem] bg-[conic-gradient(from_210deg,rgba(15,76,129,.16),rgba(118,86,255,.16),rgba(12,132,105,.13),rgba(15,76,129,.16))] blur-3xl" aria-hidden="true" />
-            <div className="relative rounded-[2rem] border border-white/90 bg-white/80 p-3 shadow-premium backdrop-blur-xl sm:p-4">
+            <Link
+              href={heroProduct ? `/products/${heroProduct.slug}` : "/products"}
+              className="group block relative rounded-[2rem] border border-white/90 bg-white/80 p-3 shadow-premium backdrop-blur-xl transition duration-300 hover:border-[var(--primary)]/40 hover:shadow-2xl sm:p-4"
+            >
               <div className="relative aspect-square overflow-hidden rounded-[1.45rem] bg-[linear-gradient(145deg,#eaf0f7,#f9fbff)]">
                 <Image
                   src={heroCover}
@@ -158,24 +161,59 @@ export default async function HomePage() {
                   fill
                   priority
                   sizes="(max-width: 1024px) 92vw, 540px"
-                  className="object-contain p-3 transition duration-700 hover:scale-[1.025]"
+                  className="object-contain p-3 transition duration-700 group-hover:scale-[1.03]"
                 />
                 <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/60 bg-[var(--surface-ink)]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.13em] text-white shadow-lg backdrop-blur">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#4ee6b9] shadow-[0_0_0_4px_rgba(78,230,185,.16)]" /> Ready to order
                 </div>
-                <div className="absolute inset-x-3 bottom-3 rounded-[1.2rem] border border-white/80 bg-white/93 p-4 shadow-xl backdrop-blur">
+                <div className="absolute inset-x-3 bottom-3 rounded-[1.2rem] border border-white/80 bg-white/93 p-4 shadow-xl backdrop-blur transition duration-300 group-hover:bg-white">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">Featured access</p>
-                      <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--text)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
-                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{heroProduct?.packageLabel ?? "Premium digital access"}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary)]">★ Featured Official Access</p>
+                      <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--text)] transition group-hover:text-[var(--primary)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
+                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{heroProduct?.packageLabel ?? "Premium digital access"} · Click to view details & plans →</p>
                     </div>
                     <p className="shrink-0 rounded-xl bg-[var(--primary-soft)] px-3 py-2 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--primary)]">{formatNpr(heroProduct?.priceNprMinor)}</p>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </Reveal>
+        </div>
+      </section>
+
+      {/* Live Verified Deals Ticker Bar */}
+      <section className="border-b border-[var(--border)] bg-[linear-gradient(90deg,#0a192f_0%,#0f172a_100%)] py-3 text-white">
+        <div className="store-container flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
+            <Sparkles className="h-3 w-3" /> Live Deals
+          </div>
+          <div className="flex items-center gap-2 text-xs font-semibold whitespace-nowrap">
+            {[
+              { name: "Gemini AI Pro 18M", price: "Rs. 399", slug: "gemini-pro-18-months-link", badge: "92% Off" },
+              { name: "CapCut Pro", price: "From Rs. 299", slug: "capcut-pro", badge: "Hot" },
+              { name: "Claude Code Unlimited", price: "From Rs. 1,299", slug: "claude-code-api-access", badge: "New" },
+              { name: "ElevenLabs Creator", price: "From Rs. 2,699", slug: "elevenlabs-creator-shared", badge: "Popular" },
+              { name: "Cursor Pro Editor", price: "From Rs. 1,999", slug: "cursor-pro-12m", badge: "Dev" },
+              { name: "Manus AI Pro 12M", price: "Rs. 9,679", slug: "manus-ai-pro-12m", badge: "Agentic" },
+              { name: "Higgsfield Pro 12M", price: "Rs. 17,999", slug: "higgsfield-pro-12m", badge: "Video" },
+              { name: "Warp Build 1 Year", price: "Rs. 3,699", slug: "warp-build-1-year", badge: "20x Fast" },
+              { name: "n8n Starter 1 Year", price: "Rs. 4,699", slug: "n8n-starter-1-year", badge: "Workflow" },
+              { name: "Veo 3 Ultra Credits", price: "Rs. 2,999", slug: "veo3-ultra-flow-credits", badge: "45K Creds" },
+            ].map((deal) => (
+              <Link
+                key={deal.slug}
+                href={`/products/${deal.slug}`}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-emerald-400/50 hover:bg-white/10 hover:text-emerald-300"
+              >
+                <span>{deal.name}</span>
+                <span className="font-bold text-emerald-400">{deal.price}</span>
+                <span className="rounded bg-white/20 px-1 py-0.5 text-[9px] font-extrabold uppercase text-white/90">
+                  {deal.badge}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCover } from "@/components/storefront/product-cover";
+import { FeaturePosterLightbox } from "@/components/storefront/feature-poster-lightbox";
 import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclaimer";
 import { ProductPurchasePanel } from "@/components/storefront/product-purchase-panel";
 import { Button } from "@/components/ui/button";
@@ -217,14 +218,24 @@ export default async function ProductDetailPage({
         <div className="space-y-6">
           <TrustStrip compact />
           <PlanSwitcher plans={familyPlans} currentSlug={product.slug} />
-          <ProductCover
-            slug={product.slug}
-            family={product.brandFamily}
-            className="max-w-xl"
-            title={`${product.title} artwork`}
-            coverPublicPath={product.coverPublicPath}
-            priority
-          />
+          {product.coverPublicPath ? (
+            <FeaturePosterLightbox
+              src={product.coverPublicPath}
+              alt={`${product.title} feature infographic`}
+              title={product.title}
+              className="max-w-xl"
+              priority
+            />
+          ) : (
+            <ProductCover
+              slug={product.slug}
+              family={product.brandFamily}
+              className="max-w-xl"
+              title={`${product.title} artwork`}
+              coverPublicPath={product.coverPublicPath}
+              priority
+            />
+          )}
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)] sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
@@ -414,30 +425,18 @@ export default async function ProductDetailPage({
             </div>
           ) : null}
           <div className="flex flex-col gap-2">
-            {product.purchasable ? (
-              <ProductPurchasePanel
-                productSlug={product.slug}
-                variantSku={product.variantSku}
-                basePriceNprMinor={
-                  product.showPrice ? product.priceNprMinor : null
-                }
-                durationLabel={product.durationLabel ?? product.packageLabel}
-                purchasable={product.purchasable}
-                whatsappHref={waUrl}
-              />
-            ) : (
-              <>
-                <Button href={waUrl} external variant="primary" className="w-full">
-                  Check Availability
-                </Button>
-                <Button href={waUrl} external variant="whatsapp" className="w-full">
-                  WhatsApp +977 9702910130
-                </Button>
-                <Button href="/cart" variant="secondary">
-                  View cart
-                </Button>
-              </>
-            )}
+            <ProductPurchasePanel
+              productSlug={product.slug}
+              productTitle={product.title}
+              variantSku={product.variantSku}
+              basePriceNprMinor={
+                product.showPrice ? product.priceNprMinor : null
+              }
+              durationLabel={product.durationLabel ?? product.packageLabel}
+              purchasable={product.purchasable}
+              whatsappHref={waUrl}
+              variants={product.variants}
+            />
           </div>
         </aside>
       </div>
