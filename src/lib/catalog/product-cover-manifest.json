@@ -23,66 +23,96 @@
     "slug": "claude-code-api-access",
     "family": "claude",
     "canonical": "claude-code-api.webp",
-    "publicPath": "/media/covers/claude/claude-code-api.webp",
+    "publicPath": "/media/products/claude-code-api-access/claude-code-api-access-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "claude-code-api-access.webp",
     "alt": "Claude Code API Access feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/claude-code-api-access/claude-code-api-access-thumbnail.webp",
+    "infographicPath": "/media/products/claude-code-api-access/claude-code-api-access-infographic.webp",
+    "galleryPaths": [
+      "/media/products/claude-code-api-access/claude-code-api-access-infographic.webp",
+      "/media/products/claude-code-api-access/claude-code-api-access-thumbnail.webp"
+    ]
   },
   {
     "slug": "gamma-pro-1-year",
     "family": "gamma",
     "canonical": "gamma-pro.webp",
-    "publicPath": "/media/covers/gamma/gamma-pro.webp",
+    "publicPath": "/media/products/gamma-pro-1-year/gamma-pro-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "gamma-pro-1-year.webp",
     "alt": "Gamma App Pro 1 Year feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/gamma-pro-1-year/gamma-pro-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/gamma-pro-1-year/gamma-pro-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/gamma-pro-1-year/gamma-pro-1-year-infographic.webp",
+      "/media/products/gamma-pro-1-year/gamma-pro-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "ai-prompt-starter-pack",
     "family": "trihex",
     "canonical": "ai-prompt-pack.webp",
-    "publicPath": "/media/covers/ai/ai-prompt-pack.webp",
+    "publicPath": "/media/products/ai-prompt-starter-pack/ai-prompt-starter-pack-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "TRIHEX AI PROMPT STARTER PACK.png",
     "alt": "TRIHEX AI Prompt Starter Pack feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/ai-prompt-starter-pack/ai-prompt-starter-pack-thumbnail.webp",
+    "infographicPath": "/media/products/ai-prompt-starter-pack/ai-prompt-starter-pack-infographic.webp",
+    "galleryPaths": [
+      "/media/products/ai-prompt-starter-pack/ai-prompt-starter-pack-infographic.webp",
+      "/media/products/ai-prompt-starter-pack/ai-prompt-starter-pack-thumbnail.webp"
+    ]
   },
   {
     "slug": "small-business-ai-setup-consultation",
     "family": "trihex",
     "canonical": "trihex-small-business-ai-setup.webp",
-    "publicPath": "/media/covers/trihex/trihex-small-business-ai-setup.webp",
+    "publicPath": "/media/products/small-business-ai-setup-consultation/small-business-ai-setup-consultation-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "TRIHEX SMALL BUSINESS AI SETUP.png",
     "alt": "TRIHEX Small Business AI Setup Consultation feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/small-business-ai-setup-consultation/small-business-ai-setup-consultation-thumbnail.webp",
+    "infographicPath": "/media/products/small-business-ai-setup-consultation/small-business-ai-setup-consultation-infographic.webp",
+    "galleryPaths": [
+      "/media/products/small-business-ai-setup-consultation/small-business-ai-setup-consultation-infographic.webp",
+      "/media/products/small-business-ai-setup-consultation/small-business-ai-setup-consultation-thumbnail.webp"
+    ]
   },
   {
     "slug": "custom-workflow-automation-discovery",
     "family": "trihex",
     "canonical": "custom-workflow-automation-discovery.webp",
-    "publicPath": "/media/covers/trihex/custom-workflow-automation-discovery.webp",
+    "publicPath": "/media/products/custom-workflow-automation-discovery/custom-workflow-automation-discovery-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "Designer (1).png",
     "alt": "TRIHEX Workflow Automation Discovery feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/custom-workflow-automation-discovery/custom-workflow-automation-discovery-thumbnail.webp",
+    "infographicPath": "/media/products/custom-workflow-automation-discovery/custom-workflow-automation-discovery-infographic.webp",
+    "galleryPaths": [
+      "/media/products/custom-workflow-automation-discovery/custom-workflow-automation-discovery-infographic.webp",
+      "/media/products/custom-workflow-automation-discovery/custom-workflow-automation-discovery-thumbnail.webp"
+    ]
   },
   {
     "slug": "cursor-pro-plus",
@@ -245,14 +275,20 @@
     "slug": "gemini-pro-18-months-link",
     "family": "gemini",
     "canonical": "gemini-pro.webp",
-    "publicPath": "/media/covers/gemini/gemini-pro.webp",
+    "publicPath": "/media/products/gemini-pro-18-months-link/gemini-pro-18-months-link-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "gemenai 18 monts plan rs 399.png",
     "alt": "Google Gemini AI Pro 18 Months full infographic feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/gemini-pro-18-months-link/gemini-pro-18-months-link-thumbnail.webp",
+    "infographicPath": "/media/products/gemini-pro-18-months-link/gemini-pro-18-months-link-infographic.webp",
+    "galleryPaths": [
+      "/media/products/gemini-pro-18-months-link/gemini-pro-18-months-link-infographic.webp",
+      "/media/products/gemini-pro-18-months-link/gemini-pro-18-months-link-thumbnail.webp"
+    ]
   },
   {
     "slug": "gemini-pro-upgrade-link-18-months",
@@ -359,27 +395,39 @@
     "slug": "kling-standard-680-750-credits",
     "family": "kling",
     "canonical": "kling-standard.webp",
-    "publicPath": "/media/covers/kling/kling-standard.webp",
+    "publicPath": "/media/products/kling-standard-680-750-credits/kling-standard-680-750-credits-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "kling ai 750 creditss kling standard.png",
     "alt": "Kling AI Standard 680-750 Credits feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/kling-standard-680-750-credits/kling-standard-680-750-credits-thumbnail.webp",
+    "infographicPath": "/media/products/kling-standard-680-750-credits/kling-standard-680-750-credits-infographic.webp",
+    "galleryPaths": [
+      "/media/products/kling-standard-680-750-credits/kling-standard-680-750-credits-infographic.webp",
+      "/media/products/kling-standard-680-750-credits/kling-standard-680-750-credits-thumbnail.webp"
+    ]
   },
   {
     "slug": "kling-ultra-26k-credits",
     "family": "kling",
     "canonical": "kling-ultra-26k-credits.webp",
-    "publicPath": "/media/covers/kling/kling-ultra-26k-credits.webp",
+    "publicPath": "/media/products/kling-ultra-26k-credits/kling-ultra-26k-credits-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "kling ai 26k credits plan rs 13999.png",
     "alt": "Kling AI Ultra 26K Credits feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 1200,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/kling-ultra-26k-credits/kling-ultra-26k-credits-thumbnail.webp",
+    "infographicPath": "/media/products/kling-ultra-26k-credits/kling-ultra-26k-credits-infographic.webp",
+    "galleryPaths": [
+      "/media/products/kling-ultra-26k-credits/kling-ultra-26k-credits-infographic.webp",
+      "/media/products/kling-ultra-26k-credits/kling-ultra-26k-credits-thumbnail.webp"
+    ]
   },
   {
     "slug": "capcut-pro-7-days",
@@ -424,14 +472,20 @@
     "slug": "canva-pro-1-year",
     "family": "canva",
     "canonical": "canva-pro.webp",
-    "publicPath": "/media/covers/canva/canva-pro.webp",
+    "publicPath": "/media/products/canva-pro-1-year/canva-pro-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "canva pro 1year premium.jpg",
     "alt": "Canva Pro 1 Year Unlimited Access feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/canva-pro-1-year/canva-pro-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/canva-pro-1-year/canva-pro-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/canva-pro-1-year/canva-pro-1-year-infographic.webp",
+      "/media/products/canva-pro-1-year/canva-pro-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "canva-pro-slot-1-year",
@@ -465,14 +519,20 @@
     "slug": "coursera-premium-1-year",
     "family": "coursera",
     "canonical": "coursera-premium.webp",
-    "publicPath": "/media/covers/coursera/coursera-premium.webp",
+    "publicPath": "/media/products/coursera-premium-1-year/coursera-premium-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "corsera premium 1 year.jpg",
     "alt": "Coursera Premium 1 Year Membership feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/coursera-premium-1-year/coursera-premium-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/coursera-premium-1-year/coursera-premium-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/coursera-premium-1-year/coursera-premium-1-year-infographic.webp",
+      "/media/products/coursera-premium-1-year/coursera-premium-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "claude-x20-w30d",
@@ -521,14 +581,20 @@
     "slug": "chatgpt-plus-1-month-fw",
     "family": "chatgpt",
     "canonical": "chatgpt-plus.webp",
-    "publicPath": "/media/covers/chatgpt/chatgpt-plus.webp",
+    "publicPath": "/media/products/chatgpt-plus-1-month-fw/chatgpt-plus-1-month-fw-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "chat gpt plus 1 month plan (full arrenty).jpg",
     "alt": "ChatGPT Plus 1 Month Full Warranty feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/chatgpt-plus-1-month-fw/chatgpt-plus-1-month-fw-thumbnail.webp",
+    "infographicPath": "/media/products/chatgpt-plus-1-month-fw/chatgpt-plus-1-month-fw-infographic.webp",
+    "galleryPaths": [
+      "/media/products/chatgpt-plus-1-month-fw/chatgpt-plus-1-month-fw-infographic.webp",
+      "/media/products/chatgpt-plus-1-month-fw/chatgpt-plus-1-month-fw-thumbnail.webp"
+    ]
   },
   {
     "slug": "chatgpt-plus-1-month-gmail-w15d",
@@ -1435,40 +1501,58 @@
     "slug": "elevenlabs-creator-shared",
     "family": "elevenlabs",
     "canonical": "elevenlabs-creator.webp",
-    "publicPath": "/media/covers/elevenlabs/elevenlabs-creator.webp",
+    "publicPath": "/media/products/elevenlabs-creator-shared/elevenlabs-creator-shared-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "elevenlabs_creator_poster_1788529719746.jpg",
     "alt": "ElevenLabs Creator Shared Plan high-res feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/elevenlabs-creator-shared/elevenlabs-creator-shared-thumbnail.webp",
+    "infographicPath": "/media/products/elevenlabs-creator-shared/elevenlabs-creator-shared-infographic.webp",
+    "galleryPaths": [
+      "/media/products/elevenlabs-creator-shared/elevenlabs-creator-shared-infographic.webp",
+      "/media/products/elevenlabs-creator-shared/elevenlabs-creator-shared-thumbnail.webp"
+    ]
   },
   {
     "slug": "higgsfield-pro-12m",
     "family": "video",
     "canonical": "higgsfield-pro.webp",
-    "publicPath": "/media/covers/video/higgsfield-pro.webp",
+    "publicPath": "/media/products/higgsfield-pro-12m/higgsfield-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "higgsfield_pro_poster_1788529778760.jpg",
     "alt": "Higgsfield Pro 12-Month AI Video high-res feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/higgsfield-pro-12m/higgsfield-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/higgsfield-pro-12m/higgsfield-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/higgsfield-pro-12m/higgsfield-pro-12m-infographic.webp",
+      "/media/products/higgsfield-pro-12m/higgsfield-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "manus-ai-pro-12m",
     "family": "ai",
     "canonical": "manus-ai-pro.webp",
-    "publicPath": "/media/covers/manus/manus-ai-pro.webp",
+    "publicPath": "/media/products/manus-ai-pro-12m/manus-ai-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "manus_ai_pro_poster_1788529826975.jpg",
     "alt": "Manus AI Pro 12-Month Autonomous Agent high-res feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/manus-ai-pro-12m/manus-ai-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/manus-ai-pro-12m/manus-ai-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/manus-ai-pro-12m/manus-ai-pro-12m-infographic.webp",
+      "/media/products/manus-ai-pro-12m/manus-ai-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "google-ai-pro-12m",
@@ -1487,40 +1571,58 @@
     "slug": "capcut-pro",
     "family": "capcut",
     "canonical": "capcut-pro.webp",
-    "publicPath": "/media/covers/capcut/capcut-pro.webp",
+    "publicPath": "/media/products/capcut-pro/capcut-pro-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "capcut pro 6 months.jpg",
     "alt": "CapCut Pro 6-Month Membership feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/capcut-pro/capcut-pro-thumbnail.webp",
+    "infographicPath": "/media/products/capcut-pro/capcut-pro-infographic.webp",
+    "galleryPaths": [
+      "/media/products/capcut-pro/capcut-pro-infographic.webp",
+      "/media/products/capcut-pro/capcut-pro-thumbnail.webp"
+    ]
   },
   {
     "slug": "cursor-pro-12m",
     "family": "cursor",
     "canonical": "cursor-pro.webp",
-    "publicPath": "/media/covers/cursor/cursor-pro.webp",
+    "publicPath": "/media/products/cursor-pro-12m/cursor-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "cursor pro 30 days.jpg",
     "alt": "Cursor Pro Developer Tool feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/cursor-pro-12m/cursor-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/cursor-pro-12m/cursor-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/cursor-pro-12m/cursor-pro-12m-infographic.webp",
+      "/media/products/cursor-pro-12m/cursor-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "supergrok-3-months",
     "family": "grok",
     "canonical": "supergrok.webp",
-    "publicPath": "/media/covers/grok/supergrok.webp",
+    "publicPath": "/media/products/supergrok-3-months/supergrok-3-months-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "supergrok 3month package rs3499.png",
     "alt": "SuperGrok 3-Month Package feature poster.",
     "resolutionNote": "HIGH_RES_SINGLE",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/supergrok-3-months/supergrok-3-months-thumbnail.webp",
+    "infographicPath": "/media/products/supergrok-3-months/supergrok-3-months-infographic.webp",
+    "galleryPaths": [
+      "/media/products/supergrok-3-months/supergrok-3-months-infographic.webp",
+      "/media/products/supergrok-3-months/supergrok-3-months-thumbnail.webp"
+    ]
   },
   {
     "slug": "veo4-ultra-25k-credits",
@@ -1539,179 +1641,263 @@
     "slug": "warp-build-1-year",
     "family": "developer",
     "canonical": "warp-build.webp",
-    "publicPath": "/media/covers/developer/warp-build.webp",
+    "publicPath": "/media/products/warp-build-1-year/warp-build-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-warp-build-1-year",
     "alt": "Warp Build High-Speed CI/CD Cloud Runners feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/warp-build-1-year/warp-build-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/warp-build-1-year/warp-build-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/warp-build-1-year/warp-build-1-year-infographic.webp",
+      "/media/products/warp-build-1-year/warp-build-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "n8n-starter-1-year",
     "family": "automation",
     "canonical": "n8n-starter.webp",
-    "publicPath": "/media/covers/automation/n8n-starter.webp",
+    "publicPath": "/media/products/n8n-starter-1-year/n8n-starter-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-n8n-starter-1-year",
     "alt": "n8n Starter Fair-Code Workflow Automation feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/n8n-starter-1-year/n8n-starter-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/n8n-starter-1-year/n8n-starter-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/n8n-starter-1-year/n8n-starter-1-year-infographic.webp",
+      "/media/products/n8n-starter-1-year/n8n-starter-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "veo3-ultra-flow-credits",
     "family": "video",
     "canonical": "veo3-ultra.webp",
-    "publicPath": "/media/covers/video/veo3-ultra.webp",
+    "publicPath": "/media/products/veo3-ultra-flow-credits/veo3-ultra-flow-credits-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-veo3-ultra-flow-credits",
     "alt": "Veo 3 Ultra 45K Credits â€¢ AI Video Flow feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/veo3-ultra-flow-credits/veo3-ultra-flow-credits-thumbnail.webp",
+    "infographicPath": "/media/products/veo3-ultra-flow-credits/veo3-ultra-flow-credits-infographic.webp",
+    "galleryPaths": [
+      "/media/products/veo3-ultra-flow-credits/veo3-ultra-flow-credits-infographic.webp",
+      "/media/products/veo3-ultra-flow-credits/veo3-ultra-flow-credits-thumbnail.webp"
+    ]
   },
   {
     "slug": "lovable-pro-12m",
     "family": "developer",
     "canonical": "lovable-pro.webp",
-    "publicPath": "/media/covers/developer/lovable-pro.webp",
+    "publicPath": "/media/products/lovable-pro-12m/lovable-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-lovable-pro-12m",
     "alt": "Lovable Pro Full-Stack AI Software Builder feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/lovable-pro-12m/lovable-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/lovable-pro-12m/lovable-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/lovable-pro-12m/lovable-pro-12m-infographic.webp",
+      "/media/products/lovable-pro-12m/lovable-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "supabase-pro-1-year",
     "family": "developer",
     "canonical": "supabase-pro.webp",
-    "publicPath": "/media/covers/developer/supabase-pro.webp",
+    "publicPath": "/media/products/supabase-pro-1-year/supabase-pro-1-year-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-supabase-pro-1-year",
     "alt": "Supabase Pro The Open Source Firebase Alternative feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/supabase-pro-1-year/supabase-pro-1-year-thumbnail.webp",
+    "infographicPath": "/media/products/supabase-pro-1-year/supabase-pro-1-year-infographic.webp",
+    "galleryPaths": [
+      "/media/products/supabase-pro-1-year/supabase-pro-1-year-infographic.webp",
+      "/media/products/supabase-pro-1-year/supabase-pro-1-year-thumbnail.webp"
+    ]
   },
   {
     "slug": "notion-business-12m",
     "family": "productivity",
     "canonical": "notion-business.webp",
-    "publicPath": "/media/covers/productivity/notion-business.webp",
+    "publicPath": "/media/products/notion-business-12m/notion-business-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-notion-business-12m",
     "alt": "Notion Business Connected Workspace &amp; Team Wiki feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/notion-business-12m/notion-business-12m-thumbnail.webp",
+    "infographicPath": "/media/products/notion-business-12m/notion-business-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/notion-business-12m/notion-business-12m-infographic.webp",
+      "/media/products/notion-business-12m/notion-business-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "runway-pro-12m",
     "family": "video",
     "canonical": "runway-pro.webp",
-    "publicPath": "/media/covers/video/runway-pro.webp",
+    "publicPath": "/media/products/runway-pro-12m/runway-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-runway-pro-12m",
     "alt": "Runway Pro Gen-3 Alpha AI Video Studio feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/runway-pro-12m/runway-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/runway-pro-12m/runway-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/runway-pro-12m/runway-pro-12m-infographic.webp",
+      "/media/products/runway-pro-12m/runway-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "granola-business-12m",
     "family": "productivity",
     "canonical": "granola-business.webp",
-    "publicPath": "/media/covers/productivity/granola-business.webp",
+    "publicPath": "/media/products/granola-business-12m/granola-business-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-granola-business-12m",
     "alt": "Granola Business AI Notepad for Smarter Meetings feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/granola-business-12m/granola-business-12m-thumbnail.webp",
+    "infographicPath": "/media/products/granola-business-12m/granola-business-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/granola-business-12m/granola-business-12m-infographic.webp",
+      "/media/products/granola-business-12m/granola-business-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "mobbin-12m",
     "family": "design",
     "canonical": "mobbin-pro.webp",
-    "publicPath": "/media/covers/design/mobbin-pro.webp",
+    "publicPath": "/media/products/mobbin-12m/mobbin-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-mobbin-12m",
     "alt": "Mobbin Pro World's Largest UI/UX Library feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/mobbin-12m/mobbin-12m-thumbnail.webp",
+    "infographicPath": "/media/products/mobbin-12m/mobbin-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/mobbin-12m/mobbin-12m-infographic.webp",
+      "/media/products/mobbin-12m/mobbin-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "railway-hobby-12m",
     "family": "developer",
     "canonical": "railway-hobby.webp",
-    "publicPath": "/media/covers/developer/railway-hobby.webp",
+    "publicPath": "/media/products/railway-hobby-12m/railway-hobby-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-railway-hobby-12m",
     "alt": "Railway Hobby Frictionless App &amp; DB Cloud Hosting feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/railway-hobby-12m/railway-hobby-12m-thumbnail.webp",
+    "infographicPath": "/media/products/railway-hobby-12m/railway-hobby-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/railway-hobby-12m/railway-hobby-12m-infographic.webp",
+      "/media/products/railway-hobby-12m/railway-hobby-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "framer-pro-12m",
     "family": "design",
     "canonical": "framer-pro.webp",
-    "publicPath": "/media/covers/design/framer-pro.webp",
+    "publicPath": "/media/products/framer-pro-12m/framer-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-framer-pro-12m",
     "alt": "Framer Pro Next-Gen AI Website Builder feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/framer-pro-12m/framer-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/framer-pro-12m/framer-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/framer-pro-12m/framer-pro-12m-infographic.webp",
+      "/media/products/framer-pro-12m/framer-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "factory-12m",
     "family": "developer",
     "canonical": "factory-droid.webp",
-    "publicPath": "/media/covers/developer/factory-droid.webp",
+    "publicPath": "/media/products/factory-12m/factory-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-factory-12m",
     "alt": "Factory Droid AI Autonomous Software Droids feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/factory-12m/factory-12m-thumbnail.webp",
+    "infographicPath": "/media/products/factory-12m/factory-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/factory-12m/factory-12m-infographic.webp",
+      "/media/products/factory-12m/factory-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "gumloop-pro-12m",
     "family": "automation",
     "canonical": "gumloop-pro.webp",
-    "publicPath": "/media/covers/automation/gumloop-pro.webp",
+    "publicPath": "/media/products/gumloop-pro-12m/gumloop-pro-12m-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "sourceFile": "generated-gumloop-pro-12m",
     "alt": "Gumloop Pro AI Web Scraping &amp; Agent Automation feature poster.",
     "resolutionNote": "HIGH_RES_INFOGRAPHIC",
     "artWidth": 1200,
     "artHeight": 900,
-    "lowResReplacementRecommended": false
+    "lowResReplacementRecommended": false,
+    "thumbnailPath": "/media/products/gumloop-pro-12m/gumloop-pro-12m-thumbnail.webp",
+    "infographicPath": "/media/products/gumloop-pro-12m/gumloop-pro-12m-infographic.webp",
+    "galleryPaths": [
+      "/media/products/gumloop-pro-12m/gumloop-pro-12m-infographic.webp",
+      "/media/products/gumloop-pro-12m/gumloop-pro-12m-thumbnail.webp"
+    ]
   },
   {
     "slug": "udemy-16-developer-ai-agent-pack",
     "family": "developer",
     "canonical": "udemy-16-pack.webp",
-    "publicPath": "/media/covers/developer/udemy-16-pack.webp",
+    "publicPath": "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-thumbnail.webp",
     "mode": "ARTWORK_ONLY",
     "alt": "Udemy 16 Course Pack + AI Agent Prompts poster",
     "artWidth": 1200,
-    "artHeight": 900
+    "artHeight": 900,
+    "thumbnailPath": "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-thumbnail.webp",
+    "infographicPath": "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-infographic.webp",
+    "galleryPaths": [
+      "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-infographic.webp",
+      "/media/products/udemy-16-developer-ai-agent-pack/udemy-16-developer-ai-agent-pack-thumbnail.webp"
+    ]
   }
 ]

@@ -74,16 +74,21 @@ export function ProductCard({ product }: { product: MerchCard }) {
     `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
   );
 
+  const imageSrc = product.thumbnailPublicPath ?? product.coverPublicPath;
+
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[0_16px_40px_rgba(13,28,43,0.12)]">
-      {/* Product image */}
-      <Link href={href} className="relative block overflow-hidden bg-[#07111d]" style={{ aspectRatio: "4/3" }}>
-        {product.coverPublicPath ? (
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-[0_16px_36px_rgba(37,99,235,0.09)]">
+      {/* Product image: 4:5 vertical ecommerce ratio with clean pearl-white background */}
+      <Link
+        href={href}
+        className="relative block aspect-[4/5] w-full overflow-hidden border-b border-slate-100 bg-[linear-gradient(160deg,#ffffff_0%,#f8fafc_60%,#eff6ff_100%)] p-2"
+      >
+        {imageSrc ? (
           <Image
-            src={product.coverPublicPath}
-            alt={`${product.title} product image`}
+            src={imageSrc}
+            alt={`${product.title} product thumbnail`}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-contain p-1 transition-transform duration-500 group-hover:scale-[1.025]"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
@@ -95,16 +100,16 @@ export function ProductCard({ product }: { product: MerchCard }) {
         )}
 
         {/* Category badge */}
-        <div className="absolute left-2 top-2">
-          <span className="rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[1px] text-white/90 backdrop-blur-sm">
+        <div className="absolute left-2.5 top-2.5">
+          <span className="rounded-full bg-slate-900/80 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-white shadow-sm backdrop-blur-md">
             {product.categoryLabel}
           </span>
         </div>
 
         {/* Discount badge */}
         {product.discountPercent != null && product.discountPercent > 0 && (
-          <div className="absolute right-2 top-2">
-            <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-extrabold text-white shadow-sm">
+          <div className="absolute right-2.5 top-2.5">
+            <span className="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2 py-0.5 text-[10px] font-black text-white shadow-sm">
               −{product.discountPercent}%
             </span>
           </div>
@@ -112,8 +117,8 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
         {/* Multi-plan chip */}
         {tierCount > 1 && (
-          <div className="absolute bottom-2 right-2">
-            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-bold text-white/80 backdrop-blur-sm">
+          <div className="absolute bottom-2.5 right-2.5">
+            <span className="rounded-full border border-slate-200/80 bg-white/90 px-2 py-0.5 text-[9px] font-bold text-slate-700 shadow-sm backdrop-blur-sm">
               {tierCount} plans
             </span>
           </div>

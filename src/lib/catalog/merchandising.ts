@@ -80,6 +80,12 @@ export interface MerchCard {
   variants?: MerchCardVariant[];
   /** Optional live DB / admin-uploaded cover override */
   coverPublicPath?: string | null;
+  /** High-resolution catalogue thumbnail path (4:5 card view) */
+  thumbnailPublicPath?: string | null;
+  /** Full detailed sales infographic poster (2:3 portrait) */
+  infographicPublicPath?: string | null;
+  /** Multiple gallery images for PDP & Lightbox */
+  galleryPublicPaths?: string[];
   /** Same product line, other duration plans (for chips / switcher) */
   familyPlans?: Array<{
     slug: string;
@@ -498,10 +504,18 @@ export async function getLiveMerchandisingCatalogue(
     return true;
   });
   const covers = await loadPrimaryCoverPathsBySlug();
-  return cards.map((c) => ({
-    ...c,
-    coverPublicPath: covers.get(c.slug) ?? c.coverPublicPath ?? null,
-  }));
+  return cards.map((c) => {
+    const rawCover = covers.get(c.slug) ?? c.coverPublicPath ?? null;
+    const v2Thumb = `/media/products/${c.slug}/${c.slug}-thumbnail.webp`;
+    const v2Info = `/media/products/${c.slug}/${c.slug}-infographic.webp`;
+    return {
+      ...c,
+      coverPublicPath: rawCover ?? v2Thumb,
+      thumbnailPublicPath: v2Thumb,
+      infographicPublicPath: v2Info,
+      galleryPublicPaths: [v2Info, v2Thumb],
+    };
+  });
 }
 
 export function getMerchCardBySlug(slug: string): MerchCard | null {
@@ -521,9 +535,15 @@ export async function getLiveMerchCardBySlug(
   if (!product) return null;
   const card = buildMerchCard(product);
   const covers = await loadPrimaryCoverPathsBySlug();
+  const rawCover = covers.get(slug) ?? null;
+  const v2Thumb = `/media/products/${slug}/${slug}-thumbnail.webp`;
+  const v2Info = `/media/products/${slug}/${slug}-infographic.webp`;
   return {
     ...card,
-    coverPublicPath: covers.get(slug) ?? null,
+    coverPublicPath: rawCover ?? v2Thumb,
+    thumbnailPublicPath: v2Thumb,
+    infographicPublicPath: v2Info,
+    galleryPublicPaths: [v2Info, v2Thumb],
   };
 }
 

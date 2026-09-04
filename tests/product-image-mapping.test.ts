@@ -24,7 +24,10 @@ describe("product image mapping", () => {
         expect(fs.existsSync(abs), `${p.slug} missing ${cover!.publicPath}`).toBe(
           true,
         );
-        expect(cover!.publicPath.startsWith("/media/covers/")).toBe(true);
+        expect(
+          cover!.publicPath.startsWith("/media/covers/") ||
+          cover!.publicPath.startsWith("/media/products/"),
+        ).toBe(true);
       } else {
         expect(cover!.mode).toBe("SVG_FALLBACK");
       }

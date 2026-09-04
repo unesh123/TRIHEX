@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCover } from "@/components/storefront/product-cover";
+import { ProductGallery } from "@/components/storefront/product-gallery";
 import { FeaturePosterLightbox } from "@/components/storefront/feature-poster-lightbox";
 import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclaimer";
 import { ProductPurchasePanel } from "@/components/storefront/product-purchase-panel";
@@ -239,24 +240,21 @@ export default async function ProductDetailPage({
         <div className="space-y-6">
           <TrustStrip compact />
           <PlanSwitcher plans={familyPlans} currentSlug={product.slug} />
-          {coverPath ? (
-            <FeaturePosterLightbox
-              src={coverPath}
-              alt={`${product.title} feature infographic`}
-              title={product.title}
-              className="max-w-xl"
-              priority
-            />
-          ) : (
-            <ProductCover
-              slug={product.slug}
-              family={product.brandFamily}
-              className="max-w-xl"
-              title={`${product.title} artwork`}
-              coverPublicPath={product.coverPublicPath}
-              priority
-            />
-          )}
+          {(() => {
+            const v2Info = `/media/products/${product.slug}/${product.slug}-infographic.webp`;
+            const v2Thumb = `/media/products/${product.slug}/${product.slug}-thumbnail.webp`;
+            const galleryList = Array.from(
+              new Set([v2Info, v2Thumb, coverPath].filter(Boolean) as string[]),
+            );
+            return (
+              <ProductGallery
+                slug={product.slug}
+                title={product.title}
+                images={galleryList}
+                priority
+              />
+            );
+          })()}
 
           <section className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_24px_var(--shadow)] sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
