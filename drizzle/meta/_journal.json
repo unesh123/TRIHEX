@@ -8,6 +8,13 @@
       "when": 1784608621552,
       "tag": "0000_init_trihex",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788558358698,
+      "tag": "0004_phase5_intelligence_os",
+      "breakpoints": true
     }
   ]
 }

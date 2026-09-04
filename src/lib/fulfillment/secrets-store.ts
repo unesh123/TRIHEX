@@ -3,17 +3,29 @@
  * Never import this file in client components.
  */
 import crypto from "crypto";
+import { isProductionRuntime, ConfigurationError } from "@/lib/config/persistence-guard";
 
 if (typeof window !== "undefined") {
   throw new Error("secrets-store is server-only and cannot be imported in client components");
 }
 
-// Secret signing key - derived from environment or secure server fallback
-const TOKEN_SIGNING_SECRET =
-  process.env.FULFILLMENT_SIGNING_SECRET ||
-  process.env.AUTH_SECRET ||
-  process.env.SESSION_SECRET ||
-  "trihex_sec_signing_key_production_2026";
+function getSigningSecret(): string {
+  const secret =
+    process.env.FULFILLMENT_SIGNING_SECRET ||
+    process.env.AUTH_SECRET ||
+    process.env.SESSION_SECRET;
+
+  if (isProductionRuntime()) {
+    if (!secret || secret.length < 32) {
+      throw new ConfigurationError(
+        "FULFILLMENT_SIGNING_SECRET or AUTH_SECRET (min 32 chars) is strictly required in production."
+      );
+    }
+    return secret;
+  }
+
+  return secret || "trihex_sec_dev_fallback_signing_key_strictly_dev_only";
+}
 
 export interface DeliveryTokenPayload {
   orderId: string;
@@ -112,7 +124,7 @@ export function createSignedDeliveryToken(params: {
 
   const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signature = crypto
-    .createHmac("sha256", TOKEN_SIGNING_SECRET)
+    .createHmac("sha256", getSigningSecret())
     .update(payloadBase64)
     .digest("base64url");
 
@@ -128,7 +140,7 @@ export function verifySignedDeliveryToken(token: string): DeliveryTokenPayload |
     if (!payloadBase64 || !signature) return null;
 
     const expectedSignature = crypto
-      .createHmac("sha256", TOKEN_SIGNING_SECRET)
+      .createHmac("sha256", getSigningSecret())
       .update(payloadBase64)
       .digest("base64url");
 

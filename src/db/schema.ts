@@ -1127,3 +1127,276 @@ export const invoices = pgTable("invoices", {
   pdfStoragePath: text("pdf_storage_path"),
   snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
 });
+
+// ─── Phase 5: Intelligence OS & Persistence Tables ──────────────────────────
+
+export const sources = pgTable(
+  "sources",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    baseUrl: text("base_url").notNull(),
+    sourceType: text("source_type").notNull(),
+    ingestionMethod: text("ingestion_method").notNull(),
+    trustLevel: text("trust_level").notNull().default("COMMUNITY_VERIFIED"),
+    enabled: boolean("enabled").notNull().default(true),
+    refreshIntervalMinutes: integer("refresh_interval_minutes").notNull().default(60),
+    robotsReviewedAt: timestamp("robots_reviewed_at", { withTimezone: true }),
+    termsReviewedAt: timestamp("terms_reviewed_at", { withTimezone: true }),
+    licenseNotes: text("license_notes"),
+    lastSuccessfulSyncAt: timestamp("last_successful_sync_at", { withTimezone: true }),
+    lastFailedSyncAt: timestamp("last_failed_sync_at", { withTimezone: true }),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+    healthStatus: text("health_status").notNull().default("HEALTHY"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("sources_slug_idx").on(table.slug),
+    index("sources_health_status_idx").on(table.healthStatus),
+  ]
+);
+
+export const ingestionRuns = pgTable(
+  "ingestion_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sourceId: uuid("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "cascade" }),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    status: text("status").notNull().default("RUNNING"),
+    fetchedCount: integer("fetched_count").notNull().default(0),
+    createdCount: integer("created_count").notNull().default(0),
+    updatedCount: integer("updated_count").notNull().default(0),
+    unchangedCount: integer("unchanged_count").notNull().default(0),
+    rejectedCount: integer("rejected_count").notNull().default(0),
+    errorCategory: text("error_category"),
+    errorMessageSanitized: text("error_message_sanitized"),
+    parserVersion: text("parser_version").notNull().default("1.0.0"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("ingestion_runs_source_idx").on(table.sourceId),
+    index("ingestion_runs_started_idx").on(table.startedAt),
+  ]
+);
+
+export const dealCandidates = pgTable(
+  "deal_candidates",
+  {
+    id: text("id").primaryKey(),
+    sourceId: uuid("source_id").references(() => sources.id),
+    externalId: text("external_id"),
+    vendor: text("vendor").notNull(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    summary: text("summary").notNull(),
+    dealType: text("deal_type").notNull(),
+    detectedValueNprMinor: integer("detected_value_npr_minor"),
+    currency: text("currency").notNull().default("NPR"),
+    promoCode: text("promo_code"),
+    eligibility: text("eligibility"),
+    cardRequired: boolean("card_required").notNull().default(false),
+    sourceClaimUrl: text("source_claim_url").notNull(),
+    officialVendorUrl: text("official_vendor_url").notNull(),
+    validFrom: timestamp("valid_from", { withTimezone: true }),
+    validUntil: timestamp("valid_until", { withTimezone: true }),
+    status: text("status").notNull().default("DISCOVERED"),
+    approvalType: text("approval_type"),
+    assignedProductId: uuid("assigned_product_id").references(() => products.id),
+    saleRightsStatus: text("sale_rights_status").notNull().default("FREE_LINK_ONLY"),
+    verificationScore: integer("verification_score").notNull().default(0),
+    verificationMethod: text("verification_method").notNull().default("VENDOR_ENDPOINT_VERIFICATION"),
+    vendorClaimSummary: text("vendor_claim_summary"),
+    verificationReport: jsonb("verification_report").$type<Record<string, unknown>>(),
+    category: text("category").notNull().default("PRODUCTIVITY"),
+    lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+    nextVerificationAt: timestamp("next_verification_at", { withTimezone: true }),
+    approvedBy: text("approved_by"),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    expiredAt: timestamp("expired_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("deal_candidates_status_idx").on(table.status),
+    index("deal_candidates_vendor_idx").on(table.vendor),
+    index("deal_candidates_valid_until_idx").on(table.validUntil),
+    index("deal_candidates_published_at_idx").on(table.publishedAt),
+    index("deal_candidates_category_idx").on(table.category),
+  ]
+);
+
+export const dealRevisions = pgTable(
+  "deal_revisions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    dealId: text("deal_id")
+      .notNull()
+      .references(() => dealCandidates.id, { onDelete: "cascade" }),
+    field: text("field").notNull(),
+    oldValue: text("old_value"),
+    newValue: text("new_value"),
+    reason: text("reason"),
+    changedBy: text("changed_by").notNull().default("system"),
+    detectedAt: timestamp("detected_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("deal_revisions_deal_idx").on(table.dealId),
+  ]
+);
+
+export const prompts = pgTable(
+  "prompts",
+  {
+    id: text("id").primaryKey(),
+    sourceId: uuid("source_id").references(() => sources.id),
+    externalId: text("external_id"),
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    content: text("content").notNull(),
+    type: text("type").notNull().default("TEXT"),
+    category: text("category").notNull().default("PRODUCTIVITY"),
+    tags: jsonb("tags").$type<string[]>().notNull().default([]),
+    author: text("author").notNull(),
+    sourceUrl: text("source_url"),
+    license: text("license").notNull().default("UNKNOWN"),
+    votes: integer("votes").notNull().default(0),
+    variables: jsonb("variables")
+      .$type<Array<{ name: string; label: string; placeholder: string; defaultValue?: string; required?: boolean }>>()
+      .notNull()
+      .default([]),
+    isOriginalTrihex: boolean("is_original_trihex").notNull().default(false),
+    modelCompatibility: jsonb("model_compatibility").$type<string[]>().notNull().default([]),
+    status: text("status").notNull().default("PUBLISHED"),
+    difficulty: text("difficulty").notNull().default("INTERMEDIATE"),
+    qualityStatus: text("quality_status").notNull().default("CURATED"),
+    contentHash: text("content_hash").notNull(),
+    syncedAt: timestamp("synced_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("prompts_category_idx").on(table.category),
+    index("prompts_status_idx").on(table.status),
+    index("prompts_original_idx").on(table.isOriginalTrihex),
+  ]
+);
+
+export const promptVersions = pgTable(
+  "prompt_versions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    promptId: text("prompt_id")
+      .notNull()
+      .references(() => prompts.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    content: text("content").notNull(),
+    contentHash: text("content_hash").notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("prompt_versions_prompt_idx").on(table.promptId),
+  ]
+);
+
+export const feedSnapshots = pgTable(
+  "feed_snapshots",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sourceId: uuid("source_id").references(() => sources.id),
+    feedType: text("feed_type").notNull(),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+    sourceTimestamp: text("source_timestamp"),
+    payloadHash: text("payload_hash").notNull(),
+    normalizedData: jsonb("normalized_data").$type<Record<string, unknown>>().notNull(),
+    freshnessStatus: text("freshness_status").notNull().default("LIVE"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("feed_snapshots_type_idx").on(table.feedType),
+    index("feed_snapshots_fetched_idx").on(table.fetchedAt),
+  ]
+);
+
+export const savedItems = pgTable(
+  "saved_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("saved_items_user_entity_unique").on(table.userId, table.entityType, table.entityId),
+    index("saved_items_user_idx").on(table.userId),
+  ]
+);
+
+export const watchlists = pgTable(
+  "watchlists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: text("entity_id").notNull(),
+    condition: text("condition").notNull(),
+    channel: text("channel").notNull().default("EMAIL"),
+    targetValue: text("target_value"),
+    enabled: boolean("enabled").notNull().default(true),
+    lastTriggeredAt: timestamp("last_triggered_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("watchlists_user_idx").on(table.userId),
+    index("watchlists_entity_idx").on(table.entityType, table.entityId),
+  ]
+);
+
+export const searchAnalytics = pgTable(
+  "search_analytics",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    queryText: text("query_text").notNull(),
+    normalizedQuery: text("normalized_query").notNull(),
+    resultCount: integer("result_count").notNull(),
+    clickedEntityType: text("clicked_entity_type"),
+    clickedEntityId: text("clicked_entity_id"),
+    ipHash: text("ip_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("search_analytics_query_idx").on(table.normalizedQuery),
+    index("search_analytics_created_idx").on(table.createdAt),
+    index("search_analytics_zero_results_idx").on(table.resultCount),
+  ]
+);
+
+export const resourceHealth = pgTable(
+  "resource_health",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    resourceType: text("resource_type").notNull(),
+    resourceId: text("resource_id").notNull(),
+    status: text("status").notNull().default("HEALTHY"),
+    latencyMs: integer("latency_ms"),
+    lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }).notNull().defaultNow(),
+    nextCheckAt: timestamp("next_check_at", { withTimezone: true }),
+    lastHttpStatus: integer("last_http_status"),
+    failureCount: integer("failure_count").notNull().default(0),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("resource_health_type_id_unique").on(table.resourceType, table.resourceId),
+    index("resource_health_status_idx").on(table.status),
+  ]
+);
+
