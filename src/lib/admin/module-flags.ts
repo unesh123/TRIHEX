@@ -27,6 +27,10 @@ export type AdminModuleId =
   | "settings_security"
   | "deal_radar"
   | "prompts"
+  | "news"
+  | "resources"
+  | "vault"
+  | "seo"
   | "search_analytics"
   | "sources"
   | "system_health"
@@ -65,6 +69,10 @@ const P0_ENABLED = new Set<AdminModuleId>([
   "settings_security",
   "deal_radar",
   "prompts",
+  "news",
+  "resources",
+  "vault",
+  "seo",
   "search_analytics",
   "sources",
   "system_health",

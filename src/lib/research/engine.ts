@@ -228,6 +228,8 @@ Generate an evidence-backed intelligence briefing responding to the query.`;
   }
 
   const confidenceScore = computeReportConfidence(citations, structuredSourcesUsed.length);
+  const { getConfidenceTier } = await import("./types");
+  const confidenceTier = getConfidenceTier(confidenceScore);
   const latencyMs = Date.now() - startTime;
 
   return {
@@ -236,6 +238,7 @@ Generate an evidence-backed intelligence briefing responding to the query.`;
     category: plan.detectedCategory,
     executiveSummary,
     confidenceScore,
+    confidenceTier,
     findings,
     citations,
     groundTruthSourcesUsed: structuredSourcesUsed,

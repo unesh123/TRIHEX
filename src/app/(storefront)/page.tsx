@@ -24,6 +24,10 @@ import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
 import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
 import { fetchNepalSeismicEvents } from "@/lib/nepal/earthquake-adapter";
+import { getAllNews } from "@/lib/news/store";
+import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
+import { getAllResearchItems } from "@/lib/vault/research-registry";
+import { UnifiedDiscoveryFeed } from "@/components/storefront/discovery-feed";
 import { Flame, Cpu, MapPin, Activity, ArrowRight, Radio } from "lucide-react";
 import {
   getLiveMerchandisingCatalogue,
@@ -73,8 +77,10 @@ export default async function HomePage() {
     fetchNepalSeismicEvents(),
   ]);
 
-  const verifiedDeals = getPublishedDeals().slice(0, 3);
-  const featuredPrompts = getAllPrompts({ onlyOriginal: true }).slice(0, 3);
+  const verifiedDeals = getPublishedDeals();
+  const allNews = getAllNews();
+  const vaultEntries = getAllVaultEntries();
+  const researchItems = getAllResearchItems();
   const usdRate = liveForex.rates.find((r) => r.currency === "USD") || liveForex.rates[0];
 
   const clean = all.filter((product) => {
@@ -370,81 +376,18 @@ export default async function HomePage() {
       {/* ── RETURNING USER PERSONALIZATION & WATCHLIST ── */}
       <ReturningUserFeed />
 
-      {/* ── LIVE DEAL RADAR PREVIEW (HOMEPAGE 4.0) ── */}
-      {verifiedDeals.length > 0 && (
-        <section className="border-b border-slate-800 bg-slate-950 py-12 sm:py-16 text-white">
-          <div className="store-container">
-            <Reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                  TRIHEX Deal Radar · Live Verified
-                </span>
-                <h2 className="mt-3 font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight sm:text-3xl text-white">
-                  Developer Deals, Cloud Credits &amp; Free Tiers
-                </h2>
-                <p className="mt-1 text-xs text-slate-400 sm:text-sm">
-                  Secondary verified against official vendor documentation. No expired vouchers.
-                </p>
-              </div>
-              <Link
-                href="/deals"
-                className="text-xs font-bold text-blue-400 hover:text-blue-300 sm:text-sm flex items-center gap-1"
-              >
-                View all verified deals <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </Reveal>
-
-            {/* Strictly 1 card per row on mobile (< 640px) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {verifiedDeals.map((deal) => (
-                <div
-                  key={deal.id}
-                  className="flex flex-col justify-between rounded-2xl border border-white/10 bg-slate-900/80 p-5 hover:border-blue-500/40 transition shadow-sm"
-                >
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-blue-400 uppercase tracking-wider text-[11px]">
-                        {deal.vendor}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        {deal.verificationScore}% Verified · {formatRelativeAge(deal.lastVerifiedAt || deal.createdAt)}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-bold text-white leading-snug">
-                      {deal.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 line-clamp-2">
-                      {deal.summary}
-                    </p>
-                    {deal.eligibility && (
-                      <p className="text-[11px] text-amber-300/80 font-mono">
-                        Eligibility: {deal.eligibility}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs">
-                    <span className="font-mono text-emerald-400 font-semibold text-xs">
-                      {deal.detectedValueNprMinor
-                        ? `~NPR ${(deal.detectedValueNprMinor / 100).toLocaleString()}`
-                        : "Free Tier"}
-                    </span>
-                    <a
-                      href={deal.officialVendorUrl || deal.sourceClaimUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-bold text-white hover:text-blue-300 transition"
-                    >
-                      Claim Deal →
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ── UNIFIED DISCOVERY MATRIX (6 PRODUCTS + 6 VAULT + 6 DEALS + 6 NEWS + 3 RESEARCH) ── */}
+      <section className="py-14 sm:py-20 bg-slate-50/70 border-y border-slate-200/80">
+        <div className="store-container">
+          <UnifiedDiscoveryFeed
+            products={shopProducts}
+            vaultDrops={vaultEntries}
+            deals={verifiedDeals}
+            news={allNews}
+            researchBriefs={researchItems}
+          />
+        </div>
+      </section>
 
       <section id="all-products" className="scroll-mt-24 py-14 sm:py-18">
         <div className="store-container">

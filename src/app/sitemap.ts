@@ -7,6 +7,9 @@ import { getAllPrompts } from "@/lib/prompts/store";
 import { getAllSkills } from "@/lib/skills/store";
 import { getAllGuides } from "@/lib/guides/guide-registry";
 import { getAllResearchItems } from "@/lib/vault/research-registry";
+import { getAllNews } from "@/lib/news/store";
+import { getAllResources } from "@/lib/resources/store";
+import { getPublishedDeals } from "@/lib/deals/store";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +25,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/products", priority: 0.95, changeFrequency: "daily" },
     { path: "/ai-finder", priority: 0.9, changeFrequency: "weekly" },
     { path: "/compare", priority: 0.9, changeFrequency: "weekly" },
-    { path: "/vault", priority: 0.85, changeFrequency: "weekly" },
+    { path: "/vault", priority: 0.9, changeFrequency: "daily" },
+    { path: "/deals", priority: 0.9, changeFrequency: "daily" },
+    { path: "/news", priority: 0.9, changeFrequency: "daily" },
+    { path: "/news/nepal", priority: 0.9, changeFrequency: "daily" },
+    { path: "/news/ai", priority: 0.9, changeFrequency: "daily" },
+    { path: "/resources", priority: 0.85, changeFrequency: "weekly" },
+    { path: "/elite", priority: 0.85, changeFrequency: "weekly" },
+    { path: "/prompts", priority: 0.9, changeFrequency: "daily" },
     { path: "/blog", priority: 0.9, changeFrequency: "weekly" },
     { path: "/ai-tools-nepal", priority: 0.9, changeFrequency: "weekly" },
     { path: "/digital-tools-nepal", priority: 0.85, changeFrequency: "weekly" },
@@ -130,6 +140,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(research.lastAuditedAt),
       changeFrequency: "monthly",
       priority: 0.8,
+    });
+  }
+
+  for (const article of getAllNews()) {
+    entries.push({
+      url: `${origin}/news/${article.slug}`,
+      lastModified: new Date(article.publishedAt),
+      changeFrequency: "daily",
+      priority: 0.85,
+    });
+  }
+
+  for (const res of getAllResources()) {
+    entries.push({
+      url: `${origin}/resources/${res.slug}`,
+      lastModified: new Date(res.lastAuditedAt),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+  }
+
+  for (const deal of getPublishedDeals()) {
+    entries.push({
+      url: `${origin}/deals/${deal.slug}`,
+      lastModified: new Date(deal.updatedAt),
+      changeFrequency: "daily",
+      priority: 0.85,
     });
   }
 

@@ -33,7 +33,9 @@ export function normalizeEnvAliases(env: NodeJS.ProcessEnv = process.env): void 
   setIfMissing("YOUCOM_API_KEY", "YDC_API_KEY", "YOUCOM_SEARCH_API_KEY");
   setIfMissing("ANALYTICS_HASH_SECRET", "IP_HASH_SALT");
   setIfMissing("GOOGLE_MAPS_SERVER_KEY", "GOOGLE_MAPS_API_KEY");
+  setIfMissing("GOOGLE_MAPS_API_KEY", "GOOGLE_MAPS_SERVER_KEY");
   setIfMissing("NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY", "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY");
+  setIfMissing("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY", "NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY");
   setIfMissing("GEMINI_API_KEY", "GOOGLE_AI_API_KEY");
 }
 

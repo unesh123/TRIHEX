@@ -43,12 +43,22 @@ export interface ResearchPlan {
   searchKeywords: string[];
 }
 
+export type ConfidenceTier = "Strong" | "Good" | "Mixed" | "Limited";
+
+export function getConfidenceTier(score: number): ConfidenceTier {
+  if (score >= 85) return "Strong";
+  if (score >= 70) return "Good";
+  if (score >= 50) return "Mixed";
+  return "Limited";
+}
+
 export interface EvidenceReport {
   id: string;
   query: string;
   category: ResearchTopicCategory;
   executiveSummary: string;
   confidenceScore: number; // 0 - 100
+  confidenceTier: ConfidenceTier;
   findings: ResearchFinding[];
   citations: Citation[];
   groundTruthSourcesUsed: string[];

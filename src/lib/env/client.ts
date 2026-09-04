@@ -13,6 +13,7 @@ export interface ClientEnvConfig {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
   googleMapsBrowserKey?: string;
+  googleMapsMapId?: string;
   isProduction: boolean;
 }
 
@@ -27,5 +28,6 @@ export const clientEnv: ClientEnvConfig = {
   googleMapsBrowserKey:
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY ||
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  googleMapsMapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
   isProduction: process.env.NODE_ENV === "production",
 };

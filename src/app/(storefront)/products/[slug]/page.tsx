@@ -40,6 +40,7 @@ import {
   breadcrumbJsonLd,
   productJsonLd,
 } from "@/components/seo/json-ld";
+import { PDPIntelligenceHub } from "@/components/storefront/pdp-intelligence-hub";
 import { getSiteUrl } from "@/lib/site";
 import { isDatabaseConfigured } from "@/lib/env";
 import { listApprovedReviewsForSlug } from "@/lib/reviews/store";
@@ -402,6 +403,10 @@ export default async function ProductDetailPage({
             </div>
           ) : null}
         </aside>
+      </div>
+
+      <div className="store-container pb-10">
+        <PDPIntelligenceHub product={product} />
       </div>
 
       {related.length ? (
