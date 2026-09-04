@@ -27,13 +27,12 @@ import {
 } from "@/lib/whatsapp";
 
 const NAV = [
-  { href: "/products", label: "All Products" },
-  { href: "/ai-tools-nepal", label: "AI Tools" },
-  { href: "/categories/developer-tools", label: "Developer" },
-  { href: "/categories/design", label: "Creative" },
-  { href: "/categories/productivity", label: "Productivity" },
-  { href: "/deals", label: "Deals" },
-  { href: "/blog", label: "Guides" },
+  { href: "/", label: "Home" },
+  { href: "/products", label: "Products" },
+  { href: "/categories", label: "Categories" },
+  { href: "/track-order", label: "Track order" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 const MOBILE_ACTIONS = [
@@ -67,16 +66,16 @@ export function SiteHeader() {
         <div className="store-container flex h-[4.5rem] items-center justify-between gap-3">
           <Logo size="sm" />
 
-          <nav className="hidden items-center gap-1 xl:flex" aria-label="Primary">
+          <nav className="hidden items-center gap-6 xl:flex" aria-label="Primary">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-full px-3.5 py-2 text-sm font-bold transition-[background-color,color,transform] duration-200",
+                  "text-sm font-semibold transition-colors duration-150",
                   isActivePath(pathname, item.href)
-                    ? "bg-[var(--primary-soft)] text-[var(--primary)] shadow-sm"
-                    : "text-[var(--text-secondary)] hover:-translate-y-0.5 hover:bg-[var(--page-soft)] hover:text-[var(--text)]",
+                    ? "text-slate-900"
+                    : "text-slate-600 hover:text-slate-900",
                 )}
               >
                 {item.label}
@@ -84,56 +83,55 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-1.5 md:flex">
-            <Link
-              href="/search"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-3")}
-              aria-label="Search products"
+          {/* Right actions: Search pill, Account, Cart */}
+          <div className="hidden items-center gap-4 md:flex">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const input = form.elements.namedItem("search") as HTMLInputElement;
+                const q = input?.value?.trim();
+                window.location.href = q ? `/search?q=${encodeURIComponent(q)}` : "/search";
+              }}
+              className="relative flex items-center"
             >
-              <Search className="h-4 w-4" aria-hidden="true" />
-              <span>Search</span>
-            </Link>
-            <Link
-              href="/track-order"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-            >
-              Track order
-            </Link>
+              <Search className="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                name="search"
+                placeholder="Search products..."
+                className="h-10 w-48 rounded-xl border border-slate-200/90 bg-slate-50/80 pl-10 pr-3.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 transition lg:w-60"
+              />
+            </form>
+
             <Link
               href="/account"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 transition hover:text-slate-900"
             >
-              Account
+              <User className="h-4 w-4" />
+              <span>Sign in</span>
             </Link>
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: "whatsapp", size: "sm" }))}
-              aria-label={`WhatsApp ${getWhatsAppDisplay()}`}
-            >
-              WhatsApp
-            </a>
+
             <Link
               href="/cart"
-              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "px-3")}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+              aria-label="View shopping cart"
             >
-              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-              Cart
+              <ShoppingCart className="h-5 w-5" />
             </Link>
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
             <Link
               href="/cart"
-              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-[var(--border)] bg-white px-3 text-xs font-bold text-[var(--text)] shadow-sm"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+              aria-label="View Cart"
             >
-              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-              Cart
+              <ShoppingCart className="h-4 w-4" />
             </Link>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--text)] shadow-sm transition hover:bg-[var(--page-soft)]"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50"
               aria-expanded={open}
               aria-controls="mobile-nav"
               aria-label={open ? "Close menu" : "Open menu"}

@@ -1,7 +1,15 @@
 import { JsonLd, faqJsonLd } from "@/components/seo/json-ld";
 import Link from "next/link";
 import Image from "next/image";
-import { CheckCircle2, Clock3, CreditCard, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  Headphones,
+  Package,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
@@ -134,130 +142,160 @@ export default async function HomePage() {
         ])}
       />
 
-      <section className="relative isolate overflow-hidden border-b border-[var(--border)] bg-[linear-gradient(145deg,#fbfdff_0%,#edf5f3_52%,#f8fafc_100%)]">
-        <div className="pointer-events-none absolute inset-0 -z-10 surface-grid opacity-[0.32]" />
-        <div className="pointer-events-none absolute -left-44 top-20 -z-10 h-[34rem] w-[34rem] rounded-full bg-[var(--primary)]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -right-52 top-0 -z-10 h-[30rem] w-[30rem] rounded-full bg-[var(--accent)]/10 blur-3xl" />
-        <div className="store-container grid min-h-[min(760px,calc(100vh-64px))] items-center gap-10 py-14 sm:py-18 lg:grid-cols-[1fr_.94fr] lg:py-20">
-          <Reveal className="relative max-w-2xl">
-            <span className="premium-kicker"><Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Nepal-first digital access</span>
-            <div className="mt-7"><Logo href={null} size="lg" /></div>
-            <h1 className="mt-7 max-w-2xl font-[family-name:var(--font-sora)] text-4xl font-semibold tracking-[-0.055em] text-[var(--text)] text-balance sm:text-5xl lg:text-[3.9rem] lg:leading-[1.01]">
-              Premium AI access, made <span className="text-[var(--primary)]">simple and dependable.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
-              Explore AI, creator, developer, and productivity tools with clear NPR prices, website checkout, and a local support layer that remains connected to your order.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button href="#all-products" size="lg">Explore live packages</Button>
-              <Button href="/track-order" variant="outline" size="lg">Track an order</Button>
+      {/* ── HERO SECTION (MATCHING NIMBUSSTORE REFERENCE) ── */}
+      <section className="relative isolate border-b border-slate-200/80 bg-[linear-gradient(180deg,#fafcff_0%,#f8fafc_100%)] py-14 sm:py-20 lg:py-24">
+        <div className="store-container grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+          {/* Left Column: Heading, Copy, Buttons, Trust Indicators */}
+          <Reveal className="max-w-2xl">
+            {/* Pill Kicker */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-3.5 py-1 text-xs font-semibold text-emerald-800 shadow-sm">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Digital tools with human support</span>
             </div>
-            <div className="mt-9 grid max-w-xl overflow-hidden rounded-[1.35rem] border border-white/90 bg-white/70 shadow-[0_18px_46px_rgba(16,24,39,.08)] backdrop-blur sm:grid-cols-3">
-              {[
-                ["Live NPR", "Clear price before checkout"],
-                ["Website record", "One reference from payment to delivery"],
-                ["Local support", "A person when you need one"],
-              ].map(([value, label], index) => (
-                <div key={value} className={`p-4 ${index ? "border-t border-[var(--border)] sm:border-l sm:border-t-0" : ""}`}>
-                  <p className="font-[family-name:var(--font-sora)] text-sm font-bold text-[var(--text)]">{value}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">{label}</p>
-                </div>
-              ))}
+
+            {/* Main Headline */}
+            <h1 className="mt-6 font-[family-name:var(--font-sora)] text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.6rem] lg:leading-[1.08]">
+              Clear products, local payment options, and help when you need it.
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Choose a product, submit your payment details securely, and track your order through delivery.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <Link
+                href="#all-products"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-slate-900 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
+              >
+                Browse products
+              </Link>
+              <Link
+                href="/track-order"
+                className="inline-flex h-12 items-center justify-center rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-50"
+              >
+                Track an order
+              </Link>
+            </div>
+
+            {/* Micro Trust Indicators */}
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-semibold text-slate-600 sm:text-sm">
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                Clear pricing before checkout
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Clock3 className="h-4 w-4 text-slate-500" />
+                Manual payment verification
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Package className="h-4 w-4 text-teal-600" />
+                Track every order
+              </span>
             </div>
           </Reveal>
 
-          <Reveal delay={0.1} className="relative mx-auto w-full max-w-xl lg:max-w-none">
-            <div className="absolute -inset-8 rounded-[3rem] bg-[conic-gradient(from_210deg,rgba(15,76,129,.16),rgba(118,86,255,.16),rgba(12,132,105,.13),rgba(15,76,129,.16))] blur-3xl" aria-hidden="true" />
-            <Link
-              href={heroProduct ? `/products/${heroProduct.slug}` : "/products"}
-              className="group block relative rounded-[2rem] border border-white/90 bg-white/80 p-3 shadow-premium backdrop-blur-xl transition duration-300 hover:border-[var(--primary)]/40 hover:shadow-2xl sm:p-4"
-            >
-              <div className="relative aspect-square overflow-hidden rounded-[1.45rem] bg-[linear-gradient(145deg,#eaf0f7,#f9fbff)]">
-                <Image
-                  src={heroCover}
-                  alt={heroProduct ? `${heroProduct.title} product artwork` : "TRIHEX featured product"}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 92vw, 540px"
-                  className="object-contain p-3 transition duration-700 group-hover:scale-[1.03]"
-                />
-                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/60 bg-[var(--surface-ink)]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.13em] text-white shadow-lg backdrop-blur">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#4ee6b9] shadow-[0_0_0_4px_rgba(78,230,185,.16)]" /> Ready to order
+          {/* Right Column: "WHAT TO EXPECT" Process Card */}
+          <Reveal delay={0.1}>
+            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                    WHAT TO EXPECT
+                  </span>
+                  <h2 className="mt-1 font-[family-name:var(--font-sora)] text-xl font-bold text-slate-900 sm:text-2xl">
+                    A transparent order process
+                  </h2>
                 </div>
-                <div className="absolute inset-x-3 bottom-3 rounded-[1.2rem] border border-white/80 bg-white/93 p-4 shadow-xl backdrop-blur transition duration-300 group-hover:bg-white">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--primary)]">★ Featured TRIHEX-Verified Package</p>
-                      <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--text)] transition group-hover:text-[var(--primary)]">{heroProduct?.title ?? "Explore TRIHEX"}</p>
-                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{heroProduct?.packageLabel ?? "Premium digital access"} · Click to view details & plans →</p>
-                    </div>
-                    <p className="shrink-0 rounded-xl bg-[var(--primary-soft)] px-3 py-2 font-[family-name:var(--font-sora)] text-lg font-bold text-[var(--primary)]">{formatNpr(heroProduct?.priceNprMinor)}</p>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-200/80 bg-emerald-50 text-emerald-600">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+              </div>
+
+              <div className="mt-7 space-y-6">
+                {/* Step 1 */}
+                <div className="flex items-start gap-4">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-black text-white">
+                    1
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Choose the right plan
+                    </h3>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                      Review the product, duration, delivery time, and terms.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex items-start gap-4">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-black text-white">
+                    2
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Submit payment details
+                    </h3>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                      Use QR Payment, Manual confirmation; our team verifies the transfer manually.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex items-start gap-4">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-black text-white">
+                    3
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Track delivery
+                    </h3>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                      Use your order ID to follow payment verification and fulfilment.
+                    </p>
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Live Verified Deals Ticker Bar */}
-      <section className="border-b border-[var(--border)] bg-[linear-gradient(90deg,#0a192f_0%,#0f172a_100%)] py-3 text-white">
-        <div className="store-container flex items-center gap-3 overflow-x-auto no-scrollbar">
-          <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 border border-emerald-500/30">
-            <Sparkles className="h-3 w-3" /> Live Deals
+      {/* ── 3-CARD TRUST STRIP (MATCHING NIMBUSSTORE REFERENCE) ── */}
+      <section className="border-b border-slate-200/80 bg-slate-50/60 py-6">
+        <div className="store-container grid gap-4 sm:grid-cols-3">
+          <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+              <CreditCard className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 sm:text-sm">Manual payment verification</h3>
+              <p className="mt-0.5 text-[11px] text-slate-500">Your transfer details are reviewed before fulfilment.</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-semibold whitespace-nowrap">
-            {[
-              { name: "Gemini AI Pro 18M", price: "Rs. 399", slug: "gemini-pro-18-months-link", badge: "92% Off" },
-              { name: "CapCut Pro", price: "From Rs. 299", slug: "capcut-pro", badge: "Hot" },
-              { name: "Claude Code Unlimited", price: "From Rs. 1,299", slug: "claude-code-api-access", badge: "New" },
-              { name: "ElevenLabs Creator", price: "From Rs. 2,699", slug: "elevenlabs-creator-shared", badge: "Popular" },
-              { name: "Cursor Pro Editor", price: "From Rs. 1,999", slug: "cursor-pro-12m", badge: "Dev" },
-              { name: "Manus AI Pro 12M", price: "Rs. 9,679", slug: "manus-ai-pro-12m", badge: "Agentic" },
-              { name: "Higgsfield Pro 12M", price: "Rs. 17,999", slug: "higgsfield-pro-12m", badge: "Video" },
-              { name: "Warp Build 1 Year", price: "Rs. 3,699", slug: "warp-build-1-year", badge: "20x Fast" },
-              { name: "n8n Starter 1 Year", price: "Rs. 4,699", slug: "n8n-starter-1-year", badge: "Workflow" },
-              { name: "Veo 3 Ultra Credits", price: "Rs. 2,999", slug: "veo3-ultra-flow-credits", badge: "45K Creds" },
-            ].map((deal) => (
-              <Link
-                key={deal.slug}
-                href={`/products/${deal.slug}`}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:border-emerald-400/50 hover:bg-white/10 hover:text-emerald-300"
-              >
-                <span>{deal.name}</span>
-                <span className="font-bold text-emerald-400">{deal.price}</span>
-                <span className="rounded bg-white/20 px-1 py-0.5 text-[9px] font-extrabold uppercase text-white/90">
-                  {deal.badge}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      <section className="border-b border-[var(--border)] bg-white py-5 sm:py-6">
-        <div className="store-container grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            [ShieldCheck, "Clear availability", "Buy online only when a package is marked Available."],
-            [CreditCard, "NPR first", "See your package price before starting checkout."],
-            [Clock3, "Trackable delivery", "Your order reference follows payment review and fulfillment."],
-            [CheckCircle2, "Human support", `Need help? Chat with TRIHEX on WhatsApp ${getWhatsAppDisplay()}.`],
-          ].map(([Icon, title, copy]) => {
-            const TrustIcon = Icon as typeof ShieldCheck;
-            return (
-              <Reveal key={title as string} className="h-full">
-                <div className="flex h-full gap-3 rounded-2xl border border-[var(--border)] bg-[var(--page-soft)] p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--primary)] shadow-sm">
-                    <TrustIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-[var(--text)]">{title as string}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">{copy as string}</p>
-                  </div>
-                </div>
-              </Reveal>
-            );
-          })}
+          <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+              <Package className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 sm:text-sm">Track every order</h3>
+              <p className="mt-0.5 text-[11px] text-slate-500">Follow verification and delivery with your order ID.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+              <Headphones className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 sm:text-sm">Human support</h3>
+              <p className="mt-0.5 text-[11px] text-slate-500">Contact us by email or WhatsApp when you need help.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -319,11 +357,22 @@ export default async function HomePage() {
         <div className="store-container">
           <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-5">
             <div>
-              <p className="premium-kicker">Live catalogue</p>
-              <h2 className="mt-4 font-[family-name:var(--font-sora)] text-3xl font-semibold tracking-[-0.045em] text-[var(--text)] sm:text-4xl">Digital access, without guesswork.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">{shopProducts.length} packages with live NPR prices. Buy approved offers online, or check availability with a person when a package needs confirmation.</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                BASED ON VERIFIED ORDERS
+              </p>
+              <h2 className="mt-2 font-[family-name:var(--font-sora)] text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                Products with clear terms &amp; support
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
+                {shopProducts.length} packages with live NPR prices. Buy approved offers online with instant Nepal payment methods or inquire on WhatsApp.
+              </p>
             </div>
-            <Link href="/products" className="rounded-xl bg-[var(--surface-ink)] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[var(--primary)]">Browse with filters →</Link>
+            <Link
+              href="/products"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800"
+            >
+              Browse with filters →
+            </Link>
           </Reveal>
           <ProductGrid products={shopProducts} />
         </div>
