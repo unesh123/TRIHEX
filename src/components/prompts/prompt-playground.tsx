@@ -1,30 +1,46 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Copy, Check, Sparkles, RefreshCw, Cpu, Tag, Share2 } from "lucide-react";
-import { Prompt, interpolatePrompt } from "@/lib/prompts/types";
+import { Copy, Check, Sparkles, RefreshCw, Cpu, History, Calendar, Hash } from "lucide-react";
+import { Prompt, PromptVersion, extractPromptVariables, interpolatePrompt } from "@/lib/prompts/types";
 
 interface PromptPlaygroundProps {
   prompt: Prompt;
+  versions?: PromptVersion[];
 }
 
-export function PromptPlayground({ prompt }: PromptPlaygroundProps) {
-  // Initialize form state with variable default values or empty strings
+export function PromptPlayground({ prompt, versions = [] }: PromptPlaygroundProps) {
+  const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
+
+  // Active content based on version selection
+  const activeVersion = useMemo(() => {
+    if (!selectedVersionId) return null;
+    return versions.find((v) => v.id === selectedVersionId) || null;
+  }, [selectedVersionId, versions]);
+
+  const activeContent = activeVersion ? activeVersion.content : prompt.content;
+
+  // Extract variables for currently displayed content
+  const activeVariables = useMemo(() => {
+    return activeVersion ? extractPromptVariables(activeVersion.content) : prompt.variables;
+  }, [activeVersion, prompt.variables]);
+
+  // Initialize form state with variable default values
   const initialValues = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const v of prompt.variables) {
+    for (const v of activeVariables) {
       map[v.name] = v.defaultValue || "";
     }
     return map;
-  }, [prompt.variables]);
+  }, [activeVariables]);
 
   const [formValues, setFormValues] = useState<Record<string, string>>(initialValues);
   const [copied, setCopied] = useState(false);
 
   // Generate real-time customized prompt
   const customizedPrompt = useMemo(() => {
-    return interpolatePrompt(prompt.content, formValues);
-  }, [prompt.content, formValues]);
+    return interpolatePrompt(activeContent, formValues);
+  }, [activeContent, formValues]);
 
   const handleInputChange = (varName: string, value: string) => {
     setFormValues((prev) => ({
@@ -45,14 +61,58 @@ export function PromptPlayground({ prompt }: PromptPlaygroundProps) {
 
   return (
     <div className="space-y-6">
+      {/* Version History Toolbar if versions exist */}
+      {versions.length > 1 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl text-xs">
+          <div className="flex items-center gap-2 text-slate-300">
+            <History className="w-4 h-4 text-cyan-400" />
+            <span className="font-semibold">Version History:</span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setSelectedVersionId(null)}
+                className={`px-2.5 py-1 rounded-lg font-mono transition-all ${
+                  selectedVersionId === null
+                    ? "bg-cyan-500 text-white font-bold shadow-sm"
+                    : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                Latest (v{versions[0]?.version || 1})
+              </button>
+              {versions.slice(1).map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setSelectedVersionId(v.id)}
+                  className={`px-2.5 py-1 rounded-lg font-mono transition-all ${
+                    selectedVersionId === v.id
+                      ? "bg-cyan-500 text-white font-bold shadow-sm"
+                      : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  v{v.version}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {activeVersion && (
+            <div className="flex items-center gap-2 text-[11px] text-amber-300/90 font-mono">
+              <Calendar className="w-3 h-3" />
+              <span>Viewing revision v{activeVersion.version} ({new Date(activeVersion.capturedAt).toLocaleDateString()})</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Variable Customization Panel (if variables exist) */}
-      {prompt.variables.length > 0 && (
+      {activeVariables.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5 sm:p-6 backdrop-blur-xl shadow-lg">
           <div className="flex items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-blue-400" />
               <h3 className="text-sm sm:text-base font-semibold text-white">
-                Customize Prompt Variables ({prompt.variables.length})
+                Customize Prompt Variables ({activeVariables.length})
               </h3>
             </div>
             <button
@@ -65,7 +125,7 @@ export function PromptPlayground({ prompt }: PromptPlaygroundProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {prompt.variables.map((variable) => {
+            {activeVariables.map((variable) => {
               const val = formValues[variable.name] ?? "";
               return (
                 <div key={variable.name} className="space-y-1.5">
@@ -93,6 +153,11 @@ export function PromptPlayground({ prompt }: PromptPlaygroundProps) {
           <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
             <span>Ready-to-Use Prompt</span>
+            {activeVersion && (
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px]">
+                Revision v{activeVersion.version}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -138,8 +203,14 @@ export function PromptPlayground({ prompt }: PromptPlaygroundProps) {
             </div>
           </div>
 
-          <div className="text-[11px] font-mono text-slate-500">
-            License: <span className="text-slate-300">{prompt.license}</span>
+          <div className="flex items-center gap-3 text-[11px] font-mono text-slate-500">
+            {prompt.contentHash && (
+              <span className="flex items-center gap-1">
+                <Hash className="w-3 h-3 opacity-60" />
+                <span>{prompt.contentHash.slice(0, 8)}</span>
+              </span>
+            )}
+            <span>License: <span className="text-slate-300">{prompt.license}</span></span>
           </div>
         </div>
       </div>

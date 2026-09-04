@@ -15,9 +15,50 @@ import {
   Cpu, 
   Layers, 
   Zap,
-  ArrowRight
+  ArrowRight,
+  PackageCheck,
+  FolderArchive
 } from "lucide-react";
 import { Prompt, PromptCategory } from "@/lib/prompts/types";
+
+interface CuratedPack {
+  id: string;
+  name: string;
+  badge: string;
+  description: string;
+  keywords: string[];
+}
+
+const CURATED_PACKS: CuratedPack[] = [
+  {
+    id: "pack-fullstack",
+    name: "Fullstack Architect Pack",
+    badge: "ENGINEERING",
+    description: "C# Clean Architecture, Laravel 11 Microservices, Next.js 16 SSR & Server Actions.",
+    keywords: ["c#", "laravel", "next.js", "coding", "software", "api", "architecture"],
+  },
+  {
+    id: "pack-media",
+    name: "Visual & Creator Pack",
+    badge: "CREATIVE",
+    description: "Photorealistic Midjourney v6 infographics and high-converting TikTok UGC video scripts.",
+    keywords: ["midjourney", "image", "video", "ugc", "creative", "photo", "infographic"],
+  },
+  {
+    id: "pack-research",
+    name: "PhD & Academic Research Pack",
+    badge: "SCHOLAR",
+    description: "Systematic literature synthesizers and academic methodology formatting.",
+    keywords: ["phd", "research", "study", "academic", "literature", "paper"],
+  },
+  {
+    id: "pack-growth",
+    name: "High-Growth B2B Marketing Pack",
+    badge: "GROWTH",
+    description: "Cold email sequences, programmatic SEO briefs, and landing page conversion copy.",
+    keywords: ["marketing", "sales", "b2b", "outreach", "growth", "seo"],
+  },
+];
 
 interface PromptLibraryHubProps {
   initialPrompts: Prompt[];
@@ -25,14 +66,28 @@ interface PromptLibraryHubProps {
 
 export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [onlyOriginal, setOnlyOriginal] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedPack, setCopiedPack] = useState(false);
+
+  const activePack = useMemo(() => {
+    return CURATED_PACKS.find((p) => p.id === selectedPackId) || null;
+  }, [selectedPackId]);
 
   const filteredPrompts = useMemo(() => {
     return initialPrompts.filter((p) => {
+      // Pack filter
+      if (activePack) {
+        const text = `${p.title} ${p.description} ${p.tags.join(" ")} ${p.category}`.toLowerCase();
+        const matchesPack = activePack.keywords.some((k) => text.includes(k));
+        if (!matchesPack) return false;
+      }
+
       if (selectedCategory !== "ALL" && p.category !== selectedCategory) return false;
       if (onlyOriginal && !p.isOriginalTrihex) return false;
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchTitle = p.title.toLowerCase().includes(q);
@@ -42,7 +97,7 @@ export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
       }
       return true;
     });
-  }, [initialPrompts, selectedCategory, onlyOriginal, searchQuery]);
+  }, [initialPrompts, activePack, selectedCategory, onlyOriginal, searchQuery]);
 
   const handleQuickCopy = (e: React.MouseEvent, prompt: Prompt) => {
     e.preventDefault();
@@ -50,6 +105,22 @@ export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
     navigator.clipboard.writeText(prompt.content);
     setCopiedId(prompt.id);
     setTimeout(() => setCopiedId(null), 2500);
+  };
+
+  const handleCopyPack = () => {
+    if (!activePack || filteredPrompts.length === 0) return;
+
+    const bundleText = `# ${activePack.name} — TRIHEX Curated Prompt Pack\n\n${activePack.description}\n\n` +
+      filteredPrompts
+        .map(
+          (p, i) =>
+            `## ${i + 1}. ${p.title}\n**Category**: ${p.category} | **Author**: ${p.author}\n\n\`\`\`text\n${p.content}\n\`\`\`\n`
+        )
+        .join("\n---\n\n");
+
+    navigator.clipboard.writeText(bundleText);
+    setCopiedPack(true);
+    setTimeout(() => setCopiedPack(false), 2500);
   };
 
   const categories: Array<{ key: PromptCategory | "ALL"; label: string; icon: any }> = [
@@ -70,7 +141,7 @@ export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              TRIHEX Prompt Intelligence Hub
+              TRIHEX Prompt Intelligence Hub 3.0
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
               Curated Production Prompts & Variable Playground
@@ -103,13 +174,92 @@ export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
               <Zap className="w-4 h-4" /> Interactive Variables Playground
             </span>
             <span className="hidden sm:inline text-slate-600">•</span>
-            <span className="hidden sm:inline">CC0 1.0 Public Archive & Original Lab Engineering</span>
+            <span className="hidden sm:inline">Version History & Revisions Tracking</span>
           </div>
           <div className="font-mono text-slate-400">
             Available prompts: <span className="text-white font-semibold">{initialPrompts.length}</span>
           </div>
         </div>
       </div>
+
+      {/* Curated Prompt Packs Bar */}
+      <div className="mb-8 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs uppercase tracking-wider font-semibold text-slate-400 flex items-center gap-1.5">
+            <FolderArchive className="w-3.5 h-3.5 text-cyan-400" />
+            Curated Domain Prompt Packs
+          </h2>
+          {selectedPackId && (
+            <button
+              type="button"
+              onClick={() => setSelectedPackId(null)}
+              className="text-xs text-slate-400 hover:text-white underline decoration-slate-600"
+            >
+              Reset pack filter
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {CURATED_PACKS.map((pack) => {
+            const isSelected = selectedPackId === pack.id;
+            return (
+              <button
+                key={pack.id}
+                type="button"
+                onClick={() => setSelectedPackId(isSelected ? null : pack.id)}
+                className={`text-left p-3.5 rounded-2xl border transition-all ${
+                  isSelected
+                    ? "bg-indigo-950/60 border-indigo-500/80 shadow-lg shadow-indigo-950/50"
+                    : "bg-slate-900/60 border-white/10 hover:border-white/20 hover:bg-slate-900/90"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    {pack.badge}
+                  </span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                </div>
+                <h3 className="text-xs font-bold text-white mb-1 line-clamp-1">{pack.name}</h3>
+                <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{pack.description}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Active Pack Action Banner */}
+      {activePack && (
+        <div className="mb-6 p-4 rounded-2xl border border-indigo-500/30 bg-indigo-950/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <PackageCheck className="w-4 h-4 text-indigo-400" />
+              <span className="text-sm font-bold text-white">{activePack.name}</span>
+              <span className="text-xs text-slate-400 font-mono">({filteredPrompts.length} prompts)</span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5">{activePack.description}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopyPack}
+            disabled={filteredPrompts.length === 0}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-all shrink-0 active:scale-95"
+          >
+            {copiedPack ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-300" />
+                Copied Full Pack!
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                Copy Full Pack ({filteredPrompts.length})
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Search & Category Filter */}
       <div className="space-y-4 mb-8">
@@ -153,7 +303,7 @@ export function PromptLibraryHub({ initialPrompts }: PromptLibraryHubProps) {
           <Sparkles className="w-10 h-10 text-slate-500 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-white">No prompts match your criteria</h3>
           <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-            Try adjusting your search query or switching categories to explore the collection.
+            Try adjusting your search query, clearing pack filters, or switching categories.
           </p>
         </div>
       ) : (

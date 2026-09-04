@@ -69,8 +69,8 @@ export function SkillViewer({ skill }: SkillViewerProps) {
               <div className="font-semibold flex items-center gap-2">
                 <span>
                   {scanResult.riskLevel === "LOW"
-                    ? "Inert Code Verified (Heuristic Pattern Audit Passed)"
-                    : "External code — review before execution"}
+                    ? "Inert Code Verified · Heuristic Static Security Scanner"
+                    : "External Code · Heuristic Static Security Scanner"}
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-bold ${
                   scanResult.riskLevel === "LOW"
@@ -79,7 +79,7 @@ export function SkillViewer({ skill }: SkillViewerProps) {
                     ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                     : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
                 }`}>
-                  Risk: {scanResult.riskLevel}
+                  Heuristic Scanner: {scanResult.riskLevel} Risk
                 </span>
               </div>
               <p className="text-[11px] opacity-80 mt-0.5">

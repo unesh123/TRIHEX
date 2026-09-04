@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Sparkles, User, Tag, ShieldCheck } from "lucide-react";
-import { getPromptBySlug, getAllPrompts } from "@/lib/prompts/store";
+import { getPromptBySlug, getAllPrompts, getPromptVersions } from "@/lib/prompts/store";
 import { PromptPlayground } from "@/components/prompts/prompt-playground";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +47,8 @@ export default async function PromptDetailPage({
   if (!prompt) {
     notFound();
   }
+
+  const versions = getPromptVersions(prompt.id);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 pb-20">
@@ -100,7 +102,7 @@ export default async function PromptDetailPage({
         </div>
 
         {/* Interactive Variable Playground & Code Preview */}
-        <PromptPlayground prompt={prompt} />
+        <PromptPlayground prompt={prompt} versions={versions} />
       </div>
     </main>
   );
