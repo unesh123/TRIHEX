@@ -45,7 +45,7 @@ export default async function AdminInventoryPage({
     <>
       <AdminHeader
         title="Inventory"
-        description="Manual stock quantities shown on the storefront. Set 0 = Out of stock (no Buy Now). Leave empty = unlimited."
+        description="Manual stock quantities shown on the storefront. Set 0 = unavailable and route customers to WhatsApp. Leave empty = unlimited."
         actions={
           <Button href="/admin/pricing" size="sm" variant="secondary">
             Pricing desk

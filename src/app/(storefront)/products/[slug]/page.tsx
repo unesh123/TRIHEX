@@ -15,12 +15,14 @@ import {
   getLiveMerchCardBySlug,
   getLiveMerchandisingCatalogue,
   visibilityLabelForCard,
+  withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import {
   familyDisplayTitle,
   findFamilyPlans,
   productFamilyKey,
 } from "@/lib/catalog/product-families";
+import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
@@ -84,23 +86,23 @@ export default async function ProductDetailPage({
   const catalogue = await getLiveMerchandisingCatalogue();
   const familyPlans = findFamilyPlans(catalogue, product.slug);
   const familyTitle = familyDisplayTitle(product);
-  const related = catalogue
+  const related = withFamilyGrouping(catalogue
     .filter(
       (p) =>
         productFamilyKey(p.slug) !== productFamilyKey(product.slug) &&
         p.brandSlug === product.brandSlug &&
         p.slug !== product.slug,
-    )
+    ))
     .slice(0, 3);
   if (related.length < 3) {
-    const more = catalogue
+    const more = withFamilyGrouping(catalogue
       .filter(
         (p) =>
           p.categorySlug === product.categorySlug &&
           p.slug !== product.slug &&
           !related.some((r) => r.slug === p.slug) &&
           productFamilyKey(p.slug) !== productFamilyKey(product.slug),
-      )
+      ))
       .slice(0, 3 - related.length);
     related.push(...more);
   }
@@ -108,6 +110,8 @@ export default async function ProductDetailPage({
     ? product.features
     : featuresForSlug(product.slug);
   const meta = detailMetaForSlug(product.slug);
+  const coverPath =
+    getGeneratedCover(product.slug, product.brandFamily) ?? product.coverPublicPath;
   const waUrl = productEnquiryUrl({
     productName: product.title,
     variantName: product.packageLabel,
@@ -152,7 +156,7 @@ export default async function ProductDetailPage({
               product.shortDescription ??
               `${product.title} — ${product.packageLabel} available in Nepal via TRIHEX DIGITAL.`,
             slug: product.slug,
-            image: product.coverPublicPath,
+            image: coverPath,
             priceNprMinor: product.showPrice ? product.priceNprMinor : null,
             availability,
           }),
@@ -337,7 +341,7 @@ export default async function ProductDetailPage({
               <li>Open this product page and confirm price + package details.</li>
               <li>
                 {product.purchasable
-                  ? "Pick No warranty or With warranty (+30%), then Buy Now / Add to Cart and complete checkout."
+                  ? "Pick No warranty or With warranty (+30%), then use Check Availability / WhatsApp so TRIHEX can confirm the package before activation."
                   : "Use Check Availability / WhatsApp — online cart stays off until approved."}
               </li>
               <li>Pay with bank QR / eSewa / Khalti and upload payment proof.</li>
@@ -475,13 +479,11 @@ export default async function ProductDetailPage({
       </div>
 
       <StickyMobileBuyBar
-        productSlug={product.slug}
         title={product.title}
         priceNprMinor={product.showPrice ? product.priceNprMinor : null}
         durationLabel={product.durationLabel ?? product.packageLabel}
         purchasable={product.purchasable}
         whatsappHref={waUrl}
-        variantSku={product.variantSku}
       />
     </div>
   );

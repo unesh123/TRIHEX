@@ -52,7 +52,7 @@ export const BLOG_POSTS: BlogPost[] = [
         heading: "How to choose the right package",
         paragraphs: [
           "Match duration to your workload. A 1-month plan is fine for testing; longer plans usually cost less per month.",
-          "Only buy packages marked Available / Buy Now on the website. Under Review items need a WhatsApp availability check first.",
+          "Use packages marked Available as a starting point on the website. Every package is confirmed through a WhatsApp availability check before payment.",
           "Always inquire if you are unsure — prices can move with supply. TRIHEX shows final NPR prices before checkout.",
         ],
       },
@@ -95,14 +95,14 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: "1) Open the ChatGPT Plus product page",
         paragraphs: [
-          "Go to Products → ChatGPT Plus (or search on the site). Confirm duration, sell price in NPR, and that Buy Now is available.",
+          "Go to Products → ChatGPT Plus (or search on the site). Confirm duration and the listed price in NPR, then tap Check Availability to message TRIHEX.",
           "If the package shows Check Availability / Under Review, message WhatsApp first — do not force checkout.",
         ],
       },
       {
         heading: "2) Place the order on the website",
         paragraphs: [
-          "Add to cart or tap Buy Now. Enter your name, email, and Nepali mobile number. Accept terms and place the order.",
+          "Tap Check Availability and message TRIHEX on WhatsApp. Confirm the package, payment method, and delivery details with the support team before paying.",
           "You will get an order number. Keep it — payment remarks and WhatsApp messages should include this number.",
         ],
       },
@@ -197,7 +197,7 @@ export const BLOG_POSTS: BlogPost[] = [
         heading: "What to check on the product page",
         paragraphs: [
           "Duration (months) and what the plan includes.",
-          "Whether Buy Now is enabled (Available) or you must Check Availability.",
+          "Whether the package is listed as Available or needs a WhatsApp availability confirmation.",
           "Compare-at vs sell price so savings are clear — final charge is the sell price in NPR.",
         ],
       },

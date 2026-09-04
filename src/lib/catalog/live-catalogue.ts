@@ -2,6 +2,7 @@
  * Live catalogue loader — Postgres when DATABASE_URL is set, else seed.
  * Admin price/status edits persist here and revalidate the storefront.
  */
+import { unstable_cache } from "next/cache";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
@@ -49,7 +50,12 @@ function categorySlugFromName(name: string | null | undefined): string {
 /** Load catalogue products for storefront + admin. Prefers live DB. */
 export async function loadCatalogueProducts(): Promise<SeedProduct[]> {
   if (!isDatabaseConfigured()) return ALL_SEED_PRODUCTS;
-  const db = getDb();
+  return loadCatalogueProductsCached();
+}
+
+const loadCatalogueProductsCached = unstable_cache(
+  async (): Promise<SeedProduct[]> => {
+    const db = getDb();
   if (!db) return ALL_SEED_PRODUCTS;
 
   try {
@@ -154,12 +160,15 @@ export async function loadCatalogueProducts(): Promise<SeedProduct[]> {
     }
 
     const products = Array.from(bySlug.values());
-    return products.length ? products : ALL_SEED_PRODUCTS;
-  } catch (err) {
-    console.error("[catalogue] DB load failed, falling back to seed", err);
-    return ALL_SEED_PRODUCTS;
-  }
-}
+      return products.length ? products : ALL_SEED_PRODUCTS;
+    } catch (err) {
+      console.error("[catalogue] DB load failed, falling back to seed", err);
+      return ALL_SEED_PRODUCTS;
+    }
+  },
+  ["trihex-live-catalogue-v2"],
+  { revalidate: 15, tags: ["trihex-live-catalogue"] },
+);
 
 function normalizeSlugCandidate(raw: string): string {
   return raw
@@ -213,7 +222,8 @@ export async function loadAdminProducts(): Promise<AdminProductRow[]> {
   const db = getDb();
   if (!db) return [];
 
-  const rows = await db
+  try {
+    const rows = await db
     .select({
       id: schema.products.id,
       slug: schema.products.slug,
@@ -268,13 +278,17 @@ export async function loadAdminProducts(): Promise<AdminProductRow[]> {
     /* ignore */
   }
 
-  return rows.map((r) => ({
-    ...r,
-    productStatus: String(r.productStatus),
-    complianceStatus: String(r.complianceStatus),
-    coverUrl: covers.get(r.slug) ?? null,
-    coverAlt: mediaAlt.get(r.slug) ?? null,
-  }));
+    return rows.map((r) => ({
+      ...r,
+      productStatus: String(r.productStatus),
+      complianceStatus: String(r.complianceStatus),
+      coverUrl: covers.get(r.slug) ?? null,
+      coverAlt: mediaAlt.get(r.slug) ?? null,
+    }));
+  } catch (error) {
+    console.error("[Admin catalogue] failed to load products", error);
+    return [];
+  }
 }
 
 export async function loadAdminProductByIdOrSlug(
@@ -287,43 +301,52 @@ export async function loadAdminProductByIdOrSlug(
 }
 
 /** Primary cover URLs — manifest first, then product_media overrides. */
-export async function loadPrimaryCoverPathsBySlug(): Promise<
-  Map<string, string>
-> {
-  const map = new Map<string, string>();
-  for (const e of getAllProductCovers()) {
-    if (e.publicPath) map.set(e.slug, e.publicPath);
-  }
-  if (!isDatabaseConfigured()) return map;
-  const db = getDb();
-  if (!db) return map;
-
-  try {
-    const rows = await db
-      .select({
-        slug: schema.products.slug,
-        url: schema.productMedia.url,
-        isPrimary: schema.productMedia.isPrimary,
-        sortOrder: schema.productMedia.sortOrder,
-      })
-      .from(schema.productMedia)
-      .innerJoin(
-        schema.products,
-        eq(schema.productMedia.productId, schema.products.id),
-      );
-
-    const best = new Map<string, { url: string; score: number }>();
-    for (const row of rows) {
-      if (!row.url.startsWith("/media/") && !row.url.startsWith("http")) continue;
-      const score = (row.isPrimary ? 1000 : 0) - row.sortOrder;
-      const prev = best.get(row.slug);
-      if (!prev || score > prev.score) {
-        best.set(row.slug, { url: row.url, score });
-      }
-    }
-    for (const [slug, v] of best) map.set(slug, v.url);
-  } catch (err) {
-    console.error("[catalogue] cover load failed", err);
-  }
-  return map;
+export async function loadPrimaryCoverPathsBySlug(): Promise<Map<string, string>> {
+  const manifest = Object.fromEntries(
+    getAllProductCovers()
+      .filter((entry) => Boolean(entry.publicPath))
+      .map((entry) => [entry.slug, entry.publicPath as string]),
+  );
+  if (!isDatabaseConfigured()) return new Map(Object.entries(manifest));
+  const cached = await loadPrimaryCoverPathsCached(manifest);
+  return new Map(Object.entries(cached));
 }
+
+const loadPrimaryCoverPathsCached = unstable_cache(
+  async (manifest: Record<string, string>): Promise<Record<string, string>> => {
+    const map = new Map(Object.entries(manifest));
+    const db = getDb();
+    if (!db) return Object.fromEntries(map);
+
+    try {
+      const rows = await db
+        .select({
+          slug: schema.products.slug,
+          url: schema.productMedia.url,
+          isPrimary: schema.productMedia.isPrimary,
+          sortOrder: schema.productMedia.sortOrder,
+        })
+        .from(schema.productMedia)
+        .innerJoin(
+          schema.products,
+          eq(schema.productMedia.productId, schema.products.id),
+        );
+
+      const best = new Map<string, { url: string; score: number }>();
+      for (const row of rows) {
+        if (!row.url.startsWith("/media/") && !row.url.startsWith("http")) continue;
+        const score = (row.isPrimary ? 1000 : 0) - row.sortOrder;
+        const prev = best.get(row.slug);
+        if (!prev || score > prev.score) {
+          best.set(row.slug, { url: row.url, score });
+        }
+      }
+      for (const [slug, value] of best) map.set(slug, value.url);
+    } catch (err) {
+      console.error("[catalogue] cover load failed", err);
+    }
+    return Object.fromEntries(map);
+  },
+  ["trihex-primary-covers-v2"],
+  { revalidate: 30, tags: ["trihex-primary-covers"] },
+);

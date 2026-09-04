@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BuyNowButton } from "@/components/storefront/buy-now-button";
-import { AddToCartButton } from "@/components/storefront/add-to-cart-button";
 import { Button } from "@/components/ui/button";
 import { formatNpr } from "@/lib/money";
 import { cn } from "@/lib/utils";

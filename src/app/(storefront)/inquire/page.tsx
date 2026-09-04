@@ -123,7 +123,7 @@ export default async function InquireListPage({
         </ol>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button href="/products?filter=available" variant="secondary" size="sm">
-            Buy Now products
+            Available products
           </Button>
           <Button href="/products" variant="outline" size="sm">
             All products

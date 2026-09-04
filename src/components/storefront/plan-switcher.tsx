@@ -65,11 +65,9 @@ export function PlanSwitcher({
               <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
                 {active
                   ? "Selected"
-                  : plan.purchasable
-                    ? "Buy Now"
-                    : unavailable
-                      ? "Unavailable"
-                      : "Check availability"}
+                  : unavailable
+                    ? "Unavailable"
+                    : "Check availability"}
               </span>
             </Link>
           );

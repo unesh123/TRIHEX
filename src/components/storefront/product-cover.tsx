@@ -6,6 +6,7 @@ import {
   type ProductCoverEntry,
 } from "@/lib/catalog/product-covers";
 import type { BrandFamily } from "@/components/storefront/family-artwork";
+import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { cn } from "@/lib/utils";
 
 export function ProductCover({
@@ -23,8 +24,18 @@ export function ProductCover({
   priority?: boolean;
   coverPublicPath?: string | null;
 }) {
+  const generatedPath = getGeneratedCover(slug, family);
   const manifest: ProductCoverEntry | null = getProductCover(slug);
-  const cover: ProductCoverEntry | null = coverPublicPath
+  const cover: ProductCoverEntry | null = generatedPath
+    ? {
+        slug,
+        family: String(family),
+        canonical: generatedPath.split("/").pop() ?? slug,
+        publicPath: generatedPath,
+        mode: "ARTWORK_ONLY",
+        alt: title,
+      }
+    : coverPublicPath
     ? {
         slug,
         family: String(family),

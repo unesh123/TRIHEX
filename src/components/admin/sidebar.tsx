@@ -32,13 +32,13 @@ export function AdminSidebar({
 
   const nav = (
     <>
-      <div className="border-b border-border px-4 py-4">
+      <div className="border-b border-border bg-[linear-gradient(180deg,#ffffff_0%,#f4f8fa_100%)] px-5 py-5">
         <Logo href="/admin" size="sm" />
-        <p className="mt-3 text-xs text-text-muted">Control center</p>
+        <p className="mt-4 text-[10px] font-extrabold uppercase tracking-[0.17em] text-text-muted">Control center</p>
         {email ? (
-          <p className="mt-1 truncate text-xs text-text">{email}</p>
+          <p className="mt-1.5 truncate text-xs font-semibold text-text">{email}</p>
         ) : null}
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-text-muted">
+        <p className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-text-muted">
           {role.replace(/_/g, " ")}
         </p>
         {bypass ? (
@@ -48,13 +48,13 @@ export function AdminSidebar({
         ) : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Admin">
+      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Admin">
         {groups.map((group) => (
-          <div key={group.id} className="mb-4">
-            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+          <div key={group.id} className="mb-6">
+            <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-text-muted">
               {group.label}
             </p>
-            <ul className="space-y-0.5">
+            <ul className="space-y-1">
               {group.items.map((item) => (
                 <SidebarLink
                   key={item.href}
@@ -68,7 +68,7 @@ export function AdminSidebar({
         ))}
       </nav>
 
-      <div className="border-t border-border">
+      <div className="border-t border-border bg-[var(--page-soft)]/55">
         <SystemHealthPanel health={health} />
       </div>
     </>
@@ -76,11 +76,11 @@ export function AdminSidebar({
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:hidden">
+      <div className="flex items-center justify-between border-b border-border bg-white px-4 py-3.5 shadow-sm lg:hidden">
         <Logo href="/admin" size="sm" />
         <button
           type="button"
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-text"
+          className="rounded-xl border border-border bg-white px-3 py-2 text-sm font-bold text-text shadow-sm transition hover:border-primary/40 hover:text-primary"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="admin-mobile-nav"
@@ -102,13 +102,13 @@ export function AdminSidebar({
             aria-label="Close navigation"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative z-10 flex h-full w-72 max-w-[85vw] flex-col bg-surface shadow-xl">
+          <aside className="relative z-10 flex h-full w-80 max-w-[88vw] flex-col bg-surface shadow-2xl">
             {nav}
           </aside>
         </div>
       ) : null}
 
-      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-surface/95 backdrop-blur-sm lg:flex">
+      <aside className="sticky top-0 hidden h-screen w-[17rem] shrink-0 flex-col border-r border-border bg-white/95 backdrop-blur-sm lg:flex">
         {nav}
       </aside>
     </>
@@ -130,10 +130,10 @@ function SidebarLink({
         href={item.href}
         onClick={onNavigate}
         className={cn(
-          "block rounded-lg px-3 py-2 text-sm transition-colors",
+          "relative block rounded-xl px-3 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200",
           active
-            ? "bg-primary/15 font-medium text-text"
-            : "text-text-muted hover:bg-surface-raised hover:text-text",
+            ? "bg-[var(--surface-ink)] font-bold text-white shadow-[0_8px_18px_rgba(11,34,53,.16)]"
+            : "text-text-muted hover:-translate-y-0.5 hover:bg-surface-raised hover:text-text",
         )}
       >
         {item.label}

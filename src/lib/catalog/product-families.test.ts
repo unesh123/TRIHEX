@@ -91,3 +91,12 @@ describe("groupIntoFamilies", () => {
     expect(familyDisplayTitle(families[0]!.card)).toMatch(/CapCut Pro/i);
   });
 });
+
+
+describe("plan modifier normalization", () => {
+  it("keeps fulfillment and warranty suffixes inside the same family", () => {
+    expect(productFamilyKey("gemini-pro-18-months-link")).toBe("gemini-pro");
+    expect(productFamilyKey("gemini-pro-cdk-12-months")).toBe("gemini-pro");
+    expect(productFamilyKey("chatgpt-plus-1-month-gmail-w15d")).toBe("chatgpt-plus");
+  });
+});

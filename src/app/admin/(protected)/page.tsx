@@ -1,6 +1,6 @@
 import { AdminHeader } from "@/components/admin/admin-header";
 import { KpiCard } from "@/components/admin/kpi-card";
-import { getRecentAuditEvents } from "@/lib/audit/log";
+import { getRecentAuditEvents, type AuditEvent } from "@/lib/audit/log";
 import {
   getPaidOrdersCount,
   getVerifiedRevenueStats,
@@ -15,7 +15,16 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const products = isDatabaseConfigured() ? await loadAdminProducts() : [];
+  let dataWarning = "";
+  let products = [] as Awaited<ReturnType<typeof loadAdminProducts>>;
+  if (isDatabaseConfigured()) {
+    try {
+      products = await loadAdminProducts();
+    } catch (error) {
+      console.error("[Admin overview] product load failed", error);
+      dataWarning = "Some live catalogue data is temporarily unavailable. The admin shell is still safe to use; check System health before making changes.";
+    }
+  }
   const active = products.filter((p) => p.productStatus !== "ARCHIVED");
   const publicCount = active.filter((p) => p.productStatus === "PUBLIC").length;
   const blockedCount = active.filter((p) => p.productStatus === "BLOCKED").length;
@@ -28,7 +37,13 @@ export default async function AdminOverviewPage() {
       p.seedVisibleQuantity > 0 &&
       p.seedVisibleQuantity <= 5,
   ).length;
-  const recentAudit = await getRecentAuditEvents(8);
+  let recentAudit: AuditEvent[] = [];
+  try {
+    recentAudit = await getRecentAuditEvents(8);
+  } catch (error) {
+    console.error("[Admin overview] audit load failed", error);
+    dataWarning ||= "Recent audit activity is temporarily unavailable.";
+  }
 
   let orderCount = 0;
   let pendingProofs = 0;
@@ -38,17 +53,22 @@ export default async function AdminOverviewPage() {
   const paidOrders = await getPaidOrdersCount();
 
   if (isDatabaseConfigured()) {
-    const orders = await getRepositories().orders.listRecent(100);
-    orderCount = orders.length;
-    unpaidOrders = orders.filter((o) => o.paymentStatus !== "PAID").length;
-    toDeliver = orders.filter(
-      (o) =>
-        o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
-    ).length;
-    const payments = await listManualPayments();
-    pendingProofs = payments.filter((p) =>
-      ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
-    ).length;
+    try {
+      const orders = await getRepositories().orders.listRecent(100);
+      orderCount = orders.length;
+      unpaidOrders = orders.filter((o) => o.paymentStatus !== "PAID").length;
+      toDeliver = orders.filter(
+        (o) =>
+          o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
+      ).length;
+      const payments = await listManualPayments();
+      pendingProofs = payments.filter((p) =>
+        ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
+      ).length;
+    } catch (error) {
+      console.error("[Admin overview] order/payment load failed", error);
+      dataWarning ||= "Order and payment metrics are temporarily unavailable.";
+    }
   }
 
   return (
@@ -73,13 +93,19 @@ export default async function AdminOverviewPage() {
       />
 
       {!isDatabaseConfigured() ? (
-        <div className="mb-8 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-text-muted">
+        <div className="mb-8 rounded-2xl border border-warning/30 bg-[linear-gradient(135deg,#fff8e9,#fffdf8)] px-5 py-4 text-sm text-text-muted shadow-sm">
           <strong className="text-warning">Demo mode.</strong> Set{" "}
           <code className="text-xs">DATABASE_URL</code> to load live KPIs.
         </div>
       ) : null}
+      {dataWarning ? (
+        <div className="mb-8 rounded-2xl border border-warning/30 bg-[linear-gradient(135deg,#fff8e9,#fffdf8)] px-5 py-4 text-sm text-text-muted shadow-sm">
+          <strong className="text-warning">Live data warning.</strong>{" "}
+          {dataWarning}
+        </div>
+      ) : null}
 
-      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           label="Verified revenue"
           value={revenue.revenueLabel}
@@ -117,7 +143,7 @@ export default async function AdminOverviewPage() {
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label="Buy Now products"
+          label="Available catalogue"
           value={purchasable}
           hint={`${publicCount} public · ${draftCount} draft · ${blockedCount} blocked`}
         />
@@ -129,7 +155,7 @@ export default async function AdminOverviewPage() {
         />
       </div>
 
-      <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--success-soft)]/40 px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <div className="mt-7 rounded-2xl border border-[var(--success)]/18 bg-[linear-gradient(135deg,var(--success-soft),#fbfffd)] px-5 py-4 text-sm leading-relaxed text-[var(--text-secondary)] shadow-sm">
         <strong className="text-[var(--success)]">Manual verify flow:</strong>{" "}
         Customer pays + uploads proof → you Approve → order becomes{" "}
         <strong>PAID</strong>, revenue/profit count here, and product stock
@@ -138,8 +164,8 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-surface/60 p-5">
-          <h2 className="text-sm font-semibold text-text">Quick links</h2>
+        <section className="admin-surface p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3"><h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.03em] text-text">Quick links</h2><span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-text-muted">Shortcuts</span></div>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button href="/admin/products" variant="secondary" size="sm">
               Products & images
@@ -174,14 +200,14 @@ export default async function AdminOverviewPage() {
           </p>
         </section>
 
-        <section className="rounded-xl border border-border bg-surface/60 p-5">
-          <h2 className="text-sm font-semibold text-text">Recent audit</h2>
-          <ul className="mt-4 space-y-2 text-xs text-text-muted">
+        <section className="admin-surface p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3"><h2 className="font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.03em] text-text">Recent audit</h2><span className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-text-muted">Latest events</span></div>
+          <ul className="mt-4 divide-y divide-border rounded-xl border border-border bg-[var(--page-soft)]/45 text-xs text-text-muted">
             {recentAudit.length === 0 ? (
               <li>No events yet.</li>
             ) : (
               recentAudit.map((event) => (
-                <li key={event.id} className="flex justify-between gap-2">
+                <li key={event.id} className="flex justify-between gap-3 px-3 py-3 first:pt-3 last:pb-3">
                   <span>
                     {event.action} · {event.entityType}
                   </span>

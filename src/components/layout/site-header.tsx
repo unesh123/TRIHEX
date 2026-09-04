@@ -27,8 +27,8 @@ import {
 
 const NAV = [
   { href: "/products", label: "Shop" },
-  { href: "/ai-tools-nepal", label: "AI tools" },
-  { href: "/automation-services", label: "AI services" },
+  { href: "/categories", label: "Categories" },
+  { href: "/automation-services", label: "Services" },
   { href: "/blog", label: "Guides" },
   { href: "/deals", label: "Deals" },
 ] as const;
@@ -59,20 +59,20 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white/92 backdrop-blur-xl">
-        <div className="store-container flex h-16 items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 border-b border-[var(--border)]/80 bg-white/88 shadow-[0_8px_28px_rgba(13,28,43,.045)] backdrop-blur-xl">
+        <div className="store-container flex h-[4.5rem] items-center justify-between gap-3">
           <Logo size="sm" />
 
-          <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Primary">
+          <nav className="hidden items-center gap-1 xl:flex" aria-label="Primary">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+                  "rounded-full px-3.5 py-2 text-sm font-bold transition-[background-color,color,transform] duration-200",
                   isActivePath(pathname, item.href)
-                    ? "bg-[var(--primary-soft)] text-[var(--primary)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--page-soft)] hover:text-[var(--text)]",
+                    ? "bg-[var(--primary-soft)] text-[var(--primary)] shadow-sm"
+                    : "text-[var(--text-secondary)] hover:-translate-y-0.5 hover:bg-[var(--page-soft)] hover:text-[var(--text)]",
                 )}
               >
                 {item.label}
@@ -83,9 +83,11 @@ export function SiteHeader() {
           <div className="hidden items-center gap-1.5 md:flex">
             <Link
               href="/search"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-3")}
+              aria-label="Search products"
             >
-              Search
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <span>Search</span>
             </Link>
             <Link
               href="/track-order"
@@ -104,8 +106,9 @@ export function SiteHeader() {
             </a>
             <Link
               href="/cart"
-              className={buttonVariants({ variant: "secondary", size: "sm" })}
+              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "px-3")}
             >
+              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
               Cart
             </Link>
           </div>
