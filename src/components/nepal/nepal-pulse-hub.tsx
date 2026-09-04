@@ -17,9 +17,9 @@ import {
   AlertTriangle,
   Info
 } from "lucide-react";
-import { ForexSnapshot, CurrencyRate, convertForeignToNpr, convertNprToForeign } from "@/lib/nepal/nrb-forex-adapter";
-import { SeismicEvent } from "@/lib/nepal/earthquake-adapter";
-import { OpenDataset } from "@/lib/nepal/open-data-adapter";
+import { ForexSnapshot, CurrencyRate, convertForeignToNpr, convertNprToForeign } from "@/lib/nepal/forex-shared";
+import type { SeismicEvent } from "@/lib/nepal/earthquake-adapter";
+import type { OpenDataset } from "@/lib/nepal/open-data-adapter";
 
 interface NepalPulseHubProps {
   forex: ForexSnapshot;
