@@ -5,7 +5,10 @@ import { ProductCover } from "@/components/storefront/product-cover";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { FeaturePosterLightbox } from "@/components/storefront/feature-poster-lightbox";
 import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclaimer";
-import { ProductPurchasePanel } from "@/components/storefront/product-purchase-panel";
+import {
+  ProductPurchasePanel,
+  type PurchasePlan,
+} from "@/components/storefront/product-purchase-panel";
 import {
   detailMetaForSlug,
   featuresForSlug,
@@ -18,6 +21,7 @@ import {
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
 import {
+  durationSortDays,
   familyDisplayTitle,
   findFamilyPlans,
   productFamilyKey,
@@ -92,6 +96,90 @@ export default async function ProductDetailPage({
   const catalogue = await getLiveMerchandisingCatalogue();
   const familyPlans = findFamilyPlans(catalogue, product.slug);
   const familyTitle = familyDisplayTitle(product);
+  const familyCards = catalogue.filter(
+    (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
+  );
+
+  const purchasePlans: PurchasePlan[] = [];
+  if (familyCards.length > 1) {
+    const sortedFamilyCards = [...familyCards].sort(
+      (a, b) => durationSortDays(a) - durationSortDays(b),
+    );
+    for (const card of sortedFamilyCards) {
+      const priceNpr = Math.round((card.priceNprMinor ?? 0) / 100);
+      const isPrivate =
+        /private|own account/i.test(card.title) ||
+        /private/i.test(card.packageLabel);
+      const isShared =
+        /shared/i.test(card.title) || /shared/i.test(card.packageLabel);
+      const accessType = isPrivate
+        ? "Private (Own Account)"
+        : isShared
+          ? "Shared Plan"
+          : card.packageLabel || "Standard Access";
+
+      purchasePlans.push({
+        id: card.variantSku || card.slug,
+        slug: card.slug,
+        durationLabel: card.durationLabel ?? card.packageLabel ?? "Standard plan",
+        accessLabel: accessType,
+        warrantyLabel: card.warrantyLabel ?? "Full replacement warranty",
+        activationLabel: card.activationLabel ?? "Instant activation",
+        availability: card.purchasable ? "available" : "under_review",
+        priceNpr,
+        compareAtPriceNpr: card.compareAtPriceNprMinor
+          ? Math.round(card.compareAtPriceNprMinor / 100)
+          : null,
+        discountPercent: card.discountPercent ?? null,
+      });
+    }
+  } else if (product.variants && product.variants.length > 1) {
+    for (const v of product.variants) {
+      const priceNpr = Math.round(
+        (v.priceNprMinor ?? product.priceNprMinor ?? 0) / 100,
+      );
+      purchasePlans.push({
+        id: v.sku,
+        slug: product.slug,
+        durationLabel: v.durationLabel ?? product.durationLabel ?? "Standard plan",
+        accessLabel: v.variantName || "Standard Plan",
+        warrantyLabel: v.warrantyLabel ?? product.warrantyLabel ?? "Full warranty",
+        activationLabel:
+          v.activationLabel ?? product.activationLabel ?? "Direct activation",
+        availability:
+          (v.availability as any) ??
+          (v.purchasable ? "available" : "under_review"),
+        priceNpr,
+        compareAtPriceNpr: v.compareAtPriceNprMinor
+          ? Math.round(v.compareAtPriceNprMinor / 100)
+          : null,
+        discountPercent: v.discountPercent ?? null,
+      });
+    }
+  } else {
+    const priceNpr = Math.round((product.priceNprMinor ?? 0) / 100);
+    const isPrivate = /private|own account/i.test(product.title);
+    const isShared = /shared/i.test(product.title);
+    purchasePlans.push({
+      id: product.variantSku || product.slug,
+      slug: product.slug,
+      durationLabel:
+        product.durationLabel ?? product.packageLabel ?? "Standard plan",
+      accessLabel: isPrivate
+        ? "Private (Own Account)"
+        : isShared
+          ? "Shared Plan"
+          : "Standard access",
+      warrantyLabel: product.warrantyLabel ?? "Full replacement warranty",
+      activationLabel: product.activationLabel ?? "Direct activation",
+      availability: product.purchasable ? "available" : "under_review",
+      priceNpr,
+      compareAtPriceNpr: product.compareAtPriceNprMinor
+        ? Math.round(product.compareAtPriceNprMinor / 100)
+        : null,
+      discountPercent: product.discountPercent ?? null,
+    });
+  }
   const related = withFamilyGrouping(catalogue
     .filter(
       (p) =>
@@ -370,6 +458,7 @@ export default async function ProductDetailPage({
             durationLabel={product.durationLabel ?? product.packageLabel}
             purchasable={product.purchasable}
             whatsappHref={waUrl}
+            plans={purchasePlans}
             variants={product.variants}
           />
 

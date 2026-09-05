@@ -1534,7 +1534,7 @@ export const SEED_STOCK_EXPANSION: SeedProduct[] = [
   },
 ];
 
-function withOwnerOverrides(products: SeedProduct[]): SeedProduct[] {
+export function withOwnerOverrides(products: SeedProduct[]): SeedProduct[] {
   const archive = new Set<string>(OWNER_ARCHIVE_SLUGS);
   const bySlug = new Map(
     products.filter((p) => !archive.has(p.slug)).map((p) => [p.slug, p]),

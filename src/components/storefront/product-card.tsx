@@ -131,8 +131,17 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
         {/* Package label */}
         <p className="mt-0.5 text-[11px] font-medium text-[var(--text-muted)]">
-          {product.packageLabel}
-          {product.durationLabel ? ` · ${product.durationLabel}` : ""}
+          {(() => {
+            const pkg = product.packageLabel?.trim();
+            const dur = product.durationLabel?.trim();
+            if (!pkg && !dur) return "Standard package";
+            if (!dur || pkg?.toLowerCase() === dur?.toLowerCase()) return pkg || dur;
+            if (!pkg) return dur;
+            if (pkg.includes("plans available")) {
+              return `${pkg} (${dur})`;
+            }
+            return `${pkg} · ${dur}`;
+          })()}
         </p>
 
         {/* Features */}

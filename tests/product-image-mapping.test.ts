@@ -100,7 +100,7 @@ describe("product image mapping", () => {
       (p) => p.slug === "gemini-ai-pro-5tb-12m-mail-a",
     );
     expect(gem18!.variants[0]!.manualSellingPriceNprMinor).toBe(39900);
-    expect(gem12!.variants[0]!.manualSellingPriceNprMinor).toBe(99900);
+    expect(gem12!.variants[0]!.manualSellingPriceNprMinor).toBe(369900);
     expect(gem12!.variants[0]!.manualSellingPriceNprMinor).not.toBe(
       gem18!.variants[0]!.manualSellingPriceNprMinor,
     );

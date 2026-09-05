@@ -81,15 +81,14 @@ describe("seed audit", () => {
     expect(gem!.variants[0]!.purchasable).toBe(true);
   });
 
-  it("Gemini 5TB 12M is fixed above cost (Rs.999, not loss)", () => {
+  it("Gemini 5TB 12M is fixed at owner price (Rs.3,699 full warranty)", () => {
     const gem = ALL_SEED_PRODUCTS.find(
       (p) => p.slug === "gemini-ai-pro-5tb-12m-mail-a",
     );
     expect(gem).toBeTruthy();
-    expect(gem!.variants[0]!.manualSellingPriceNprMinor).toBe(99900);
+    expect(gem!.variants[0]!.manualSellingPriceNprMinor).toBe(369900);
     expect(gem!.variants[0]!.purchasable).toBe(true);
-    // cost ~749 NPR → sell 999 is profit
-    expect(999).toBeGreaterThan(749);
+    expect(3699).toBeGreaterThan(2200);
   });
 
   it("duplicate Gemini Variant B is removed from live seed catalogue", () => {

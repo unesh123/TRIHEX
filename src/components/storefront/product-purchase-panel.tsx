@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 export interface PurchasePlan {
   id: string; // SKU
+  slug?: string;
   durationLabel: string;
   accessLabel: string;
   warrantyLabel: string;
@@ -108,7 +109,10 @@ export function ProductPurchasePanel({
     ];
   }, [propPlans, variants, basePriceNprMinor, variantSku, productSlug, durationLabel, purchasable]);
 
-  const first = plans.find((p) => p.availability === "available") ?? plans[0];
+  const first =
+    plans.find((p) => p.slug === productSlug || p.id === variantSku || p.id === productSlug) ??
+    plans.find((p) => p.availability === "available") ??
+    plans[0];
   const [selectedId, setSelectedId] = useState<string>(first?.id ?? "");
   const [added, setAdded] = useState(false);
 
@@ -128,17 +132,19 @@ export function ProductPurchasePanel({
 
   function handleAddToCart() {
     if (!plan || !canBuy) return;
+    const targetSlug = plan.slug || productSlug;
+    const targetSku = plan.id;
     const items = readCart();
     const existing = items.find(
-      (i) => i.productSlug === productSlug && i.variantSku === plan.id,
+      (i) => i.productSlug === targetSlug && i.variantSku === targetSku,
     );
     const next = existing
       ? items.map((i) =>
-          i.productSlug === productSlug && i.variantSku === plan.id
+          i.productSlug === targetSlug && i.variantSku === targetSku
             ? { ...i, quantity: i.quantity + 1 }
             : i,
         )
-      : [...items, { productSlug, variantSku: plan.id, quantity: 1 }];
+      : [...items, { productSlug: targetSlug, variantSku: targetSku, quantity: 1 }];
     writeCart(next);
     setAdded(true);
   }

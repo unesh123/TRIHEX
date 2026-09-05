@@ -8,6 +8,7 @@ import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import {
   ALL_SEED_PRODUCTS,
+  withOwnerOverrides,
   type SeedProduct,
   type SeedVariant,
 } from "@/db/seed-data";
@@ -183,7 +184,8 @@ const loadCatalogueProductsCached = unstable_cache(
       }
     }
 
-    const products = Array.from(bySlug.values());
+    const rawProducts = Array.from(bySlug.values());
+    const products = withOwnerOverrides(rawProducts.length ? rawProducts : ALL_SEED_PRODUCTS);
     return products.length ? products : ALL_SEED_PRODUCTS;
   } catch (err) {
     console.error("[catalogue] DB load failed, falling back to seed", err);
