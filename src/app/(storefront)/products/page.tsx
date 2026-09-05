@@ -11,8 +11,23 @@ import {
   type CatalogueVisibility,
 } from "@/lib/catalog/merchandising";
 import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "All Products & Subscriptions — Buy in Nepal",
+  description:
+    "Browse verified AI subscriptions, design tools, developer environments, and digital licenses in Nepal with transparent NPR pricing and instant local payment support.",
+  alternates: { canonical: "/products" },
+  openGraph: {
+    title: "All Products & Subscriptions | TRIHEX DIGITAL Nepal",
+    description:
+      "Browse verified AI subscriptions, design tools, developer environments, and digital licenses in Nepal with transparent NPR pricing and instant local payment support.",
+    url: "https://trihexdigital.shop/products",
+    type: "website",
+  },
+};
 
 const FILTERS: Array<{ id: string; label: string; visibility?: CatalogueVisibility[] }> = [
   { id: "all", label: "All" },
@@ -223,7 +238,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
 
         <p className="border-t border-[var(--border)] pt-3 text-sm text-[var(--text-secondary)]">
-          Showing <strong>{products.length}</strong> product lines. Duration choices live inside each product page, and each package shows its current availability before checkout.
+          Showing <strong>{products.length}</strong> active product lines ({products.filter(p => !(p.brandSlug === "trihex" && (p.categorySlug === "services" || p.categorySlug === "digital-assets"))).length} software subscriptions &amp; {products.filter(p => p.brandSlug === "trihex" && (p.categorySlug === "services" || p.categorySlug === "digital-assets")).length} managed services). Duration choices live inside each product page, and each package shows its current availability before checkout.
         </p>
         </div>
       </div>

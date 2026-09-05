@@ -92,8 +92,8 @@ export function FeaturePosterLightbox({
             src={activeSrc}
             alt={alt}
             fill
-            unoptimized
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 640px"
+            quality={82}
             className="object-contain p-2.5 transition duration-500 group-hover:scale-[1.018]"
             priority={priority}
           />

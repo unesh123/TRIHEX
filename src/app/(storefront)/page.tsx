@@ -402,7 +402,7 @@ export default async function HomePage() {
                 Products with clear terms &amp; support
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
-                {stats.availableProductLines} product lines ready to order ({stats.totalCatalogueEntries} total listings) with live NPR prices. Buy approved offers online with instant Nepal payment methods or inquire on WhatsApp.
+                {shopProducts.length} software packages ready for instant checkout ({stats.availableProductLines} total solutions including managed services below) with live NPR prices. Buy approved offers online with instant Nepal payment methods or inquire on WhatsApp.
               </p>
             </div>
             <Link
@@ -456,17 +456,17 @@ export default async function HomePage() {
               <Button href="/track-order" variant="secondary">Track order</Button>
             </div>
           </Reveal>
-          <ol className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {HOW_IT_WORKS.map(([number, title, copy], index) => (
               <Reveal key={number} delay={index * 0.04}>
-                <li className="h-full rounded-2xl border border-white/80 bg-white/85 p-5 shadow-sm">
+                <div className="h-full rounded-2xl border border-white/80 bg-white/85 p-5 shadow-sm">
                   <p className="font-[family-name:var(--font-sora)] text-sm font-bold text-[var(--primary)]">{number}</p>
                   <h3 className="mt-5 text-base font-bold text-[var(--text)]">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">{copy}</p>
-                </li>
+                </div>
               </Reveal>
             ))}
-          </ol>
+          </div>
         </div>
       </section>
 

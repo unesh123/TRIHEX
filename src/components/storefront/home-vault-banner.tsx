@@ -67,7 +67,7 @@ export function HomeVaultBanner() {
                 <span className="rounded bg-emerald-500/20 px-2 py-0.5">VIP COURSE</span>
                 <span>Rs. 499</span>
               </div>
-              <h4 className="mt-2 text-xs font-bold text-white">AI Money Maker Vault</h4>
+              <h3 className="mt-2 text-xs font-bold text-white">AI Money Maker Vault</h3>
               <p className="mt-1 text-[11px] text-slate-400">
                 50+ Prompts, dropship funnels &amp; master unlock key.
               </p>
@@ -78,7 +78,7 @@ export function HomeVaultBanner() {
                 <span className="rounded bg-cyan-500/20 px-2 py-0.5">FREE PERK</span>
                 <span>$90 FREE</span>
               </div>
-              <h4 className="mt-2 text-xs font-bold text-white">Wasmer Pro Serverless</h4>
+              <h3 className="mt-2 text-xs font-bold text-white">Wasmer Pro Serverless</h3>
               <p className="mt-1 text-[11px] text-slate-400">
                 3 Months free global WebAssembly edge cloud compute.
               </p>
@@ -89,7 +89,7 @@ export function HomeVaultBanner() {
                 <span className="rounded bg-amber-500/20 px-2 py-0.5">SALES VAULT</span>
                 <span>Rs. 399</span>
               </div>
-              <h4 className="mt-2 text-xs font-bold text-white">Psychology of Closing</h4>
+              <h3 className="mt-2 text-xs font-bold text-white">Psychology of Closing</h3>
               <p className="mt-1 text-[11px] text-slate-400">
                 47 Objection rebuttal scripts &amp; cold outreach matrices.
               </p>
@@ -100,7 +100,7 @@ export function HomeVaultBanner() {
                 <span className="rounded bg-purple-500/20 px-2 py-0.5">INTERACTIVE</span>
                 <span>FREE TOOL</span>
               </div>
-              <h4 className="mt-2 text-xs font-bold text-white">The Silent Tax Engine</h4>
+              <h3 className="mt-2 text-xs font-bold text-white">The Silent Tax Engine</h3>
               <p className="mt-1 text-[11px] text-slate-400">
                 113 Years of BLS CPI inflation &amp; fiat decay simulator.
               </p>

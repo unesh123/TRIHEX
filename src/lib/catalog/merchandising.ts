@@ -186,7 +186,7 @@ function fulfillmentEstimate(fulfillmentType: string): string {
     case "MANAGED_SETUP_SERVICE":
       return "Session scheduled within 1–2 days";
     default:
-      return "Delivery: Usually 2 to 6 hours";
+      return "Usually 2 to 6 hours";
   }
 }
 

@@ -30,6 +30,8 @@
 *.exe
 cursor-hook-test.txt
 .claude/
+lighthouse-*.json
+image-audit.json
 
 # debug
 npm-debug.log*

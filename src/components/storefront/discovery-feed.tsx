@@ -105,9 +105,9 @@ export function UnifiedDiscoveryFeed({
                     {item.priceMode}
                   </span>
                 </div>
-                <h4 className="text-sm font-bold text-white leading-snug line-clamp-2">
+                <h3 className="text-sm font-bold text-white leading-snug line-clamp-2">
                   {item.title}
-                </h4>
+                </h3>
                 <p className="text-xs text-slate-400 line-clamp-2">{item.summary}</p>
               </div>
 
@@ -161,9 +161,9 @@ export function UnifiedDiscoveryFeed({
                     {deal.dealType.replace("_", " ")}
                   </span>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                <h3 className="text-sm font-bold text-slate-900 leading-snug">
                   {deal.title}
-                </h4>
+                </h3>
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
                   {deal.summary}
                 </p>
@@ -252,9 +252,9 @@ export function UnifiedDiscoveryFeed({
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-800">
                   {item.category}
                 </span>
-                <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                <h3 className="text-sm font-bold text-slate-900 leading-snug">
                   {item.title}
-                </h4>
+                </h3>
                 <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                   {item.summary}
                 </p>

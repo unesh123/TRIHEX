@@ -25,7 +25,7 @@ interface ProductImageProps {
 export function ProductImage({
   product,
   alt,
-  sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw",
+  sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px",
   priority = false,
   className,
   containerClassName,
@@ -54,6 +54,8 @@ export function ProductImage({
   };
 
   const imageAlt = alt ?? `${product.title ?? product.slug} product image`;
+  const isRemoteExternal =
+    currentSrc.startsWith("http") && !currentSrc.includes("supabase.co");
 
   return (
     <div
@@ -69,14 +71,15 @@ export function ProductImage({
         </div>
       )}
 
-      {/* 2. Main Image with direct unoptimized WebP loading */}
+      {/* 2. Main Image with Next.js high-performance optimization */}
       {!hasError ? (
         <Image
           src={currentSrc}
           alt={imageAlt}
           fill
-          unoptimized
+          unoptimized={isRemoteExternal}
           sizes={sizes}
+          quality={80}
           priority={priority}
           onLoad={() => setIsLoaded(true)}
           onError={handleError}

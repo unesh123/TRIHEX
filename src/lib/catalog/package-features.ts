@@ -368,11 +368,28 @@ const DEFAULT_FEATURES = [
 
 export function parseFeaturesText(text: string | null | undefined): string[] {
   if (!text?.trim()) return [];
-  const trimmed = text.trim();
+  let trimmed = text.trim();
+
+  // Strip wrapping escaped quotes if double-encoded
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    try {
+      const unquoted = JSON.parse(trimmed);
+      if (typeof unquoted === "string") {
+        trimmed = unquoted.trim();
+      }
+    } catch {
+      trimmed = trimmed.slice(1, -1).trim();
+    }
+  }
+
   const cleanLine = (s: string) =>
     s
       .replace(/^(\s*[-•*]\s*|\s*\d+[.)]\s*|^\s*["'\[\]]+)+/, "")
       .replace(/["'\[\]]+$/, "")
+      .replace(/\\"/g, '"')
       .trim();
 
   if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
@@ -384,7 +401,13 @@ export function parseFeaturesText(text: string | null | undefined): string[] {
           .filter((item) => item.length > 0);
       }
     } catch {
-      // fallback to newline split
+      // fallback to regex matching quoted strings inside bracket block
+      const matches = trimmed.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/g);
+      if (matches && matches.length > 0) {
+        return matches
+          .map((m) => cleanLine(m))
+          .filter((m) => m.length > 0);
+      }
     }
   }
   return text
