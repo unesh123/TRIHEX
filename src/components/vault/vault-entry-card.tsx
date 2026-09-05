@@ -212,8 +212,11 @@ export function VaultEntryCard({ entry }: VaultEntryCardProps) {
             )}
           </div>
           {entry.validUntil && (
-            <span className="block mt-0.5 text-[10px] text-amber-700 font-mono flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5" /> Until {new Date(entry.validUntil).toLocaleDateString()}
+            <span
+              suppressHydrationWarning
+              className="block mt-0.5 text-[10px] text-amber-700 font-mono flex items-center gap-1"
+            >
+              <Clock className="w-2.5 h-2.5" /> Until {entry.validUntil.slice(0, 10)}
             </span>
           )}
         </div>

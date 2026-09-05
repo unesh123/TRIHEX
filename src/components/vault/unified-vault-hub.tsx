@@ -208,6 +208,9 @@ export function UnifiedVaultHub({
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
+            id="vault-search"
+            name="vault-search"
+            aria-label="Search Vault resources, deals, prompts, or records"
             type="text"
             placeholder="Search Vault resources, deals, prompts, or records..."
             value={searchQuery}
