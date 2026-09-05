@@ -33,6 +33,7 @@ import {
   getLiveMerchandisingCatalogue,
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
+import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
 import {
   getWhatsAppDisplay,
   productEnquiryUrl,
@@ -71,10 +72,11 @@ function formatNpr(value: number | null | undefined) {
 }
 
 export default async function HomePage() {
-  const [all, liveForex, liveSeismic] = await Promise.all([
+  const [all, liveForex, liveSeismic, stats] = await Promise.all([
     getLiveMerchandisingCatalogue(),
     fetchNrbForexRates(),
     fetchNepalSeismicEvents(),
+    getCatalogueStats(),
   ]);
 
   const verifiedDeals = getPublishedDeals();
@@ -400,7 +402,7 @@ export default async function HomePage() {
                 Products with clear terms &amp; support
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
-                {shopProducts.length} packages with live NPR prices. Buy approved offers online with instant Nepal payment methods or inquire on WhatsApp.
+                {stats.availableProductLines} product lines ready to order ({stats.totalCatalogueEntries} total listings) with live NPR prices. Buy approved offers online with instant Nepal payment methods or inquire on WhatsApp.
               </p>
             </div>
             <Link

@@ -10,6 +10,7 @@ import {
   withFamilyGrouping,
   type CatalogueVisibility,
 } from "@/lib/catalog/merchandising";
+import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const minPrice = params.min ? Number(params.min) : undefined;
   const maxPrice = params.max ? Number(params.max) : undefined;
 
-  const allForFacets = await getLiveMerchandisingCatalogue({ includeBlocked: true });
+  const [allForFacets, stats] = await Promise.all([
+    getLiveMerchandisingCatalogue({ includeBlocked: true }),
+    getCatalogueStats(),
+  ]);
   const brands = Array.from(
     new Map(allForFacets.map((c) => [c.brandSlug, c.brandName])).entries(),
   ).sort((a, b) => a[1].localeCompare(b[1]));
@@ -128,7 +132,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--primary)]">Curated discovery</p>
             <p className="mt-1 font-[family-name:var(--font-sora)] text-lg font-semibold tracking-[-0.025em] text-[var(--text)]">Find a package with confidence.</p>
           </div>
-          <p className="rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-bold text-[var(--text-secondary)] shadow-sm">{availableCount} ready to order now</p>
+          <p className="rounded-full border border-white/80 bg-white/75 px-3 py-1.5 text-xs font-bold text-[var(--text-secondary)] shadow-sm">
+            {stats.availableProductLines} product lines ({stats.availableSkus} SKUs) ready to order now
+          </p>
         </div>
         <div className="flex flex-col gap-4 p-4 sm:p-5">
         <form action="/products" className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">

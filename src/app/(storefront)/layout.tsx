@@ -1,9 +1,7 @@
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
-import { WhatsAppFloatingButton } from "@/components/layout/whatsapp-floating";
-import { TrihexCopilot } from "@/components/copilot/trihex-copilot";
-import { RecentPurchaseToast } from "@/components/storefront/recent-purchase-toast";
+import { FloatingActionLayer } from "@/components/layout/floating-action-layer";
 import { ToastProvider } from "@/components/ui/toast";
 import {
   JsonLd,
@@ -26,9 +24,7 @@ export default function StorefrontLayout({
       <SiteHeader />
       <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <SiteFooter />
-      <WhatsAppFloatingButton />
-      <TrihexCopilot />
-      <RecentPurchaseToast />
+      <FloatingActionLayer />
     </ToastProvider>
   );
 }

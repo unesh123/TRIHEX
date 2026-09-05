@@ -2,6 +2,8 @@
  * July 2026 new stock batch — USDT×160 cost, sell at +50% margin (editable in admin).
  * Dedupes by slug/aliases; keep lowest cost when matching an existing product.
  */
+import type { SeedProduct, SeedVariant } from "./seed-data";
+
 export type StockRisk = "SELL" | "REVIEW" | "BLOCK" | "SKIP";
 
 export type NewStockItem = {
@@ -178,39 +180,100 @@ export const NEW_STOCK_JULY_2026: NewStockItem[] = [
     ],
   }),
 
-  // ─── REVIEW (Check Availability) ────────────────────────────────
+  // ─── SUPER GROK COMPLETE SUITE (1M, 3M, 6M, 9M Shared & 12M Private) ───
   item({
-    slug: "super-grok-6-months",
-    name: "Super Grok — 6 Months",
-    aliases: ["grok-super-6-months"],
+    slug: "super-grok-1-month",
+    name: "Super Grok — 1 Month Shared",
+    aliases: ["grok-super-1-month"],
     brandSlug: "grok",
     categorySlug: "ai-tools",
     usdt: 15,
-    stock: 4,
-    risk: "REVIEW",
-    shortDescription: "Grok Super access — 6 months. Inquire before buying.",
+    sellOverride: 3699,
+    stock: 15,
+    risk: "SELL",
+    featured: true,
+    shortDescription: "Super Grok (xAI) 1-month shared access with high-speed reasoning, Grok 2 / Fun Mode, and direct web access. Full warranty for term.",
+    features: [
+      "Grok Super model access for 1 month",
+      "Real-time news search & X integration",
+      "Full warranty for term duration",
+      "Fast delivery via WhatsApp",
+    ],
+  }),
+  item({
+    slug: "super-grok-3-months",
+    name: "Super Grok — 3 Months Shared",
+    aliases: ["grok-super-3-months"],
+    brandSlug: "grok",
+    categorySlug: "ai-tools",
+    usdt: 42,
+    sellOverride: 9499,
+    stock: 10,
+    risk: "SELL",
+    featured: true,
+    shortDescription: "Super Grok (xAI) 3-month shared access plan with guaranteed full warranty and prompt delivery.",
+    features: [
+      "Grok Super model access for 3 months",
+      "Multi-month savings with guaranteed uptime",
+      "Real-time web search & multi-modal analysis",
+      "Full term warranty & dedicated support",
+    ],
+  }),
+  item({
+    slug: "super-grok-6-months",
+    name: "Super Grok — 6 Months Shared",
+    aliases: ["grok-super-6-months"],
+    brandSlug: "grok",
+    categorySlug: "ai-tools",
+    usdt: 78,
+    sellOverride: 16999,
+    stock: 8,
+    risk: "SELL",
+    featured: true,
+    shortDescription: "Super Grok (xAI) 6-month shared access plan with extended term warranty and continuous support.",
     features: [
       "Grok Super model access for 6 months",
-      "Features as included in the Super plan",
-      "Availability confirmed on WhatsApp",
-      "Delivery after payment verification",
+      "Extended term priority access & reasoning",
+      "Full term warranty & continuous support",
+      "Fast replacement guarantee",
+    ],
+  }),
+  item({
+    slug: "super-grok-9-months",
+    name: "Super Grok — 9 Months Shared",
+    aliases: ["grok-super-9-months"],
+    brandSlug: "grok",
+    categorySlug: "ai-tools",
+    usdt: 112,
+    sellOverride: 24999,
+    stock: 6,
+    risk: "SELL",
+    featured: false,
+    shortDescription: "Super Grok (xAI) 9-month shared access plan with priority support and uptime warranty.",
+    features: [
+      "Grok Super model access for 9 months",
+      "Real-time X data synthesis & tool invocation",
+      "High reliability and prompt activation",
+      "Full term replacement warranty",
     ],
   }),
   item({
     slug: "super-grok-12-months",
-    name: "Super Grok — 12 Months",
+    name: "Super Grok — 12 Months Private (Own Account)",
     aliases: ["supergrok-12-months", "grok-super-1-year-fww"],
     brandSlug: "grok",
     categorySlug: "ai-tools",
-    usdt: 22,
-    stock: 3,
-    risk: "REVIEW",
-    shortDescription: "Grok Super — 12 months. Check availability first.",
+    usdt: 175,
+    sellOverride: 38999,
+    stock: 5,
+    risk: "SELL",
+    featured: true,
+    shortDescription: "Super Grok 1-Year Dedicated Private Plan (Own Account). Full privacy, private chat history, and priority xAI infrastructure access.",
     features: [
-      "Grok Super model access for 12 months",
-      "Features as included in the Super plan",
-      "Availability confirmed on WhatsApp",
-      "Delivery after payment verification",
+      "Super Grok 12-Month Dedicated Private Plan",
+      "Private personal account with 100% data confidentiality",
+      "Full priority compute & uncapped reasoning",
+      "1-Year full replacement warranty & VIP support",
     ],
   }),
   item({
@@ -467,17 +530,6 @@ export const NEW_STOCK_JULY_2026: NewStockItem[] = [
 
   // ─── SKIP (0 stock) — recorded for ops, not inserted as sellable ─
   item({
-    slug: "super-grok-1-month",
-    name: "Super Grok — 1 Month",
-    brandSlug: "grok",
-    categorySlug: "ai-tools",
-    usdt: null,
-    stock: 0,
-    risk: "SKIP",
-    shortDescription: "0 stock — skipped.",
-    features: [],
-  }),
-  item({
     slug: "nordvpn-3-months",
     name: "NordVPN — 3 Months",
     aliases: ["nordvpn-shared-3-months", "nordvpn-mail-3-months"],
@@ -494,3 +546,84 @@ export const NEW_STOCK_JULY_2026: NewStockItem[] = [
 export const NEW_STOCK_APPLY = NEW_STOCK_JULY_2026.filter(
   (p) => p.risk !== "SKIP",
 );
+
+export function newStockItemToSeedProduct(item: NewStockItem): SeedProduct {
+  const isSell = item.risk === "SELL";
+  const isReview = item.risk === "REVIEW";
+  const isBlock = item.risk === "BLOCK";
+
+  let durationValue: number | null = 1;
+  let durationUnit: SeedVariant["durationUnit"] = "MONTH";
+
+  if (item.slug.includes("12-months") || item.slug.includes("1-year")) {
+    durationValue = 1;
+    durationUnit = "YEAR";
+  } else if (item.slug.includes("9-months")) {
+    durationValue = 9;
+    durationUnit = "MONTH";
+  } else if (item.slug.includes("6-months")) {
+    durationValue = 6;
+    durationUnit = "MONTH";
+  } else if (item.slug.includes("3-months")) {
+    durationValue = 3;
+    durationUnit = "MONTH";
+  } else if (item.slug.includes("2-months")) {
+    durationValue = 2;
+    durationUnit = "MONTH";
+  } else if (item.slug.includes("7-days")) {
+    durationValue = 7;
+    durationUnit = "DAY";
+  } else if (item.slug.includes("lifetime")) {
+    durationValue = 1;
+    durationUnit = "ONE_TIME";
+  }
+
+  const costUsdMinor = item.usdt != null ? Math.round(item.usdt * 100) : 0;
+  const sellPriceMinor =
+    item.sellNpr != null ? Math.round(item.sellNpr * 100) : undefined;
+  const compareAtMinor =
+    item.compareAtNpr != null ? Math.round(item.compareAtNpr * 100) : undefined;
+
+  return {
+    name: item.name,
+    slug: item.slug,
+    brandSlug: item.brandSlug,
+    categorySlug: item.categorySlug,
+    sourceListingText: item.name,
+    shortDescription: item.shortDescription,
+    longDescription: item.features.join("\n"),
+    productType: "DIGITAL_LICENSE",
+    fulfillmentType: "MANUAL_CUSTOMER_EMAIL_ACTIVATION",
+    productStatus: isSell ? "PUBLIC" : isReview ? "DRAFT" : "BLOCKED",
+    complianceStatus: isSell
+      ? "APPROVED"
+      : isReview
+        ? "DOCUMENTS_REQUIRED"
+        : "REJECTED",
+    supplyAuthorizationType: "UNKNOWN",
+    vendorProofStatus: "NOT_UPLOADED",
+    needsDataVerification: !isSell,
+    blockedReason: isBlock
+      ? "Availability under review pending authorization confirmation."
+      : undefined,
+    featured: Boolean(item.featured),
+    variants: [
+      {
+        sku: item.slug.toUpperCase(),
+        variantName: item.name,
+        durationValue,
+        durationUnit,
+        supplierCostUsdMinor: costUsdMinor,
+        seedVisibleQuantity: item.stock,
+        manualSellingPriceNprMinor: sellPriceMinor,
+        compareAtPriceNprMinor: compareAtMinor,
+        purchasable: isSell,
+      },
+    ],
+  };
+}
+
+export const NEW_STOCK_SEED_PRODUCTS: SeedProduct[] = NEW_STOCK_JULY_2026
+  .filter((p) => p.slug.startsWith("super-grok"))
+  .map(newStockItemToSeedProduct);
+

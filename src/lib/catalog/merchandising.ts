@@ -20,6 +20,12 @@ import {
   resolveProductInfographic,
   resolveProductGallery,
 } from "@/lib/catalog/product-image-resolver";
+import {
+  normalizeProductTitle,
+  normalizeCategoryLabel,
+  normalizeFeatureString,
+  normalizePlanLabel,
+} from "@/lib/catalog/content-normalization";
 
 export type CatalogueVisibility =
   | "AVAILABLE"
@@ -112,17 +118,7 @@ function categoryName(slug: string): string {
 }
 
 function categoryLabel(slug: string): string {
-  const map: Record<string, string> = {
-    "ai-tools": "AI Assistants",
-    design: "Design & Creative",
-    "video-editing": "Video & Editing",
-    "developer-tools": "Developer Tools",
-    learning: "Learning",
-    productivity: "Productivity",
-    "digital-assets": "Digital Assets",
-    services: "Services",
-  };
-  return map[slug] ?? categoryName(slug);
+  return normalizeCategoryLabel(slug);
 }
 
 function durationLabel(
@@ -152,21 +148,17 @@ function cleanCustomerTitle(product: SeedProduct): {
 
   const variant = product.variants[0];
 
-  const packageLabel =
+  const rawPackageLabel =
     durationLabel(variant?.durationValue ?? null, variant?.durationUnit ?? null) ??
     variant?.variantName ??
     "Standard package";
+  const packageLabel = normalizePlanLabel(rawPackageLabel);
 
-  // Prefer admin-edited DB name so renames in /admin/products stick on the shop.
-  // Light cleanup only — do not hardcode titles per slug.
   let title = (product.name ?? "").trim();
   if (!title) {
     title = brand || "Product";
   } else {
-    title = title
-      .replace(/\b(NW|FW|FWW|W15D|W3D|CDK)\b/gi, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
+    title = normalizeProductTitle(title);
   }
 
   return { title, packageLabel };
@@ -393,7 +385,9 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     variantSku: variant.sku,
     featured,
     sourceListingText: product.sourceListingText,
-    features: featuresForSlug(product.slug, product.longDescription),
+    features: featuresForSlug(product.slug, product.longDescription)
+      .map(normalizeFeatureString)
+      .filter(Boolean),
     stockQty,
     stockLabel,
     variants,

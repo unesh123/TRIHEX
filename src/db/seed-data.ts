@@ -11,6 +11,7 @@ import {
   OWNER_UNDER_REVIEW,
 } from "./catalogue-overrides";
 import { sellNprFromUsdt, usdtToUsdMinor } from "./stock-pricing";
+import { NEW_STOCK_SEED_PRODUCTS } from "./new-stock-july2026";
 
 export interface SeedVariant {
   sku: string;
@@ -1563,4 +1564,5 @@ export const ALL_SEED_PRODUCTS = withOwnerOverrides([
   ...SEED_VAULT_PRODUCTS,
   ...SEED_NEW_OWNER_PRODUCTS,
   ...SEED_STOCK_EXPANSION,
+  ...NEW_STOCK_SEED_PRODUCTS,
 ]);

@@ -222,17 +222,35 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
     "Export PDF/PPT",
     "Analytics",
   ],
+  "super-grok-1-month": [
+    "Super Grok (xAI) model access for 1 month",
+    "High-speed reasoning, coding & Fun Mode",
+    "Real-time X platform intelligence integration",
+    "Full term warranty & instant activation assistance",
+  ],
+  "super-grok-3-months": [
+    "Super Grok (xAI) model access for 3 months",
+    "Multi-month savings with guaranteed uptime",
+    "Real-time web search & multi-modal analysis",
+    "Full term warranty & dedicated WhatsApp support",
+  ],
   "super-grok-6-months": [
-    "Grok Super model access for 6 months",
-    "Features as included in the Super plan",
-    "Availability confirmed on WhatsApp",
-    "Delivery after payment verification",
+    "Super Grok (xAI) model access for 6 months",
+    "Extended term priority access & reasoning",
+    "Full term warranty & continuous support",
+    "Fast replacement guarantee",
+  ],
+  "super-grok-9-months": [
+    "Super Grok (xAI) model access for 9 months",
+    "Real-time X data synthesis & tool invocation",
+    "High reliability and prompt activation",
+    "Full term replacement warranty",
   ],
   "super-grok-12-months": [
-    "Grok Super model access for 12 months",
-    "Features as included in the Super plan",
-    "Availability confirmed on WhatsApp",
-    "Delivery after payment verification",
+    "Super Grok (xAI) 12-Month Dedicated Private Plan",
+    "Private personal account with 100% data confidentiality",
+    "Full priority compute & uncapped reasoning",
+    "1-Year full replacement warranty & VIP support",
   ],
   "elevenlabs-creator-12-months": [
     "Realistic AI voice generation",
@@ -407,6 +425,30 @@ export function detailMetaForSlug(slug: string): {
       warranty: "TRIHEX digital download & master vault access — support via WhatsApp",
       delivery: "Immediate cloud access link & decryption key upon payment verification",
       notes: "Owned TRIHEX digital asset — 100% verified fulfillment with master unlock key.",
+    };
+  }
+  if (slug.startsWith("super-grok")) {
+    const isPrivate = slug.includes("12-months");
+    return {
+      warranty: isPrivate
+        ? "1-Year full replacement warranty for dedicated private account"
+        : "Full term replacement warranty for term duration with prompt re-issue",
+      delivery: "Credentials delivered to your email/WhatsApp within 15–45 minutes of payment review",
+      notes: isPrivate
+        ? "100% private account on your own email. Private chat history and priority compute."
+        : "Shared access managed via verified customer seat. Dedicated priority support on WhatsApp.",
+    };
+  }
+  if (
+    slug.startsWith("replit") ||
+    slug.startsWith("manus") ||
+    slug.startsWith("gamma") ||
+    slug.startsWith("vidiq")
+  ) {
+    return {
+      warranty: "Full term duration replacement warranty & activation support",
+      delivery: "Delivered within 1–2 hours after payment proof verification",
+      notes: "Activation assistance provided with verified order record on website.",
     };
   }
   if (slug.includes("cursor")) {
