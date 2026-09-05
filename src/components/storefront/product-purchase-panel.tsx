@@ -172,6 +172,16 @@ export function ProductPurchasePanel({
             {plans.map((p) => {
               const isSelected = p.id === plan.id;
               const isAvail = p.availability === "available";
+              const titleLabel =
+                p.accessLabel &&
+                p.accessLabel.toLowerCase().trim() !== p.durationLabel.toLowerCase().trim() &&
+                !p.durationLabel.toLowerCase().includes(p.accessLabel.toLowerCase())
+                  ? `${p.durationLabel} · ${p.accessLabel}`
+                  : p.durationLabel;
+              const wLabel =
+                p.warrantyLabel && p.warrantyLabel !== "No warranty"
+                  ? p.warrantyLabel
+                  : "Full warranty";
               return (
                 <button
                   key={p.id}
@@ -187,10 +197,10 @@ export function ProductPurchasePanel({
                   <div className="flex items-start justify-between gap-1.5">
                     <div className="min-w-0">
                       <div className="truncate text-xs font-bold text-[var(--text)]">
-                        {p.durationLabel} · {p.accessLabel}
+                        {titleLabel}
                       </div>
                       <div className="mt-0.5 text-[10px] text-[var(--text-muted)]">
-                        {p.warrantyLabel}
+                        {wLabel}
                       </div>
                     </div>
                     {isSelected && (
@@ -223,7 +233,13 @@ export function ProductPurchasePanel({
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-              {plans.length > 1 ? `${plan.durationLabel} · ${plan.accessLabel}` : "Package Price"}
+              {plans.length > 1
+                ? plan.accessLabel &&
+                  plan.accessLabel.toLowerCase().trim() !== plan.durationLabel.toLowerCase().trim() &&
+                  !plan.durationLabel.toLowerCase().includes(plan.accessLabel.toLowerCase())
+                  ? `${plan.durationLabel} · ${plan.accessLabel}`
+                  : plan.durationLabel
+                : "Package Price"}
             </div>
             <div className="mt-1 flex items-baseline gap-2.5">
               <span className="font-[family-name:var(--font-sora)] text-2xl font-bold tracking-tight text-[var(--text)] sm:text-3xl">
@@ -263,7 +279,9 @@ export function ProductPurchasePanel({
               Warranty Term
             </dt>
             <dd className="mt-0.5 font-semibold text-[var(--text)]">
-              {plan.warrantyLabel}
+              {plan.warrantyLabel && plan.warrantyLabel !== "No warranty"
+                ? plan.warrantyLabel
+                : "Full term replacement warranty"}
             </dd>
           </div>
           <div>

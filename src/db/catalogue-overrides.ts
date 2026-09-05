@@ -154,6 +154,8 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     costNpr: 120,
     purchasable: true,
     seedVisibleQuantity: 60,
+    shortDescription:
+      "CapCut Pro 7-Day Access Pass. Full VIP transitions, 4K export, auto-captions, and premium cloud effects.",
   },
   {
     slug: "capcut-pro-30-days",
@@ -167,6 +169,8 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     costNpr: 320,
     purchasable: true,
     seedVisibleQuantity: 4,
+    shortDescription:
+      "CapCut Pro 1-Month Plan. Full VIP video editing suite, unlimited auto-captions, premium transitions, and 4K export.",
   },
   {
     slug: "capcut-pro-6-months",
@@ -180,6 +184,8 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     costNpr: 2733,
     purchasable: true,
     seedVisibleQuantity: 30,
+    shortDescription:
+      "CapCut Pro 6-Month Extended Plan. High-performance video editing with full VIP effects, multi-track audio, and priority rendering.",
   },
   {
     slug: "canva-pro-1-year",
@@ -496,6 +502,7 @@ export const OWNER_ARCHIVE_SLUGS = [
   "supergrok-3-months",
   "grok-super-3-months",
   "grok-super-10-months",
+  "capcut-pro",
 ] as const;
 
 export const OWNER_BLOCKED_SLUGS = [

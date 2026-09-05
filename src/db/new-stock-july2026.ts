@@ -618,6 +618,16 @@ export function newStockItemToSeedProduct(item: NewStockItem): SeedProduct {
         manualSellingPriceNprMinor: sellPriceMinor,
         compareAtPriceNprMinor: compareAtMinor,
         purchasable: isSell,
+        warrantyCoverage: "FULL_TERM",
+        warrantyValue:
+          durationUnit === "MONTH"
+            ? durationValue * 30
+            : durationUnit === "YEAR"
+              ? 365
+              : durationUnit === "DAY"
+                ? durationValue
+                : 30,
+        warrantyUnit: durationUnit,
       },
     ],
   };

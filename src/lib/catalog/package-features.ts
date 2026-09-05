@@ -427,6 +427,34 @@ export function detailMetaForSlug(slug: string): {
       notes: "Owned TRIHEX digital asset — 100% verified fulfillment with master unlock key.",
     };
   }
+  if (slug.startsWith("gemini-ai-pro-5tb")) {
+    return {
+      warranty: "12-Month full replacement warranty for entire subscription term",
+      delivery: "Fast activation via customer email within 1–2 hours",
+      notes: "5 TB Google Cloud storage with Gemini AI Pro. Dedicated 1-year full replacement warranty.",
+    };
+  }
+  if (slug.startsWith("gemini-pro")) {
+    return {
+      warranty: "18-Month warranty with direct activation link replacement",
+      delivery: "Instant activation link provided upon payment verification",
+      notes: "18-month access link with 5 TB Google One storage. Website checkout verified.",
+    };
+  }
+  if (slug.startsWith("capcut")) {
+    return {
+      warranty: "Full term replacement warranty for duration selected (7 days, 30 days, or 6 months)",
+      delivery: "Delivered via customer email/WhatsApp within 1 hour",
+      notes: "Official CapCut Pro VIP activation with 4K export, auto-captions, and full transitions.",
+    };
+  }
+  if (slug.startsWith("chatgpt")) {
+    return {
+      warranty: "Full replacement warranty for active 30-day billing cycle",
+      delivery: "Delivered within 15–30 minutes via WhatsApp / Email",
+      notes: "ChatGPT Plus priority access with GPT-4o, Canvas, reasoning models, and web search.",
+    };
+  }
   if (slug.startsWith("super-grok")) {
     const isPrivate = slug.includes("12-months");
     return {

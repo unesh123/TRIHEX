@@ -116,14 +116,23 @@ export default async function ProductDetailPage({
         ? "Private (Own Account)"
         : isShared
           ? "Shared Plan"
-          : card.packageLabel || "Standard Access";
+          : "Standard Plan";
+
+      const warrantyLabel =
+        card.warrantyLabel && card.warrantyLabel !== "No warranty"
+          ? card.warrantyLabel
+          : isPrivate
+            ? "1-Year full replacement warranty"
+            : isShared
+              ? "Full term replacement warranty"
+              : "Full term warranty";
 
       purchasePlans.push({
         id: card.variantSku || card.slug,
         slug: card.slug,
         durationLabel: card.durationLabel ?? card.packageLabel ?? "Standard plan",
         accessLabel: accessType,
-        warrantyLabel: card.warrantyLabel ?? "Full replacement warranty",
+        warrantyLabel,
         activationLabel: card.activationLabel ?? "Instant activation",
         availability: card.purchasable ? "available" : "under_review",
         priceNpr,
@@ -318,11 +327,23 @@ export default async function ProductDetailPage({
             {familyTitle}
           </h1>
           <p className="mt-2 text-lg font-medium text-[var(--text-secondary)]">
-            {product.packageLabel}
-            {product.durationLabel ? ` · ${product.durationLabel}` : ""}
-            {familyPlans.length > 1
-              ? ` · ${familyPlans.length} durations available`
-              : ""}
+            {(() => {
+              const pkg = product.packageLabel?.trim() || "";
+              const dur = product.durationLabel?.trim() || "";
+              const showDur =
+                dur &&
+                pkg.toLowerCase() !== dur.toLowerCase() &&
+                !pkg.toLowerCase().includes(dur.toLowerCase());
+              return (
+                <>
+                  {pkg}
+                  {showDur ? ` · ${dur}` : ""}
+                  {familyPlans.length > 1
+                    ? ` · ${familyPlans.length} plans available`
+                    : ""}
+                </>
+              );
+            })()}
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-muted)]">
             {product.shortDescription}
