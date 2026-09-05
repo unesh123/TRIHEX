@@ -176,14 +176,21 @@ const loadCatalogueProductsCached = unstable_cache(
       });
     }
 
-    const products = Array.from(bySlug.values());
-      return products.length ? products : ALL_SEED_PRODUCTS;
-    } catch (err) {
-      console.error("[catalogue] DB load failed, falling back to seed", err);
-      return ALL_SEED_PRODUCTS;
+    // Ensure all verified seed catalogue products are available even before next DB sync
+    for (const seed of ALL_SEED_PRODUCTS) {
+      if (!bySlug.has(seed.slug) && !isInternalOrTestSku(seed.slug)) {
+        bySlug.set(seed.slug, seed);
+      }
     }
-  },
-  ["trihex-live-catalogue-v2"],
+
+    const products = Array.from(bySlug.values());
+    return products.length ? products : ALL_SEED_PRODUCTS;
+  } catch (err) {
+    console.error("[catalogue] DB load failed, falling back to seed", err);
+    return ALL_SEED_PRODUCTS;
+  }
+},
+  ["trihex-live-catalogue-v3"],
   { revalidate: 15, tags: ["trihex-live-catalogue"] },
 );
 
@@ -205,10 +212,21 @@ export async function loadCatalogueProductBySlug(
   const exact = all.find((p) => p.slug === decoded);
   if (exact) return exact;
   const normalized = normalizeSlugCandidate(decoded);
-  return (
+  const found = (
     all.find((p) => p.slug === normalized) ??
     all.find((p) => normalizeSlugCandidate(p.slug) === normalized) ??
     null
+  );
+  if (found) return found;
+
+  // Authoritative fallback to ALL_SEED_PRODUCTS in case cache is settling
+  return (
+    ALL_SEED_PRODUCTS.find(
+      (p) =>
+        p.slug === decoded ||
+        p.slug === normalized ||
+        normalizeSlugCandidate(p.slug) === normalized,
+    ) ?? null
   );
 }
 
