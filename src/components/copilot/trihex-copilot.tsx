@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Sparkles, X, Send, Bot, RotateCcw, ChevronDown, ExternalLink, ShieldCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Message {
   role: "user" | "assistant";
@@ -166,15 +167,22 @@ export function TrihexCopilot() {
     return parts;
   };
 
+  const isProductDetail = Boolean(
+    pathname?.startsWith("/products/") && pathname !== "/products",
+  );
+
   return (
     <>
       {/* Floating Launcher Button */}
-      {!isOpen && (
+      {!isOpen && !isSuppressed && (
         <button
           onClick={() => setIsOpen(true)}
           aria-label="Open TRIHEX AI Copilot"
           aria-expanded={false}
-          className="fixed bottom-24 left-4 lg:bottom-6 lg:left-6 z-40 flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 px-4 text-sm font-semibold text-white shadow-xl shadow-cyan-950/30 transition-all duration-200 hover:scale-105 hover:shadow-cyan-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+          className={cn(
+            "fixed bottom-24 left-4 lg:bottom-6 lg:left-6 z-40 items-center gap-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 px-4 text-sm font-semibold text-white shadow-xl shadow-cyan-950/30 transition-all duration-200 hover:scale-105 hover:shadow-cyan-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400",
+            isProductDetail ? "hidden lg:flex" : "flex",
+          )}
         >
           <div className="relative">
             <Sparkles className="h-5 w-5 text-cyan-200" aria-hidden="true" />

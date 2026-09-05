@@ -81,7 +81,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
         <ProductImage
           product={product}
           alt={`${product.title} product thumbnail`}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+          sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 767px) calc(50vw - 24px), (max-width: 1023px) 33vw, 240px"
         />
 
         {/* Category badge */}

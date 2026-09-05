@@ -66,11 +66,16 @@
 
   html {
     color-scheme: light;
+    overflow-x: clip;
   }
 
   html.lenis,
   html.lenis body {
     height: auto;
+  }
+
+  body {
+    overflow-x: clip;
   }
 
   .lenis.lenis-smooth {

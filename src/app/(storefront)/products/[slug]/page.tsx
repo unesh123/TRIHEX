@@ -29,11 +29,9 @@ import {
 import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { getProductCover } from "@/lib/catalog/product-covers";
 import { resolveProductGallery } from "@/lib/catalog/product-image-resolver";
-import { PlanSwitcher } from "@/components/storefront/plan-switcher";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 import { TrustStrip } from "@/components/storefront/trust-strip";
-import { StickyMobileBuyBar } from "@/components/storefront/sticky-mobile-buy-bar";
 import { ProductReviews } from "@/components/storefront/product-reviews";
 import { PDPFeatureGrid } from "@/components/storefront/pdp-feature-grid";
 import { PDPTargetAudience } from "@/components/storefront/pdp-target-audience";
@@ -351,16 +349,33 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      <div className="store-container grid gap-10 py-10 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-6">
-          <TrustStrip compact />
-          <PlanSwitcher plans={familyPlans} currentSlug={product.slug} />
+      <div className="store-container grid gap-8 py-8 lg:py-10 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-6 min-w-0">
           <ProductGallery
             slug={product.slug}
             title={product.title}
             images={resolveProductGallery(product)}
             priority
           />
+
+          {/* Mobile-first Purchase Island: immediately visible below media on mobile (< lg) */}
+          <div className="block lg:hidden">
+            <ProductPurchasePanel
+              productSlug={product.slug}
+              productTitle={product.title}
+              variantSku={product.variantSku}
+              basePriceNprMinor={
+                product.showPrice ? product.priceNprMinor : null
+              }
+              durationLabel={product.durationLabel ?? product.packageLabel}
+              purchasable={product.purchasable}
+              whatsappHref={waUrl}
+              plans={purchasePlans}
+              variants={product.variants}
+            />
+          </div>
+
+          <TrustStrip compact />
 
           <PDPVerifiedClaims slug={product.slug} />
 
@@ -468,7 +483,8 @@ export default async function ProductDetailPage({
           <ProductReviews reviews={reviews} />
         </div>
 
-        <aside className="h-fit space-y-4 lg:sticky lg:top-24">
+        {/* Desktop Sticky Aside (>= lg) */}
+        <aside className="hidden lg:block h-fit space-y-4 lg:sticky lg:top-24">
           <ProductPurchasePanel
             productSlug={product.slug}
             productTitle={product.title}
@@ -482,36 +498,6 @@ export default async function ProductDetailPage({
             plans={purchasePlans}
             variants={product.variants}
           />
-
-          {familyPlans.length > 1 ? (
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                Other available durations
-              </p>
-              <ul className="mt-2.5 space-y-1.5">
-                {familyPlans.map((plan) => (
-                  <li key={plan.slug}>
-                    <Link
-                      href={`/products/${plan.slug}`}
-                      className={cn(
-                        "flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs transition",
-                        plan.slug === product.slug
-                          ? "bg-[var(--primary-soft)] font-semibold text-[var(--primary)]"
-                          : "text-[var(--text-secondary)] hover:bg-[var(--page-soft)] hover:text-[var(--text)]",
-                      )}
-                    >
-                      <span>{plan.label}</span>
-                      {plan.showPrice && plan.priceNprMinor != null && (
-                        <span className="font-medium text-[var(--text-muted)]">
-                          {formatStorePrice(plan.priceNprMinor)}
-                        </span>
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
         </aside>
       </div>
 
@@ -551,14 +537,6 @@ export default async function ProductDetailPage({
       <div className="store-container pb-12">
         <ComplianceDisclaimer />
       </div>
-
-      <StickyMobileBuyBar
-        title={product.title}
-        priceNprMinor={product.showPrice ? product.priceNprMinor : null}
-        durationLabel={product.durationLabel ?? product.packageLabel}
-        purchasable={product.purchasable}
-        whatsappHref={waUrl}
-      />
     </div>
   );
 }

@@ -31,10 +31,13 @@ describe("RecentPurchaseToast Route Suppression Matrix", () => {
     expect(isRouteSuppressed("/deals")).toBe(true);
   });
 
-  it("allows recent purchase toasts on storefront browsing pages", () => {
+  it("suppresses recent purchase toasts on product listing and detail pages to prevent mobile buy bar collision", () => {
+    expect(isRouteSuppressed("/products")).toBe(true);
+    expect(isRouteSuppressed("/products/cursor-pro-12m")).toBe(true);
+  });
+
+  it("allows recent purchase toasts on general storefront landing pages", () => {
     expect(isRouteSuppressed("/")).toBe(false);
-    expect(isRouteSuppressed("/products")).toBe(false);
-    expect(isRouteSuppressed("/products/cursor-pro-12m")).toBe(false);
     expect(isRouteSuppressed("/nepal")).toBe(false);
   });
 });

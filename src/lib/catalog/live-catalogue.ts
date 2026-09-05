@@ -192,7 +192,7 @@ const loadCatalogueProductsCached = unstable_cache(
     return ALL_SEED_PRODUCTS;
   }
 },
-  ["trihex-live-catalogue-v4"],
+  ["trihex-live-catalogue-v5"],
   { revalidate: 15, tags: ["trihex-live-catalogue"] },
 );
 

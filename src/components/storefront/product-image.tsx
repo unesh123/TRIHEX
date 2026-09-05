@@ -25,7 +25,7 @@ interface ProductImageProps {
 export function ProductImage({
   product,
   alt,
-  sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px",
+  sizes = "(max-width: 639px) calc(100vw - 32px), (max-width: 767px) calc(50vw - 24px), (max-width: 1023px) 33vw, 240px",
   priority = false,
   className,
   containerClassName,

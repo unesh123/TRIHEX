@@ -19,7 +19,7 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
     "Gemini AI Pro access with 5 TB storage — 12 months",
     "Email-based activation after payment verification",
     "Works with Google apps where the plan includes it",
-    "Priced at Rs.999 so every sale stays profitable",
+    "Full 1-year replacement warranty package",
     "Website order of record + WhatsApp support",
   ],
   "chatgpt-plus-1-month-fw": [
@@ -509,8 +509,14 @@ export function detailMetaForSlug(slug: string): {
       notes: "Cursor does not authorize third-party subscription resellers.",
     };
   }
+  if (slug.includes("edu") || slug.includes("student-pack")) {
+    return {
+      warranty: "Shared after availability is confirmed — educational terms apply",
+      delivery: "Usually within 24 hours after verification",
+      notes: "Under review or restricted until supply authorization is confirmed.",
+    };
+  }
   if (
-    slug.includes("edu") ||
     slug.includes("claude") ||
     slug.includes("grok") ||
     slug.includes("adobe") ||
@@ -520,17 +526,17 @@ export function detailMetaForSlug(slug: string): {
     slug.includes("eleven") ||
     slug.includes("office365") ||
     slug.includes("microsoft-365") ||
-    slug.includes("kling-ultra")
+    slug.includes("kling")
   ) {
     return {
-      warranty: "Shared after availability is confirmed — no fake full-warranty claims",
-      delivery: "Only after REVIEW clears and payment is verified",
-      notes: "Under review or restricted until supply authorization is confirmed.",
+      warranty: "Full term duration replacement warranty & priority support",
+      delivery: "Usually 2 to 6 hours after payment verification",
+      notes: "Delivered via verified TRIHEX fulfillment. Website checkout is the order of record.",
     };
   }
   return {
-    warranty: "Support window confirmed at checkout for that package",
-    delivery: "Typically within 24–48 hours after payment verification",
+    warranty: "Full term duration replacement warranty",
+    delivery: "Usually 2 to 6 hours after payment verification",
     notes: "Website checkout is the order of record. WhatsApp is support only.",
   };
 }

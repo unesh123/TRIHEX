@@ -26,6 +26,7 @@ const SUPPRESSED_ROUTES = [
 ];
 
 const SUPPRESSED_PREFIXES = [
+  "/products",
   "/vault",
   "/prompts",
   "/skills",

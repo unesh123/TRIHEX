@@ -26,6 +26,11 @@ import {
   normalizeFeatureString,
   normalizePlanLabel,
 } from "@/lib/catalog/content-normalization";
+export {
+  canPurchasePlan,
+  type PlanEligibility,
+  type PurchaseAction,
+} from "@/lib/commerce/plan-eligibility";
 
 export type CatalogueVisibility =
   | "AVAILABLE"
