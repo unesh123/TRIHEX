@@ -15,52 +15,62 @@ export async function listApprovedReviewsForProduct(input: {
   productId: string;
   categorySlug?: string | null;
 }): Promise<ApprovedReview[]> {
-  const db = requireDb();
-  const productMatch = eq(schema.reviews.productId, input.productId);
-  const where = input.categorySlug
-    ? and(
-        eq(schema.reviews.status, "APPROVED"),
-        or(productMatch, eq(schema.reviews.categorySlug, input.categorySlug)),
-      )
-    : and(eq(schema.reviews.status, "APPROVED"), productMatch);
+  try {
+    const db = requireDb();
+    const productMatch = eq(schema.reviews.productId, input.productId);
+    const where = input.categorySlug
+      ? and(
+          eq(schema.reviews.status, "APPROVED"),
+          or(productMatch, eq(schema.reviews.categorySlug, input.categorySlug)),
+        )
+      : and(eq(schema.reviews.status, "APPROVED"), productMatch);
 
-  const rows = await db
-    .select()
-    .from(schema.reviews)
-    .where(where)
-    .orderBy(desc(schema.reviews.createdAt))
-    .limit(20);
+    const rows = await db
+      .select()
+      .from(schema.reviews)
+      .where(where)
+      .orderBy(desc(schema.reviews.createdAt))
+      .limit(20);
 
-  return rows.map((r) => ({
-    id: r.id,
-    authorName: r.authorName?.trim() || "Customer",
-    rating: r.rating,
-    title: r.title,
-    body: r.body,
-    createdAt: r.createdAt.toISOString(),
-  }));
+    return rows.map((r) => ({
+      id: r.id,
+      authorName: r.authorName?.trim() || "Customer",
+      rating: r.rating,
+      title: r.title,
+      body: r.body,
+      createdAt: r.createdAt.toISOString(),
+    }));
+  } catch (error) {
+    console.error("Error loading approved reviews for product:", input.productId, error);
+    return [];
+  }
 }
 
 export async function listApprovedReviewsForSlug(input: {
   slug: string;
   categorySlug?: string | null;
 }): Promise<ApprovedReview[]> {
-  const db = requireDb();
-  const [product] = await db
-    .select({ id: schema.products.id, categorySlug: schema.categories.slug })
-    .from(schema.products)
-    .leftJoin(
-      schema.categories,
-      eq(schema.products.categoryId, schema.categories.id),
-    )
-    .where(eq(schema.products.slug, input.slug))
-    .limit(1);
+  try {
+    const db = requireDb();
+    const [product] = await db
+      .select({ id: schema.products.id, categorySlug: schema.categories.slug })
+      .from(schema.products)
+      .leftJoin(
+        schema.categories,
+        eq(schema.products.categoryId, schema.categories.id),
+      )
+      .where(eq(schema.products.slug, input.slug))
+      .limit(1);
 
-  if (!product) return [];
-  return listApprovedReviewsForProduct({
-    productId: product.id,
-    categorySlug: input.categorySlug ?? product.categorySlug,
-  });
+    if (!product) return [];
+    return await listApprovedReviewsForProduct({
+      productId: product.id,
+      categorySlug: input.categorySlug ?? product.categorySlug,
+    });
+  } catch (error) {
+    console.error("Error loading approved reviews for slug:", input.slug, error);
+    return [];
+  }
 }
 
 export async function listAllReviewsAdmin() {

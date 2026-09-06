@@ -117,7 +117,7 @@ Caveats at that spike:
 | `gemini-pro-18-months-link` | **399** | Featured |
 | `chatgpt-plus-1-month-fw` | **699** | Featured |
 | `gemini-ai-pro-5tb-12m-mail-a` | **999** | Featured |
-| CapCut 7d / 30d / 6m | 49–139 / 419 / 3559 | Unique covers |
+| CapCut 7d / 30d / 6m | 199 / 399 / 3559 | Unique covers |
 | Office 100GB vs 1TB | 149 vs 209 | **Not duplicates** — keep both |
 
 Compare-at (list) prices are set in DB (`compare_at_price_npr_minor`) and editable in admin. Script: `scripts/apply-compare-at-and-features.ts`.

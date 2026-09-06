@@ -63,7 +63,7 @@ function resolveProductSlug(productName: string, sku: string): { name: string; s
   if (norm.includes("elevenlabs")) return { name: "ElevenLabs Creator Voice", slug: "elevenlabs-creator-shared" };
   if (norm.includes("canva")) return { name: "Canva Pro 1-Year", slug: "canva-pro-1-year" };
   if (norm.includes("manus")) return { name: "Manus AI Pro Agent", slug: "manus-ai-pro-12m" };
-  if (norm.includes("capcut")) return { name: "CapCut Pro Video Suite", slug: "capcut-pro" };
+  if (norm.includes("capcut")) return { name: "CapCut Pro Video Suite", slug: "capcut-pro-30-days" };
   if (norm.includes("udemy") || norm.includes("16")) return { name: "Udemy 16 AI Agent Pack", slug: "udemy-16-developer-ai-agent-pack" };
   if (norm.includes("money") || norm.includes("aimoney")) return { name: "AI Money Maker Course", slug: "ai-money-maker-digital-course-2026" };
   if (norm.includes("psychology") || norm.includes("closing")) return { name: "The Psychology of Closing", slug: "the-psychology-of-closing-bundle" };

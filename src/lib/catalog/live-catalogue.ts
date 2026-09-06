@@ -16,6 +16,7 @@ import { getAllProductCovers } from "@/lib/catalog/product-covers";
 import { isDatabaseConfigured } from "@/lib/env";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
+import { productFamilyKey } from "@/lib/catalog/product-families";
 
 normalizeEnvAliases();
 
@@ -192,7 +193,7 @@ const loadCatalogueProductsCached = unstable_cache(
     return ALL_SEED_PRODUCTS;
   }
 },
-  ["trihex-live-catalogue-v5"],
+  ["trihex-live-catalogue-v6"],
   { revalidate: 15, tags: ["trihex-live-catalogue"] },
 );
 
@@ -220,6 +221,14 @@ export async function loadCatalogueProductBySlug(
     null
   );
   if (found) return found;
+
+  // Check if requested slug is a product family key (e.g. "capcut-pro" or "gemini-pro")
+  const familyKey = productFamilyKey(decoded);
+  const familyMatch =
+    all.find((p) => productFamilyKey(p.slug) === familyKey) ??
+    ALL_SEED_PRODUCTS.find((p) => productFamilyKey(p.slug) === familyKey) ??
+    null;
+  if (familyMatch) return familyMatch;
 
   // Authoritative fallback to ALL_SEED_PRODUCTS in case cache is settling
   return (

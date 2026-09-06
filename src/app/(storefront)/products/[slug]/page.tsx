@@ -241,7 +241,7 @@ export default async function ProductDetailPage({
     ? await listApprovedReviewsForSlug({
         slug: product.slug,
         categorySlug: product.categorySlug,
-      })
+      }).catch(() => [])
     : [];
 
   return (

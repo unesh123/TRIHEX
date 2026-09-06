@@ -76,7 +76,7 @@ describe("groupIntoFamilies", () => {
         slug: "capcut-pro-30-days",
         title: "CapCut Pro — 1 Month",
         durationLabel: "30 days",
-        priceNprMinor: 41900,
+        priceNprMinor: 39900,
       }),
       card({
         slug: "capcut-pro-6-months",

@@ -64,8 +64,8 @@ This guide gives the store owner an exact, step-by-step walkthrough to test and 
 1. Open [https://trihexdigital.shop/products/capcut-pro-30-days](https://trihexdigital.shop/products/capcut-pro-30-days).
 2. Tap between:
    - **7 Days** (Rs. 199)
-   - **1 Month** (Rs. 449)
-   - **6 Months** (Rs. 1,699)
+   - **1 Month** (Rs. 399)
+   - **6 Months** (Rs. 3,559)
 3. **Verify:**
    - Switching between short-term (7 days) and long-term (6 months) is instantaneous.
    - No layout shift (CLS = 0).

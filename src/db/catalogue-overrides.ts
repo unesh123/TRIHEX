@@ -165,8 +165,8 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     needsDataVerification: false,
     blockedReason: null,
     featured: true,
-    priceNpr: 419,
-    costNpr: 320,
+    priceNpr: 399,
+    costNpr: 280,
     purchasable: true,
     seedVisibleQuantity: 4,
     shortDescription:
