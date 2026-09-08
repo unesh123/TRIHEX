@@ -7,6 +7,7 @@ import {
   approveDeal,
   rejectDeal,
   updateDeal,
+  addDealCandidate,
   checkDealExpirations,
 } from "@/lib/deals/store";
 import { verifyVendorDealClaim } from "@/lib/deals/vendor-verification";
@@ -47,6 +48,75 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action, candidateId, approvalType, reason, updates, assignedProductId } = body;
     const actorId = gate.session.userId ?? "admin";
+
+    if (action === "create") {
+      const {
+        title,
+        vendor,
+        category,
+        dealType,
+        summary,
+        detectedValueNpr,
+        promoCode,
+        eligibility,
+        officialVendorUrl,
+        validUntil,
+        status = "PUBLISHED",
+        approvalType = "FREE",
+      } = body;
+
+      if (!title || !vendor) {
+        return NextResponse.json({ ok: false, error: "Title and Vendor are required" }, { status: 400 });
+      }
+
+      const slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      const id = `deal-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+      const now = new Date().toISOString();
+
+      const newDeal = addDealCandidate({
+        id,
+        sourceId: "src-admin-manual",
+        sourceExternalId: id,
+        title,
+        slug,
+        vendor,
+        summary: summary || title,
+        dealType: dealType || "PROMO_CODE",
+        detectedValueNprMinor: detectedValueNpr ? Math.round(Number(detectedValueNpr) * 100) : undefined,
+        currency: "NPR",
+        promoCode: promoCode || undefined,
+        eligibility: eligibility || "Universal / All customers",
+        cardRequired: false,
+        sourceClaimUrl: officialVendorUrl || "https://trihexdigital.shop/deals",
+        officialVendorUrl: officialVendorUrl || "https://trihexdigital.shop/deals",
+        discoveredAt: now,
+        validUntil: validUntil || new Date(Date.now() + 90 * 86400000).toISOString(),
+        lastVerifiedAt: now,
+        verificationScore: 100,
+        vendorClaimSummary: "Manually created and verified by TRIHEX Operator.",
+        status: status || "PUBLISHED",
+        approvalType: approvalType || "FREE",
+        saleRightsStatus: approvalType === "PAID" ? "COMMERCIAL_RESELL_ALLOWED" : "FREE_LINK_ONLY",
+        revisions: [],
+        category: (category as any) || "AI_DEV",
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      await appendAuditEvent({
+        action: "DEAL_CREATED",
+        actorId,
+        entityType: "deal_candidate",
+        entityId: id,
+        metadata: { title, vendor, approvalType },
+      });
+
+      return NextResponse.json({ ok: true, deal: newDeal });
+    }
 
     if (!candidateId) {
       return NextResponse.json({ ok: false, error: "candidateId is required" }, { status: 400 });

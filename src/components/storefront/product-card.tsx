@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Star, ShieldCheck, Flame, CheckCircle2 } from "lucide-react";
 import { ProductImage } from "@/components/storefront/product-image";
 import { cn } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -112,14 +113,15 @@ export function ProductCard({ product }: { product: MerchCard }) {
 
       {/* Card body */}
       <div className="flex flex-1 flex-col p-3.5 sm:p-3.5">
-        {/* Status */}
+        {/* Status & Rating */}
         <div className="mb-1.5 flex items-center justify-between gap-1">
           <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide", statusColor)}>
             {statusLabel}
           </span>
-          {product.stockLabel && (
-            <span className="text-[10px] font-medium text-[var(--text-muted)]">{product.stockLabel}</span>
-          )}
+          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-amber-500">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <span>4.9</span>
+          </span>
         </div>
 
         {/* Title */}

@@ -41,6 +41,14 @@ export async function adminLoginAction(formData: FormData): Promise<void> {
     redirect("/admin/login?error=password_required");
   }
 
+  const honeypot = String(formData.get("__website_hp") ?? "");
+  if (honeypot.trim().length > 0) {
+    redirect("/admin/login?error=bot_detected");
+  }
+
+  let targetUrl: string | null = null;
+  let authError: string | null = null;
+
   try {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -49,48 +57,58 @@ export async function adminLoginAction(formData: FormData): Promise<void> {
     });
 
     if (error || !data.user) {
-      redirect("/admin/login?error=invalid_credentials");
+      authError = "invalid_credentials";
+    } else {
+      const mustReset = Boolean(
+        data.user.app_metadata?.must_reset_password ||
+          data.user.user_metadata?.must_reset_password,
+      );
+      const { isMfaHardRequired } = await import("@/lib/auth/mfa-policy");
+      const mfaEnabled = Boolean(
+        data.user.app_metadata?.mfa_enabled ||
+          (data.user.factors ?? []).some(
+            (f) => f.status === "verified" || f.factor_type === "totp",
+          ),
+      );
+
+      const cookieStore = await cookies();
+      cookieStore.set(ADMIN_SESSION_COOKIE, buildAdminSessionCookieValue(email), {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      await appendAuditEvent({
+        action: "ADMIN_LOGIN",
+        actorId: data.user.id,
+        entityType: "admin_session",
+        metadata: { email },
+      });
+
+      if (mustReset) {
+        targetUrl = "/admin/login?reset=required";
+      } else if (!mfaEnabled && isMfaHardRequired()) {
+        targetUrl = "/admin/settings/security?mfa=required";
+      } else {
+        targetUrl = "/admin";
+      }
     }
-
-    const mustReset = Boolean(
-      data.user.app_metadata?.must_reset_password ||
-        data.user.user_metadata?.must_reset_password,
-    );
-    const { isMfaHardRequired } = await import("@/lib/auth/mfa-policy");
-    const mfaEnabled = Boolean(
-      data.user.app_metadata?.mfa_enabled ||
-        (data.user.factors ?? []).some(
-          (f) => f.status === "verified" || f.factor_type === "totp",
-        ),
-    );
-
-    const cookieStore = await cookies();
-    cookieStore.set(ADMIN_SESSION_COOKIE, buildAdminSessionCookieValue(email), {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
-    await appendAuditEvent({
-      action: "ADMIN_LOGIN",
-      actorId: data.user.id,
-      entityType: "admin_session",
-      metadata: { email },
-    });
-
-    if (mustReset) {
-      redirect("/admin/login?reset=required");
+  } catch (err: any) {
+    if (typeof err === "object" && err !== null && "digest" in err && typeof err.digest === "string" && err.digest.startsWith("NEXT_REDIRECT")) {
+      throw err;
     }
-    // Only hard-redirect when ADMIN_MFA_REQUIRED is set — otherwise allow ops
-    if (!mfaEnabled && isMfaHardRequired()) {
-      redirect("/admin/settings/security?mfa=required");
-    }
+    console.error("[adminLoginAction] error:", err);
+    authError = "auth_unavailable";
+  }
 
-    redirect("/admin");
-  } catch {
-    redirect("/admin/login?error=auth_unavailable");
+  if (authError) {
+    redirect(`/admin/login?error=${authError}`);
+  }
+
+  if (targetUrl) {
+    redirect(targetUrl);
   }
 }
 

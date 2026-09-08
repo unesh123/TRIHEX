@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/security/bot-defense";
 import {
   createOrder,
   type PaymentMethodPreference,
@@ -31,13 +32,30 @@ const ALLOWED_METHODS: PaymentMethodPreference[] = [
 
 export async function POST(request: Request) {
   try {
-    let body: CheckoutBody;
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+    const limit = checkRateLimit(clientIp, { maxRequests: 20, windowMs: 60 * 1000 });
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { ok: false, error: "Too many checkout attempts. Please wait a moment." },
+        { status: 429 },
+      );
+    }
+
+    let body: CheckoutBody & { __website_hp?: string };
     try {
-      body = (await request.json()) as CheckoutBody;
+      body = (await request.json()) as CheckoutBody & { __website_hp?: string };
     } catch {
       return NextResponse.json(
         { ok: false, error: "Invalid JSON body." },
         { status: 400 },
+      );
+    }
+
+    // Bot honeypot check
+    if (body.__website_hp && body.__website_hp.trim().length > 0) {
+      return NextResponse.json(
+        { ok: false, error: "Automated submission rejected." },
+        { status: 403 },
       );
     }
 

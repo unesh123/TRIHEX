@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { checkAdminSession, isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
 import { getOwnerEmail } from "@/lib/auth/owner";
+import { BotShield } from "@/components/security/bot-shield";
 import { headers } from "next/headers";
 import { ShieldCheck, Lock, AlertTriangle, Terminal, KeyRound } from "lucide-react";
 
@@ -116,6 +117,8 @@ export default async function AdminLoginPage({
                 ? "Password cannot be empty."
                 : params.error === "invalid_credentials"
                 ? "Authentication failed. Invalid email or password."
+                : params.error === "bot_detected"
+                ? "Automated request blocked by Bot Shield. Please retry from a standard browser."
                 : "Sign-in rejected by authentication gateway."}
             </span>
           </div>
@@ -123,6 +126,7 @@ export default async function AdminLoginPage({
 
         {/* Primary Login Form */}
         <form action={adminLoginAction} className="mt-5 space-y-4">
+          <BotShield action="admin_login" />
           <div>
             <label
               htmlFor="email"

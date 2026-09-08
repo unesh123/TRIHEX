@@ -16,6 +16,7 @@ import {
   Eye
 } from "lucide-react";
 import { DealCandidate, DealType } from "@/lib/deals/types";
+import { QuickDealModal } from "@/components/admin/quick-deal-modal";
 
 interface DealRadarManagerProps {
   initialDeals: DealCandidate[];
@@ -127,21 +128,24 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
         </div>
       )}
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {["ALL", "VERIFIED", "NEEDS_REVIEW", "PUBLISHED", "EXPIRED", "REJECTED"].map((st) => (
-          <button
-            key={st}
-            onClick={() => setStatusFilter(st)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              statusFilter === st
-                ? "bg-[var(--surface-ink)] text-white"
-                : "bg-white border border-border text-text-muted hover:bg-surface-raised"
-            }`}
-          >
-            {st.replace("_", " ")}
-          </button>
-        ))}
+      {/* Filter Tabs & Quick Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {["ALL", "VERIFIED", "NEEDS_REVIEW", "PUBLISHED", "EXPIRED", "REJECTED"].map((st) => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                statusFilter === st
+                  ? "bg-[var(--surface-ink)] text-white"
+                  : "bg-white border border-border text-text-muted hover:bg-surface-raised"
+              }`}
+            >
+              {st.replace("_", " ")}
+            </button>
+          ))}
+        </div>
+        <QuickDealModal onDealCreated={(deal) => setDeals((prev) => [deal, ...prev])} />
       </div>
 
       {/* Candidates Table */}

@@ -19,6 +19,8 @@ export type AuditAction =
   | "DEAL_VERIFIED"
   | "DEAL_APPROVED"
   | "DEAL_REJECTED"
+  | "DEAL_CREATED"
+  | "VAULT_ACCESS_UNLOCKED"
   | "SYSTEM_EVENT";
 
 export interface AuditEvent {
