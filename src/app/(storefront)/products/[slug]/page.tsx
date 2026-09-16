@@ -215,20 +215,27 @@ export default async function ProductDetailPage({
     product.coverPublicPath ??
     getProductCover(product.slug)?.publicPath ??
     getGeneratedCover(product.slug, product.brandFamily);
-  const waUrl = productEnquiryUrl({
-    productName: product.title,
-    variantName: product.packageLabel,
-    slug: product.slug,
-    priceLabel:
-      product.showPrice && product.priceNprMinor != null
-        ? formatStorePrice(product.priceNprMinor)
-        : null,
-    compareAtLabel:
-      product.compareAtPriceNprMinor != null
-        ? formatStorePrice(product.compareAtPriceNprMinor)
-        : null,
-    features,
-  });
+  let waUrl = "#";
+  try {
+    waUrl = productEnquiryUrl({
+      productName: product.title,
+      variantName: product.packageLabel,
+      slug: product.slug,
+      priceLabel:
+        product.showPrice && product.priceNprMinor != null
+          ? formatStorePrice(product.priceNprMinor)
+          : null,
+      compareAtLabel:
+        product.compareAtPriceNprMinor != null
+          ? formatStorePrice(product.compareAtPriceNprMinor)
+          : null,
+      features,
+    });
+  } catch {
+    waUrl = `https://wa.me/9779702910130?text=${encodeURIComponent(
+      `Hi TRIHEX! I want to inquire about ${product.title}.`,
+    )}`;
+  }
   const status = visibilityLabelForCard(product);
   const availability =
     product.stockQty === 0

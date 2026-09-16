@@ -71,9 +71,16 @@ export function ProductCard({ product }: { product: MerchCard }) {
   const features = (product.features ?? []).slice(0, 3);
   const tierCount = product.variants?.length ?? 0;
 
-  const waHref = buildWhatsAppUrl(
-    `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
-  );
+  let waHref = "#";
+  try {
+    waHref = buildWhatsAppUrl(
+      `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
+    );
+  } catch {
+    waHref = `https://wa.me/9779702910130?text=${encodeURIComponent(
+      `Hi TRIHEX! I want to check availability for ${product.title}.`,
+    )}`;
+  }
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-[0_16px_36px_rgba(37,99,235,0.09)]">

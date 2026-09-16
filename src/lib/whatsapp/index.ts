@@ -40,8 +40,13 @@ export function normalizeWhatsAppNumber(input: string): string {
 }
 
 function assertSafeMessage(message: string): void {
+  // Strip allowed product/category terms before checking for forbidden credential leaks
+  const sanitized = message
+    .replace(/\b1password\b/gi, "")
+    .replace(/\bpassword\s*manager\b/gi, "");
+
   for (const pattern of FORBIDDEN_PATTERNS) {
-    if (pattern.test(message)) {
+    if (pattern.test(sanitized)) {
       throw new Error(
         `WhatsApp message rejected: contains forbidden sensitive content (${pattern}).`,
       );

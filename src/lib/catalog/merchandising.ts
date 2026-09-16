@@ -242,13 +242,13 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
   const visibility = resolveVisibility(product);
   const purchasable = visibility === "AVAILABLE";
   const price = resolvePrice(product);
-  const variant = product.variants[0]!;
+  const variant = product.variants?.[0];
   const costNprMinor =
-    variant.supplierCostUsdMinor != null
+    variant?.supplierCostUsdMinor != null
       ? Math.round((variant.supplierCostUsdMinor / 100) * 160 * 100)
       : null;
   const compareAt =
-    price != null
+    price != null && variant
       ? honestCompareAtNprMinor({
           sellNprMinor: price,
           listNprMinor: variant.compareAtPriceNprMinor,
@@ -267,7 +267,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     product.categorySlug !== "digital-assets";
 
   const stockQty =
-    variant.seedVisibleQuantity === undefined
+    variant?.seedVisibleQuantity === undefined
       ? null
       : variant.seedVisibleQuantity;
   let stockLabel: string | null = null;
@@ -278,15 +278,15 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     stockLabel = "Ready to activate";
 
   const rawDefaultPolicy =
-    variant.warrantyCoverage ||
+    variant?.warrantyCoverage ||
     (product.categorySlug === "digital-assets"
       ? "DIGITAL_DELIVERY"
       : product.categorySlug === "services"
         ? "SERVICE"
-        : variant.warrantyValue
+        : variant?.warrantyValue
           ? "LIMITED"
           : "NONE");
-  const defaultPolicy = warrantyPolicy(rawDefaultPolicy, variant.warrantyValue);
+  const defaultPolicy = warrantyPolicy(rawDefaultPolicy, variant?.warrantyValue);
 
   const variants: MerchCardVariant[] = (product.variants ?? [])
     .filter(
@@ -375,8 +375,8 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     packageLabel,
     shortDescription: product.shortDescription,
     durationLabel: durationLabel(
-      variant.durationValue,
-      variant.durationUnit,
+      variant?.durationValue ?? null,
+      variant?.durationUnit ?? null,
     ),
     activationLabel: activationLabel(product.fulfillmentType),
     fulfillmentEstimate: fulfillmentEstimate(product.fulfillmentType),
@@ -387,7 +387,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     showPrice: price != null && (purchasable || visibility === "AVAILABILITY_UNDER_REVIEW"),
     visibility,
     purchasable,
-    variantSku: variant.sku,
+    variantSku: variant?.sku ?? product.slug,
     featured,
     sourceListingText: product.sourceListingText,
     features: featuresForSlug(product.slug, product.longDescription)
