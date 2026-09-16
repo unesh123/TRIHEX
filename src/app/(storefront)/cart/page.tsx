@@ -1,6 +1,6 @@
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { CartView } from "@/components/storefront/cart-view";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import type { DemoCatalogItem } from "@/lib/catalog/demo-catalog";
 
 export const dynamic = "force-dynamic";

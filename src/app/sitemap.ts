@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { getAllBlogPosts } from "@/lib/seo/blog-posts";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 import { getAllPrompts } from "@/lib/prompts/store";

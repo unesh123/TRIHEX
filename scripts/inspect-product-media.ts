@@ -1,7 +1,7 @@
 import { getDb } from "../src/db";
 import * as schema from "../src/db/schema";
 import { eq } from "drizzle-orm";
-import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/live-merchandising";
 
 async function main() {
   const db = getDb();

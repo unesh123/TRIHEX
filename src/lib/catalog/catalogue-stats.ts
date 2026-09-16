@@ -3,10 +3,8 @@
  * Eliminates count fragmentation across Homepage, Header, Products, and Vault.
  */
 
-import {
-  getLiveMerchandisingCatalogue,
-  withFamilyGrouping,
-} from "@/lib/catalog/merchandising";
+import { withFamilyGrouping } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
 
 export interface CatalogueStats {
@@ -32,7 +30,15 @@ export interface CatalogueStats {
   vaultTotalCount: number;
 }
 
+let cachedStats: { stats: CatalogueStats; timestamp: number } | null = null;
+const STATS_CACHE_TTL_MS = 30 * 1000;
+
 export async function getCatalogueStats(): Promise<CatalogueStats> {
+  const now = Date.now();
+  if (cachedStats && now - cachedStats.timestamp < STATS_CACHE_TTL_MS) {
+    return cachedStats.stats;
+  }
+
   const allCards = await getLiveMerchandisingCatalogue({ includeBlocked: true });
   const availableCards = allCards.filter((c) => c.visibility === "AVAILABLE");
   const underReviewCards = allCards.filter(
@@ -51,7 +57,7 @@ export async function getCatalogueStats(): Promise<CatalogueStats> {
   const prompts = vaultEntries.filter((e) => e.tabCategory === "prompts");
   const publicRecords = vaultEntries.filter((e) => e.tabCategory === "research");
 
-  return {
+  const result: CatalogueStats = {
     availableProductLines: groupedAvailableLines.length,
     availableSkus: availableCards.length,
     underReviewProducts: underReviewCards.length,
@@ -63,4 +69,7 @@ export async function getCatalogueStats(): Promise<CatalogueStats> {
     publicRecordsCount: publicRecords.length,
     vaultTotalCount: vaultEntries.length,
   };
+
+  cachedStats = { stats: result, timestamp: now };
+  return result;
 }

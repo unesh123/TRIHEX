@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { getAllNews } from "@/lib/news/store";
 import { getAllPrompts } from "@/lib/prompts/store";
 import { getAllResources } from "@/lib/resources/store";

@@ -3,7 +3,7 @@ import path from "path";
 import Link from "next/link";
 import Image from "next/image";
 import { AdminHeader } from "@/components/admin/admin-header";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import {
   resolveProductThumbnail,
   resolveProductInfographic,

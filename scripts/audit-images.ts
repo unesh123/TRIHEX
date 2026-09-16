@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { ALL_SEED_PRODUCTS } from "../src/db/seed-data";
-import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/live-merchandising";
+import type { MerchCard } from "../src/lib/catalog/merchandising";
 import {
   resolveProductThumbnail,
   resolveProductInfographic,
@@ -58,7 +59,7 @@ async function runImageAudit() {
   const liveCatalogue = await getLiveMerchandisingCatalogue({ includeBlocked: true });
   
   const allSlugs = new Set<string>();
-  liveCatalogue.forEach((c) => allSlugs.add(c.slug));
+  liveCatalogue.forEach((c: MerchCard) => allSlugs.add(c.slug));
   ALL_SEED_PRODUCTS.forEach((p) => allSlugs.add(p.slug));
   (manifest as Array<{ slug: string }>).forEach((m) => allSlugs.add(m.slug));
 
@@ -69,7 +70,7 @@ async function runImageAudit() {
   let totalFallbackThumbs = 0;
 
   for (const slug of Array.from(allSlugs).sort()) {
-    const liveItem = liveCatalogue.find((c) => c.slug === slug);
+    const liveItem = liveCatalogue.find((c: MerchCard) => c.slug === slug);
     const seedItem = ALL_SEED_PRODUCTS.find((p) => p.slug === slug);
     const title = liveItem?.title ?? seedItem?.name ?? slug;
     const visibility = liveItem?.visibility ?? "NOT_IN_LIVE_CATALOGUE";

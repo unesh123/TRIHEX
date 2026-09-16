@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { Button } from "@/components/ui/button";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 
 export const metadata: Metadata = {
   title: "Best AI Tools in Nepal | ChatGPT, Gemini, Grok",

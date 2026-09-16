@@ -39,16 +39,14 @@ import { fetchNepalSeismicEvents } from "@/lib/nepal/earthquake-adapter";
 import { getAllNews } from "@/lib/news/store";
 import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
 import { getAllResearchItems } from "@/lib/vault/research-registry";
-import {
-  getLiveMerchandisingCatalogue,
-  withFamilyGrouping,
-} from "@/lib/catalog/merchandising";
+import { withFamilyGrouping } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
 import { productEnquiryUrl } from "@/lib/whatsapp";
 import { COMPLIANCE_FOOTER_DISCLAIMER } from "@/lib/compliance/gate";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "TRIHEX DIGITAL — Premium AI Tools, Secret Deals & Digital Marketplace Nepal",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductCompare, type CompareProductItem } from "@/components/tools/product-compare";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 
 export const metadata: Metadata = {
   title: "Compare AI Tools & Digital Products — TRIHEX DIGITAL Nepal",

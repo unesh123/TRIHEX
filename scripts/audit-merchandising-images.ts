@@ -1,4 +1,4 @@
-import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "../src/lib/catalog/live-merchandising";
 import fs from "fs";
 import path from "path";
 

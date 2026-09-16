@@ -1,6 +1,6 @@
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import type { DemoCatalogItem } from "@/lib/catalog/demo-catalog";
 import { resolveStorefrontBankQrPath } from "@/lib/payments/resolve-bank-qr";
 

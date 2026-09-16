@@ -105,6 +105,7 @@ export function SiteHeader() {
           <nav className="hidden items-center gap-5 xl:flex" aria-label="Primary">
             <Link
               href="/"
+              prefetch={true}
               className={cn(
                 "text-sm font-semibold transition-colors duration-150",
                 pathname === "/" ? "text-slate-900" : "text-slate-600 hover:text-slate-900",
@@ -117,6 +118,7 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={cn(
                   "text-sm font-semibold transition-colors duration-150",
                   isActivePath(pathname, item.href)
@@ -151,6 +153,7 @@ export function SiteHeader() {
                         <Link
                           key={sub.href}
                           href={sub.href}
+                          prefetch={true}
                           onClick={() => setExploreOpen(false)}
                           className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition group"
                         >
@@ -202,6 +205,7 @@ export function SiteHeader() {
 
             <Link
               href="/account"
+              prefetch={true}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 transition hover:text-slate-900"
             >
               <User className="h-4 w-4" />
@@ -210,6 +214,7 @@ export function SiteHeader() {
 
             <Link
               href="/cart"
+              prefetch={true}
               className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
               aria-label="View shopping cart"
             >
@@ -228,6 +233,7 @@ export function SiteHeader() {
             </button>
             <Link
               href="/cart"
+              prefetch={true}
               className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm"
               aria-label="View Cart"
             >
@@ -341,6 +347,7 @@ export function SiteHeader() {
               <Link
                 key={href}
                 href={href}
+                prefetch={true}
                 className={cn(
                   "flex min-h-13 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[10px] font-bold transition-colors",
                   active

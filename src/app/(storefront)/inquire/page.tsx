@@ -2,9 +2,9 @@ import Link from "next/link";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import {
   formatStorePrice,
-  getLiveMerchandisingCatalogue,
   type MerchCard,
 } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { productEnquiryUrl, getWhatsAppDisplay } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 

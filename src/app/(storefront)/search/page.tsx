@@ -13,7 +13,7 @@ import {
   Sliders
 } from "lucide-react";
 import { performUniversalSearch, UniversalSearchResult } from "@/lib/search/universal-search";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { ProductGrid } from "@/components/storefront/product-grid";
 
 export const dynamic = "force-dynamic";

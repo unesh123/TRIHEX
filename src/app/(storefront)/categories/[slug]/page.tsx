@@ -3,7 +3,7 @@ import Link from "next/link";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { getDemoCategories } from "@/lib/catalog/demo-catalog";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 
 export const dynamic = "force-dynamic";
 

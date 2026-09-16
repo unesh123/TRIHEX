@@ -15,11 +15,13 @@ import {
 } from "@/lib/catalog/package-features";
 import {
   formatStorePrice,
-  getLiveMerchCardBySlug,
-  getLiveMerchandisingCatalogue,
   visibilityLabelForCard,
   withFamilyGrouping,
 } from "@/lib/catalog/merchandising";
+import {
+  getLiveMerchCardBySlug,
+  getLiveMerchandisingCatalogue,
+} from "@/lib/catalog/live-merchandising";
 import {
   durationSortDays,
   familyDisplayTitle,

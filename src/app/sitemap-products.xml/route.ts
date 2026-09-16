@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSiteUrl } from "@/lib/site";
-import { getLiveMerchandisingCatalogue } from "@/lib/catalog/merchandising";
+import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 
 export const dynamic = "force-dynamic";

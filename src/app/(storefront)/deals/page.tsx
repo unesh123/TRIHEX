@@ -4,7 +4,7 @@ import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
 import { UnifiedVaultHub } from "@/components/vault/unified-vault-hub";
 import { ShieldCheck, ArrowRight, Tag } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "TRIHEX Verified Deals Radar · Software, Cloud Credits & AI Trials",

@@ -7,7 +7,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import {
   getLiveMerchCardBySlug,
   getLiveMerchandisingCatalogue,
-} from "@/lib/catalog/merchandising";
+} from "@/lib/catalog/live-merchandising";
 import { ALL_SEED_PRODUCTS } from "@/db/seed-data";
 import {
   OWNER_AVAILABLE,
