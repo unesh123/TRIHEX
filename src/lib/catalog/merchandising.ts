@@ -168,15 +168,17 @@ function cleanCustomerTitle(product: SeedProduct): {
   const packageLabel = normalizePlanLabel(rawPackageLabel);
 
   let title = (product.name ?? "").trim();
-  if (/elevenlabs creator\s*—\s*shared plan/i.test(title)) {
+  let finalPackageLabel = packageLabel;
+  if (/elevenlabs/i.test(product.slug) || /elevenlabs/i.test(title)) {
     title = "ElevenLabs Creator — AI Voice Studio";
+    finalPackageLabel = finalPackageLabel.replace(/shared\s*(plan)?/gi, "").trim() || "1 Month";
   } else if (!title) {
     title = brand || "Product";
   } else {
     title = normalizeProductTitle(title);
   }
 
-  return { title, packageLabel };
+  return { title, packageLabel: finalPackageLabel };
 }
 
 function activationLabel(fulfillmentType: string): string {

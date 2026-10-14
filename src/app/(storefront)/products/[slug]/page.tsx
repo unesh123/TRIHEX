@@ -101,113 +101,22 @@ export default async function ProductDetailPage({
     familyTitle = "ElevenLabs Creator — AI Voice Studio";
   }
 
-  const familyCards = catalogue.filter(
-    (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
-  );
+  const isElevenLabs =
+    /elevenlabs/i.test(product.slug) || /elevenlabs/i.test(product.title);
 
   const purchasePlans: PurchasePlan[] = [];
-  if (familyCards.length > 1) {
-    const sortedFamilyCards = [...familyCards].sort(
-      (a, b) => durationSortDays(a) - durationSortDays(b),
-    );
+  const seenPlanKeys = new Set<string>();
 
-    // Deduplicate cards with identical normalized duration label (prioritize purchasable / lowest price)
-    const dedupedCards: typeof sortedFamilyCards = [];
-    const seenDurations = new Set<string>();
+  // 1. Process internal product variants if present
+  const rawVariants = product.variants ?? [];
+  const activeVariants = rawVariants.filter((v) => v.purchasable !== false);
+  const variantsToProcess = activeVariants.length > 0 ? activeVariants : rawVariants;
 
-    for (const card of sortedFamilyCards) {
-      const parsedDur =
-        extractDuration(card.title) ||
-        extractDuration(card.slug) ||
-        extractDuration(card.durationLabel) ||
-        extractDuration(card.packageLabel);
-      const key = (parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "").toLowerCase().trim();
-      if (card.purchasable && !seenDurations.has(key)) {
-        seenDurations.add(key);
-        dedupedCards.push(card);
+  if (variantsToProcess.length > 1) {
+    for (const v of variantsToProcess) {
+      if (!v.purchasable || !v.priceNprMinor || v.priceNprMinor <= 0) {
+        continue;
       }
-    }
-    for (const card of sortedFamilyCards) {
-      const parsedDur =
-        extractDuration(card.title) ||
-        extractDuration(card.slug) ||
-        extractDuration(card.durationLabel) ||
-        extractDuration(card.packageLabel);
-      const key = (parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "").toLowerCase().trim();
-      if (!seenDurations.has(key)) {
-        seenDurations.add(key);
-        dedupedCards.push(card);
-      }
-    }
-
-    const finalSortedCards = dedupedCards.sort(
-      (a, b) => durationSortDays(a) - durationSortDays(b),
-    );
-
-    for (const card of finalSortedCards) {
-      const priceNpr = Math.round((card.priceNprMinor ?? 0) / 100);
-      const isPrivate =
-        /private|own account/i.test(card.title) ||
-        /private/i.test(card.packageLabel);
-      const isShared =
-        /shared/i.test(card.title) ||
-        /shared/i.test(card.packageLabel) ||
-        /shared/i.test(card.slug);
-
-      const accessType = isPrivate
-        ? "Private (Own Account)"
-        : isShared
-          ? "Shared Plan"
-          : card.categorySlug === "developer-tools"
-            ? "Developer Access"
-            : card.fulfillmentType === "OFFICIAL_REDEEM_CODE"
-              ? "Official Redeem Code"
-              : card.fulfillmentType === "OFFICIAL_TEAM_INVITATION"
-                ? "Official Team Invite"
-                : card.fulfillmentType === "API_POWERED_ACCESS"
-                  ? "API Access"
-                  : card.fulfillmentType === "LICENSE_KEY_FROM_AUTHORIZED_DISTRIBUTOR"
-                    ? "Official License"
-                    : "Official Activation";
-
-      const warrantyLabel =
-        card.warrantyLabel && card.warrantyLabel !== "No warranty"
-          ? card.warrantyLabel
-          : isPrivate
-            ? "1-Year full replacement warranty"
-            : isShared
-              ? "Full term replacement warranty"
-              : "Full term warranty";
-
-      const parsedDur =
-        extractDuration(card.title) ||
-        extractDuration(card.slug) ||
-        extractDuration(card.durationLabel) ||
-        extractDuration(card.packageLabel);
-      const planDuration =
-        parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "Standard plan";
-
-      purchasePlans.push({
-        id: card.variantSku || card.slug,
-        slug: card.slug,
-        durationLabel: planDuration,
-        accessLabel: accessType,
-        warrantyLabel,
-        activationLabel: card.activationLabel ?? "Instant activation",
-        availability: card.purchasable ? "available" : "under_review",
-        priceNpr,
-        compareAtPriceNpr: card.compareAtPriceNprMinor
-          ? Math.round(card.compareAtPriceNprMinor / 100)
-          : null,
-        discountPercent: card.discountPercent ?? null,
-        isPrivate,
-        isShared,
-      });
-    }
-  } else if (product.variants && product.variants.length > 1) {
-    const activeVariants = product.variants.filter((v) => v.purchasable !== false);
-    const variantsToUse = activeVariants.length > 0 ? activeVariants : product.variants;
-    for (const v of variantsToUse) {
       const priceNpr = Math.round(
         (v.priceNprMinor ?? product.priceNprMinor ?? 0) / 100,
       );
@@ -219,48 +128,148 @@ export default async function ProductDetailPage({
       const durLabel =
         parsedDur?.label ??
         v.durationLabel ??
+        v.variantName ??
         product.durationLabel ??
         "Standard plan";
 
       const isPrivate =
         /private|own account/i.test(v.variantName) ||
         /private/i.test(product.title);
-      const isShared =
+      const isShared = !isElevenLabs && (
         /shared/i.test(v.variantName) ||
-        /shared/i.test(product.slug) ||
-        /shared/i.test(product.title);
-      const accessType = isPrivate
-        ? "Private (Own Account)"
-        : isShared
-          ? "Shared Plan"
-          : v.variantName && !/standard/i.test(v.variantName)
-            ? v.variantName
-            : "Official Activation";
+        (/shared/i.test(product.slug) && !/creator/i.test(product.slug)) ||
+        /shared/i.test(product.title)
+      );
 
-      purchasePlans.push({
-        id: v.sku,
-        slug: product.slug,
-        durationLabel: durLabel,
-        accessLabel: accessType,
-        warrantyLabel: v.warrantyLabel ?? product.warrantyLabel ?? "Full warranty",
-        activationLabel:
-          v.activationLabel ?? product.activationLabel ?? "Direct activation",
-        availability:
-          (v.availability as any) ??
-          (v.purchasable ? "available" : "under_review"),
-        priceNpr,
-        compareAtPriceNpr: v.compareAtPriceNprMinor
-          ? Math.round(v.compareAtPriceNprMinor / 100)
-          : null,
-        discountPercent: v.discountPercent ?? null,
-        isPrivate,
-        isShared,
-      });
+      const accessType = isElevenLabs
+        ? "Creator Plan"
+        : isPrivate
+          ? "Private (Own Account)"
+          : isShared
+            ? "Shared Plan"
+            : v.variantName && !/standard/i.test(v.variantName)
+              ? v.variantName
+              : "Official Activation";
+
+      const planKey = `${durLabel.toLowerCase().trim()}_${priceNpr}`;
+      if (!seenPlanKeys.has(planKey)) {
+        seenPlanKeys.add(planKey);
+        purchasePlans.push({
+          id: v.sku,
+          slug: product.slug,
+          durationLabel: durLabel,
+          accessLabel: accessType,
+          warrantyLabel: v.warrantyLabel ?? product.warrantyLabel ?? "Full warranty",
+          activationLabel:
+            v.activationLabel ?? product.activationLabel ?? "Direct activation",
+          availability:
+            (v.availability as any) ??
+            (v.purchasable ? "available" : "under_review"),
+          priceNpr,
+          compareAtPriceNpr: v.compareAtPriceNprMinor
+            ? Math.round(v.compareAtPriceNprMinor / 100)
+            : null,
+          discountPercent: v.discountPercent ?? null,
+          isPrivate,
+          isShared,
+        });
+      }
     }
-  } else {
+  }
+
+  // 2. Supplement / combine with family cards across the catalog
+  const familyCards = catalogue.filter(
+    (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
+  );
+
+  if (familyCards.length > 0) {
+    const sortedFamilyCards = [...familyCards].sort(
+      (a, b) => durationSortDays(a) - durationSortDays(b),
+    );
+
+    for (const card of sortedFamilyCards) {
+      if (!card.purchasable || !card.priceNprMinor || card.priceNprMinor <= 0) {
+        continue;
+      }
+      const priceNpr = Math.round((card.priceNprMinor ?? 0) / 100);
+      const parsedDur =
+        extractDuration(card.title) ||
+        extractDuration(card.slug) ||
+        extractDuration(card.durationLabel) ||
+        extractDuration(card.packageLabel);
+      const planDuration =
+        parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "Standard plan";
+
+      const durKey = planDuration.toLowerCase().trim();
+      const planKey = `${durKey}_${priceNpr}`;
+      if (seenPlanKeys.has(planKey)) {
+        continue;
+      }
+      seenPlanKeys.add(planKey);
+
+        const isPrivate =
+          /private|own account/i.test(card.title) ||
+          /private/i.test(card.packageLabel);
+        const isShared = !isElevenLabs && (
+          /shared/i.test(card.title) ||
+          /shared/i.test(card.packageLabel) ||
+          (/shared/i.test(card.slug) && !/creator/i.test(card.slug))
+        );
+
+        const accessType = isElevenLabs
+          ? "Creator Plan"
+          : isPrivate
+            ? "Private (Own Account)"
+            : isShared
+              ? "Shared Plan"
+              : card.categorySlug === "developer-tools"
+                ? "Developer Access"
+                : card.fulfillmentType === "OFFICIAL_REDEEM_CODE"
+                  ? "Official Redeem Code"
+                  : card.fulfillmentType === "OFFICIAL_TEAM_INVITATION"
+                    ? "Official Team Invite"
+                    : card.fulfillmentType === "API_POWERED_ACCESS"
+                      ? "API Access"
+                      : card.fulfillmentType === "LICENSE_KEY_FROM_AUTHORIZED_DISTRIBUTOR"
+                        ? "Official License"
+                        : "Official Activation";
+
+        const warrantyLabel =
+          card.warrantyLabel && card.warrantyLabel !== "No warranty"
+            ? card.warrantyLabel
+            : isPrivate
+              ? "1-Year full replacement warranty"
+              : isShared
+                ? "Full term replacement warranty"
+                : "Full term warranty";
+
+        purchasePlans.push({
+          id: card.variantSku || card.slug,
+          slug: card.slug,
+          durationLabel: planDuration,
+          accessLabel: accessType,
+          warrantyLabel,
+          activationLabel: card.activationLabel ?? "Instant activation",
+          availability: card.purchasable ? "available" : "under_review",
+          priceNpr,
+          compareAtPriceNpr: card.compareAtPriceNprMinor
+            ? Math.round(card.compareAtPriceNprMinor / 100)
+            : null,
+          discountPercent: card.discountPercent ?? null,
+          isPrivate,
+          isShared,
+        });
+      }
+    }
+
+  // 3. Fallback for single variant standalone product
+  if (purchasePlans.length === 0) {
     const priceNpr = Math.round((product.priceNprMinor ?? 0) / 100);
     const isPrivate = /private|own account/i.test(product.title);
-    const isShared = /shared/i.test(product.title) || /shared/i.test(product.slug);
+    const isShared = !isElevenLabs && (
+      /shared/i.test(product.title) ||
+      (/shared/i.test(product.slug) && !/creator/i.test(product.slug))
+    );
     const parsedDur =
       extractDuration(product.title) ||
       extractDuration(product.slug) ||
@@ -270,17 +279,19 @@ export default async function ProductDetailPage({
       parsedDur?.label ??
       product.durationLabel ??
       product.packageLabel ??
-      "Standard plan";
+      "1 Month";
 
     purchasePlans.push({
       id: product.variantSku || product.slug,
       slug: product.slug,
       durationLabel: durLabel,
-      accessLabel: isPrivate
-        ? "Private (Own Account)"
-        : isShared
-          ? "Shared Plan"
-          : "Official Activation",
+      accessLabel: isElevenLabs
+        ? "Creator Plan"
+        : isPrivate
+          ? "Private (Own Account)"
+          : isShared
+            ? "Shared Plan"
+            : "Official Activation",
       warrantyLabel: product.warrantyLabel ?? "Full replacement warranty",
       activationLabel: product.activationLabel ?? "Direct activation",
       availability: product.purchasable ? "available" : "under_review",
@@ -293,6 +304,9 @@ export default async function ProductDetailPage({
       isShared,
     });
   }
+
+  // Sort purchase plans by duration / price in ascending order
+  purchasePlans.sort((a, b) => a.priceNpr - b.priceNpr);
   const related = withFamilyGrouping(catalogue
     .filter(
       (p) =>

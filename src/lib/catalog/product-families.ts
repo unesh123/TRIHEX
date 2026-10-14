@@ -104,7 +104,7 @@ export function planChipLabel(card: MerchCard): string {
 /** Strip duration fluff from titles for family display. */
 export function familyDisplayTitle(card: MerchCard): string {
   let raw = card.title;
-  if (/elevenlabs creator\s*—\s*shared plan/i.test(raw)) {
+  if (/elevenlabs/i.test(card.slug) || /elevenlabs/i.test(raw)) {
     return "ElevenLabs Creator — AI Voice Studio";
   }
   return raw

@@ -155,52 +155,7 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     purchasable: true,
     seedVisibleQuantity: 50,
     shortDescription:
-      "CapCut Pro 1-Month Plan. Full VIP video editing suite, unlimited auto-captions, premium transitions, and 4K export.",
-  },
-  {
-    slug: "capcut-pro-7-days",
-    name: "CapCut Pro — 7 Days",
-    productStatus: "PUBLIC",
-    complianceStatus: "APPROVED",
-    needsDataVerification: false,
-    blockedReason: null,
-    featured: false,
-    priceNpr: 199,
-    costNpr: 120,
-    purchasable: true,
-    seedVisibleQuantity: 60,
-    shortDescription:
-      "CapCut Pro 7-Day Access Pass. Full VIP transitions, 4K export, auto-captions, and premium cloud effects.",
-  },
-  {
-    slug: "capcut-pro-30-days",
-    name: "CapCut Pro — 1 Month",
-    productStatus: "PUBLIC",
-    complianceStatus: "APPROVED",
-    needsDataVerification: false,
-    blockedReason: null,
-    featured: true,
-    priceNpr: 399,
-    costNpr: 280,
-    purchasable: true,
-    seedVisibleQuantity: 4,
-    shortDescription:
-      "CapCut Pro 1-Month Plan. Full VIP video editing suite, unlimited auto-captions, premium transitions, and 4K export.",
-  },
-  {
-    slug: "capcut-pro-6-months",
-    name: "CapCut Pro — 6 Months",
-    productStatus: "PUBLIC",
-    complianceStatus: "APPROVED",
-    needsDataVerification: false,
-    blockedReason: null,
-    featured: true,
-    priceNpr: 3559,
-    costNpr: 2733,
-    purchasable: true,
-    seedVisibleQuantity: 30,
-    shortDescription:
-      "CapCut Pro 6-Month Extended Plan. High-performance video editing with full VIP effects, multi-track audio, and priority rendering.",
+      "CapCut Pro Official Subscription with 7-Day, 1-Month, and 6-Month plans. Full VIP video editing suite, unlimited auto-captions, premium transitions, and 4K export.",
   },
   {
     slug: "canva-pro-1-year",
@@ -248,7 +203,7 @@ export const OWNER_AVAILABLE: CatalogueOverride[] = [
     needsDataVerification: false,
     blockedReason: null,
     featured: true,
-    priceNpr: 1699,
+    priceNpr: 1499,
     costNpr: 950,
     purchasable: true,
     seedVisibleQuantity: 12,
@@ -594,7 +549,53 @@ export function applyOverride(
     o.priceNpr != null ? Math.round(o.priceNpr * 100) : undefined;
   const costUsdMinor =
     o.costNpr != null ? Math.round((o.costNpr / 160) * 100) : undefined;
-  const variant = product.variants[0];
+  
+  const existingVariants = product.variants && product.variants.length > 0
+    ? product.variants
+    : [];
+
+  const updatedVariants: SeedProduct["variants"] = existingVariants.length > 0
+    ? existingVariants.map((v, idx) => {
+        if (idx === 0) {
+          const shouldApplyPrice =
+            existingVariants.length === 1 ||
+            (v.durationUnit === "MONTH" && v.durationValue === 1) ||
+            v.manualSellingPriceNprMinor == null;
+          return {
+            ...v,
+            manualSellingPriceNprMinor:
+              shouldApplyPrice && priceMinor != null
+                ? priceMinor
+                : v.manualSellingPriceNprMinor,
+            supplierCostUsdMinor:
+              costUsdMinor ?? v.supplierCostUsdMinor ?? 0,
+            purchasable: o.purchasable ?? v.purchasable,
+            seedVisibleQuantity:
+              o.seedVisibleQuantity !== undefined
+                ? o.seedVisibleQuantity
+                : v.seedVisibleQuantity,
+            pricingMode: "MANUAL_ONLY" as const,
+          };
+        }
+        return {
+          ...v,
+          purchasable: v.purchasable ?? o.purchasable ?? true,
+        };
+      })
+    : [
+        {
+          sku: `${product.slug}-default`,
+          variantName: "Standard",
+          durationValue: 1,
+          durationUnit: "MONTH" as const,
+          manualSellingPriceNprMinor: priceMinor,
+          supplierCostUsdMinor: costUsdMinor ?? 0,
+          purchasable: o.purchasable ?? true,
+          seedVisibleQuantity: o.seedVisibleQuantity ?? 10,
+          pricingMode: "MANUAL_ONLY" as const,
+        },
+      ];
+
   return {
     ...product,
     name: o.name ?? product.name,
@@ -608,20 +609,6 @@ export function applyOverride(
         ? undefined
         : (o.blockedReason ?? product.blockedReason),
     featured: o.featured ?? product.featured,
-    variants: [
-      {
-        ...variant!,
-        manualSellingPriceNprMinor:
-          priceMinor ?? variant!.manualSellingPriceNprMinor,
-        supplierCostUsdMinor:
-          costUsdMinor ?? variant!.supplierCostUsdMinor,
-        purchasable: o.purchasable ?? variant!.purchasable,
-        seedVisibleQuantity:
-          o.seedVisibleQuantity !== undefined
-            ? o.seedVisibleQuantity
-            : variant!.seedVisibleQuantity,
-        pricingMode: "MANUAL_ONLY",
-      },
-    ],
+    variants: updatedVariants,
   };
 }

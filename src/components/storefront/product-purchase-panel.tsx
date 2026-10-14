@@ -65,20 +65,35 @@ export function ProductPurchasePanel({
 
   // Normalize plans from either propPlans or variants
   const plans: PurchasePlan[] = useMemo(() => {
+    const isElevenLabs =
+      /elevenlabs/i.test(productSlug) ||
+      /elevenlabs/i.test(productTitle ?? "");
+
     if (propPlans && propPlans.length > 0) {
       return propPlans.map((p) => {
+        const isPlanElevenLabs =
+          isElevenLabs ||
+          /elevenlabs/i.test(p.slug ?? "") ||
+          /elevenlabs/i.test(p.accessLabel);
+
         const isPrivate =
           p.isPrivate ??
           (/private|own account/i.test(p.accessLabel) ||
             /private/i.test(p.durationLabel));
-        const isShared =
+        const isShared = !isPlanElevenLabs && (
           p.isShared ??
           (/shared/i.test(p.accessLabel) ||
             /shared/i.test(p.durationLabel) ||
-            (p.slug ? /shared/i.test(p.slug) : false));
+            (p.slug ? (/shared/i.test(p.slug) && !/creator/i.test(p.slug)) : false))
+        );
+
+        const accessLabel = isPlanElevenLabs
+          ? "Creator Plan"
+          : p.accessLabel;
 
         return {
           ...p,
+          accessLabel,
           isPrivate,
           isShared,
         };
@@ -105,20 +120,22 @@ export function ProductPurchasePanel({
         const isPrivate =
           /private|own account/i.test(v.variantName) ||
           /private/i.test(v.durationLabel ?? "");
-        const isShared =
+        const isShared = !isElevenLabs && (
           /shared/i.test(v.variantName) ||
-          /shared/i.test(v.durationLabel ?? "");
+          /shared/i.test(v.durationLabel ?? "")
+        );
 
         return {
           id: v.sku,
           durationLabel: v.durationLabel ?? durationLabel ?? "Standard plan",
-          accessLabel:
-            v.variantName ||
-            (isPrivate
-              ? "Private (Own Account)"
-              : isShared
-                ? "Shared Plan"
-                : "Official Activation"),
+          accessLabel: isElevenLabs
+            ? "Creator Plan"
+            : v.variantName ||
+              (isPrivate
+                ? "Private (Own Account)"
+                : isShared
+                  ? "Shared Plan"
+                  : "Official Activation"),
           warrantyLabel: v.warrantyLabel ?? "Full term warranty",
           activationLabel: v.activationLabel ?? "Direct activation",
           availability: isAvail,
@@ -133,18 +150,22 @@ export function ProductPurchasePanel({
 
     const priceNpr = Math.round((basePriceNprMinor ?? 0) / 100);
     const isPrivate = /private|own account/i.test(productTitle ?? "");
-    const isShared =
-      /shared/i.test(productTitle ?? "") || /shared/i.test(productSlug);
+    const isShared = !isElevenLabs && (
+      /shared/i.test(productTitle ?? "") ||
+      (/shared/i.test(productSlug) && !/creator/i.test(productSlug))
+    );
     return [
       {
         id: variantSku ?? productSlug,
         slug: productSlug,
         durationLabel: durationLabel ?? "Standard plan",
-        accessLabel: isPrivate
-          ? "Private (Own Account)"
-          : isShared
-            ? "Shared Plan"
-            : "Official Activation",
+        accessLabel: isElevenLabs
+          ? "Creator Plan"
+          : isPrivate
+            ? "Private (Own Account)"
+            : isShared
+              ? "Shared Plan"
+              : "Official Activation",
         warrantyLabel: "Full replacement warranty",
         activationLabel: "Direct activation",
         availability: purchasable ? "available" : "under_review",

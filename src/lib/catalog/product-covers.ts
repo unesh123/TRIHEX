@@ -22,6 +22,7 @@ const CANONICAL_FAMILY_MAP: Record<string, string> = {
   "super-grok-6-months": "supergrok-3-months",
   "super-grok-9-months": "supergrok-3-months",
   "super-grok-12-months": "supergrok-3-months",
+  "claude-pro-12-months": "claude-pro-1-month",
 };
 
 const bySlug = new Map(
