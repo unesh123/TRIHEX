@@ -4,6 +4,7 @@
  */
 
 import type { MerchCard } from "@/lib/catalog/merchandising";
+import { extractDuration } from "@/lib/catalog/duration-parser";
 
 const DURATION_SLUG_RE =
   /(?:^|-)(?:\d+-days?|\d+-months?|\d+m(?:onths?)?|\d+-years?|1-year|18-months?|12m|6m|3m|1m)(?=-|$)/gi;
@@ -58,6 +59,13 @@ export function productFamilyKey(slug: string): string {
 
 /** Sort key in approximate days for plan ordering. */
 export function durationSortDays(card: MerchCard): number {
+  const parsed =
+    extractDuration(card.title) ||
+    extractDuration(card.slug) ||
+    extractDuration(card.durationLabel) ||
+    extractDuration(card.packageLabel);
+  if (parsed) return parsed.approxDays;
+
   const label = (card.durationLabel ?? card.packageLabel ?? "").toLowerCase();
   const m = label.match(/(\d+)\s*(day|days|week|weeks|month|months|year|years)/);
   if (!m) return 9999;
@@ -72,7 +80,13 @@ export function durationSortDays(card: MerchCard): number {
 
 /** Customer-facing plan chip label. */
 export function planChipLabel(card: MerchCard): string {
-  const base = card.durationLabel ?? card.packageLabel ?? "Plan";
+  const parsed =
+    extractDuration(card.title) ||
+    extractDuration(card.slug) ||
+    extractDuration(card.durationLabel) ||
+    extractDuration(card.packageLabel);
+
+  const base = parsed?.label ?? card.durationLabel ?? card.packageLabel ?? "Plan";
   // Keep short warranty hints when same duration differs
   const title = card.title.toLowerCase();
   if (/no warranty|no-warranty/.test(title) || /no warranty/i.test(card.packageLabel)) {
@@ -89,7 +103,11 @@ export function planChipLabel(card: MerchCard): string {
 
 /** Strip duration fluff from titles for family display. */
 export function familyDisplayTitle(card: MerchCard): string {
-  return card.title
+  let raw = card.title;
+  if (/elevenlabs creator\s*—\s*shared plan/i.test(raw)) {
+    return "ElevenLabs Creator — AI Voice Studio";
+  }
+  return raw
     .replace(
       /\s*[—–-]\s*\d+\s*(days?|weeks?|months?|years?)\b.*/i,
       "",
@@ -100,7 +118,7 @@ export function familyDisplayTitle(card: MerchCard): string {
     )
     .replace(/\s*[—–-]\s*$/g, "")
     .replace(/\s{2,}/g, " ")
-    .trim() || card.title;
+    .trim() || raw;
 }
 
 export type PlanOption = {
@@ -154,8 +172,31 @@ export function groupIntoFamilies(cards: MerchCard[]): ProductFamily[] {
     const sorted = [...members].sort(
       (a, b) => durationSortDays(a) - durationSortDays(b),
     );
-    const card = pickRepresentative(sorted);
-    const priced = sorted
+
+    // Deduplicate members with identical base duration (prefer purchasable / lowest price)
+    const dedupedMembers: MerchCard[] = [];
+    const seenDuration = new Set<string>();
+
+    for (const m of sorted) {
+      const baseLabel = (extractDuration(m.title)?.label ?? planChipLabel(m).split("·")[0]?.trim() ?? "").toLowerCase();
+      if (m.purchasable && !seenDuration.has(baseLabel)) {
+        seenDuration.add(baseLabel);
+        dedupedMembers.push(m);
+      }
+    }
+    for (const m of sorted) {
+      const baseLabel = (extractDuration(m.title)?.label ?? planChipLabel(m).split("·")[0]?.trim() ?? "").toLowerCase();
+      if (!seenDuration.has(baseLabel)) {
+        seenDuration.add(baseLabel);
+        dedupedMembers.push(m);
+      }
+    }
+
+    const finalMembers = dedupedMembers.sort(
+      (a, b) => durationSortDays(a) - durationSortDays(b),
+    );
+    const card = pickRepresentative(finalMembers);
+    const priced = finalMembers
       .map((m) => m.priceNprMinor)
       .filter((p): p is number => p != null && Number.isFinite(p));
     const fromPriceNprMinor = priced.length ? Math.min(...priced) : null;
@@ -167,7 +208,7 @@ export function groupIntoFamilies(cards: MerchCard[]): ProductFamily[] {
         title: familyDisplayTitle(card),
       },
       familyTitle: familyDisplayTitle(card),
-      plans: sorted.map((m) => ({
+      plans: finalMembers.map((m) => ({
         slug: m.slug,
         label: planChipLabel(m),
         priceNprMinor: m.priceNprMinor,
@@ -176,7 +217,7 @@ export function groupIntoFamilies(cards: MerchCard[]): ProductFamily[] {
         visibility: m.visibility,
         durationDays: durationSortDays(m),
       })),
-      planCount: sorted.length,
+      planCount: finalMembers.length,
       fromPriceNprMinor,
     });
   }

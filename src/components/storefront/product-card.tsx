@@ -165,6 +165,25 @@ export function ProductCard({ product }: { product: MerchCard }) {
           </ul>
         )}
 
+        {/* Available Plan Duration Chips */}
+        {product.familyPlans && product.familyPlans.length > 1 && (
+          <div className="mt-2 flex flex-wrap items-center gap-1">
+            {product.familyPlans.slice(0, 3).map((fp) => (
+              <span
+                key={fp.slug}
+                className="rounded-md border border-slate-200/80 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-700"
+              >
+                {fp.label.split("·")[0]?.trim()}
+              </span>
+            ))}
+            {product.familyPlans.length > 3 && (
+              <span className="rounded-md border border-slate-200/50 bg-slate-50/50 px-1 py-0.5 text-[9px] font-semibold text-slate-500">
+                +{product.familyPlans.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Spacer */}
         <div className="flex-1" />
 
@@ -172,6 +191,9 @@ export function ProductCard({ product }: { product: MerchCard }) {
         <div className="mt-2.5 flex items-baseline gap-2">
           {priceLabel ? (
             <>
+              {product.isFamilyCard && (product.familyPlans?.length ?? 0) > 1 && (
+                <span className="text-[11px] font-bold text-[var(--text-muted)]">From</span>
+              )}
               <span className="font-[family-name:var(--font-sora)] text-base font-black tracking-tight text-[var(--text)] sm:text-base">
                 {priceLabel}
               </span>

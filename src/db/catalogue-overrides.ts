@@ -503,6 +503,8 @@ export const OWNER_ARCHIVE_SLUGS = [
   "grok-super-3-months",
   "grok-super-10-months",
   "capcut-pro",
+  "capcut-pro-1-month",
+  "chatgpt-plus-1-month",
 ] as const;
 
 export const OWNER_BLOCKED_SLUGS = [

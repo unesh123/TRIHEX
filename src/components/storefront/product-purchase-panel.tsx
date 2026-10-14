@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -20,6 +20,7 @@ export interface PurchasePlan {
   compareAtPriceNpr?: number | null;
   discountPercent?: number | null;
   isPrivate?: boolean;
+  isShared?: boolean;
 }
 
 export interface PurchaseVariant {
@@ -65,13 +66,23 @@ export function ProductPurchasePanel({
   // Normalize plans from either propPlans or variants
   const plans: PurchasePlan[] = useMemo(() => {
     if (propPlans && propPlans.length > 0) {
-      return propPlans.map((p) => ({
-        ...p,
-        isPrivate:
+      return propPlans.map((p) => {
+        const isPrivate =
           p.isPrivate ??
           (/private|own account/i.test(p.accessLabel) ||
-            /private/i.test(p.durationLabel)),
-      }));
+            /private/i.test(p.durationLabel));
+        const isShared =
+          p.isShared ??
+          (/shared/i.test(p.accessLabel) ||
+            /shared/i.test(p.durationLabel) ||
+            (p.slug ? /shared/i.test(p.slug) : false));
+
+        return {
+          ...p,
+          isPrivate,
+          isShared,
+        };
+      });
     }
 
     if (variants && variants.length > 0) {
@@ -94,11 +105,20 @@ export function ProductPurchasePanel({
         const isPrivate =
           /private|own account/i.test(v.variantName) ||
           /private/i.test(v.durationLabel ?? "");
+        const isShared =
+          /shared/i.test(v.variantName) ||
+          /shared/i.test(v.durationLabel ?? "");
 
         return {
           id: v.sku,
           durationLabel: v.durationLabel ?? durationLabel ?? "Standard plan",
-          accessLabel: v.variantName || (isPrivate ? "Private (Own Account)" : "Shared Plan"),
+          accessLabel:
+            v.variantName ||
+            (isPrivate
+              ? "Private (Own Account)"
+              : isShared
+                ? "Shared Plan"
+                : "Official Activation"),
           warrantyLabel: v.warrantyLabel ?? "Full term warranty",
           activationLabel: v.activationLabel ?? "Direct activation",
           availability: isAvail,
@@ -106,18 +126,25 @@ export function ProductPurchasePanel({
           compareAtPriceNpr,
           discountPercent: v.discountPercent ?? null,
           isPrivate,
+          isShared,
         };
       });
     }
 
     const priceNpr = Math.round((basePriceNprMinor ?? 0) / 100);
     const isPrivate = /private|own account/i.test(productTitle ?? "");
+    const isShared =
+      /shared/i.test(productTitle ?? "") || /shared/i.test(productSlug);
     return [
       {
         id: variantSku ?? productSlug,
         slug: productSlug,
         durationLabel: durationLabel ?? "Standard plan",
-        accessLabel: isPrivate ? "Private (Own Account)" : "Standard access",
+        accessLabel: isPrivate
+          ? "Private (Own Account)"
+          : isShared
+            ? "Shared Plan"
+            : "Official Activation",
         warrantyLabel: "Full replacement warranty",
         activationLabel: "Direct activation",
         availability: purchasable ? "available" : "under_review",
@@ -125,6 +152,7 @@ export function ProductPurchasePanel({
         compareAtPriceNpr: null,
         discountPercent: null,
         isPrivate,
+        isShared,
       },
     ];
   }, [
@@ -343,9 +371,15 @@ export function ProductPurchasePanel({
                           <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-700 border border-amber-500/20">
                             ★ Private Account
                           </span>
+                        ) : p.isShared ? (
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 border border-slate-200">
+                            Shared Plan
+                          </span>
                         ) : (
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                            Shared
+                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 border border-blue-200/60">
+                            {p.accessLabel && !/standard plan/i.test(p.accessLabel)
+                              ? p.accessLabel
+                              : "Official Activation"}
                           </span>
                         )}
 

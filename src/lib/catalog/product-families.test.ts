@@ -99,4 +99,27 @@ describe("plan modifier normalization", () => {
     expect(productFamilyKey("gemini-pro-cdk-12-months")).toBe("gemini-pro");
     expect(productFamilyKey("chatgpt-plus-1-month-gmail-w15d")).toBe("chatgpt-plus");
   });
+
+  it("deduplicates identical duration plans preferring purchasable", () => {
+    const families = groupIntoFamilies([
+      card({
+        slug: "capcut-pro-30-days",
+        title: "CapCut Pro — 1 Month",
+        durationLabel: "1 Month",
+        priceNprMinor: 39900,
+        purchasable: true,
+      }),
+      card({
+        slug: "capcut-pro-1-month",
+        title: "CapCut Pro — 1 Month",
+        durationLabel: "1 Month",
+        priceNprMinor: 104000,
+        purchasable: false,
+      }),
+    ]);
+    expect(families).toHaveLength(1);
+    expect(families[0]!.planCount).toBe(1);
+    expect(families[0]!.plans[0]!.priceNprMinor).toBe(39900);
+    expect(families[0]!.plans[0]!.purchasable).toBe(true);
+  });
 });

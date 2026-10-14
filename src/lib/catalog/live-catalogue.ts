@@ -17,6 +17,7 @@ import { isDatabaseConfigured } from "@/lib/env";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 import { productFamilyKey } from "@/lib/catalog/product-families";
+import { extractDuration } from "@/lib/catalog/duration-parser";
 
 normalizeEnvAliases();
 
@@ -128,13 +129,27 @@ const loadCatalogueProductsCached = unstable_cache(
         continue;
       }
 
+      const parsedDur =
+        extractDuration(row.name) ||
+        extractDuration(row.slug) ||
+        extractDuration(row.variantName);
+
+      const effDurationValue =
+        parsedDur && (row.durationValue == null || (row.durationValue === 1 && parsedDur.value !== 1))
+          ? parsedDur.value
+          : (row.durationValue ?? parsedDur?.value ?? 1);
+      const effDurationUnit =
+        parsedDur && (row.durationUnit == null || (row.durationValue === 1 && parsedDur.value !== 1))
+          ? parsedDur.unit
+          : ((row.durationUnit as SeedVariant["durationUnit"]) ?? parsedDur?.unit ?? "MONTH");
+
       const variant: SeedVariant = {
         sku: row.sku,
         variantName: row.variantName,
-        durationValue: row.durationValue,
-        durationUnit: row.durationUnit as SeedVariant["durationUnit"],
+        durationValue: effDurationValue,
+        durationUnit: effDurationUnit,
         warrantyValue: row.warrantyValue ?? undefined,
-        warrantyUnit: row.warrantyUnit as SeedVariant["durationUnit"] ?? undefined,
+        warrantyUnit: (row.warrantyUnit as SeedVariant["durationUnit"]) ?? undefined,
         warrantyCoverage: row.warrantyCoverage ?? undefined,
         activationMethod: row.activationMethod ?? undefined,
         supplierCostUsdMinor:
@@ -154,14 +169,19 @@ const loadCatalogueProductsCached = unstable_cache(
         continue;
       }
 
+      let cleanName = row.name;
+      if (/elevenlabs creator\s*—\s*shared plan/i.test(cleanName)) {
+        cleanName = "ElevenLabs Creator — AI Voice Studio";
+      }
+
       bySlug.set(row.slug, {
-        name: row.name,
+        name: cleanName,
         slug: row.slug,
         brandSlug:
           row.brandSlug ?? brandSlugFromName(row.brandName),
         categorySlug:
           row.categorySlug ?? categorySlugFromName(row.categoryName),
-        sourceListingText: row.sourceListingText ?? row.name,
+        sourceListingText: row.sourceListingText ?? cleanName,
         shortDescription: row.shortDescription ?? "",
         longDescription: row.longDescription ?? undefined,
         productType: row.productType,

@@ -17,6 +17,7 @@ import {
 } from "@/lib/catalog/bulk-import";
 import { allInquiryStarterPriced } from "@/db/inquiry-expansion";
 import { DEFAULT_MARGIN_PERCENT } from "@/db/stock-pricing";
+import { extractDuration } from "@/lib/catalog/duration-parser";
 
 async function requireAdmin() {
   const gate = await checkAdminSession(await headers());
@@ -100,6 +101,8 @@ async function insertInquiryProduct(row: {
       return "skipped";
     }
 
+    const parsed = extractDuration(row.name) || extractDuration(row.slug);
+
     await db
       .update(schema.productVariants)
       .set({
@@ -107,6 +110,9 @@ async function insertInquiryProduct(row: {
         compareAtPriceNprMinor: compareAtMinor,
         supplierCostUsdMinor: costUsdMinor,
         supplierCostMinor: costUsdMinor,
+        durationValue: parsed?.value ?? 1,
+        durationUnit: parsed?.unit ?? "MONTH",
+        variantName: parsed?.label ?? "Standard",
         purchasable: false,
         pricingMode: "MANUAL_ONLY",
         updatedAt: new Date(),
@@ -152,13 +158,14 @@ async function insertInquiryProduct(row: {
     })
     .returning();
 
+  const parsed = extractDuration(row.name) || extractDuration(row.slug);
   const sku = `INQ-${row.slug.slice(0, 10).toUpperCase()}-${Date.now().toString().slice(-4)}`;
   await db.insert(schema.productVariants).values({
     productId: created.id,
     sku,
-    variantName: "Standard",
-    durationValue: 1,
-    durationUnit: "MONTH",
+    variantName: parsed?.label ?? "Standard",
+    durationValue: parsed?.value ?? 1,
+    durationUnit: parsed?.unit ?? "MONTH",
     supplierCurrency: "USD",
     supplierCostMinor: costUsdMinor,
     supplierCostUsdMinor: costUsdMinor,

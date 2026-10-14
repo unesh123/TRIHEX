@@ -26,6 +26,7 @@ import {
   normalizeFeatureString,
   normalizePlanLabel,
 } from "@/lib/catalog/content-normalization";
+import { extractDuration } from "@/lib/catalog/duration-parser";
 export {
   canPurchasePlan,
   type PlanEligibility,
@@ -74,6 +75,7 @@ export interface MerchCard {
   shortDescription: string;
   durationLabel: string | null;
   activationLabel: string;
+  fulfillmentType?: string;
   fulfillmentEstimate: string;
   warrantyLabel: string | null;
   priceNprMinor: number | null;
@@ -153,14 +155,22 @@ function cleanCustomerTitle(product: SeedProduct): {
 
   const variant = product.variants[0];
 
+  const parsedDuration =
+    extractDuration(product.name) ||
+    extractDuration(product.sourceListingText) ||
+    extractDuration(product.slug);
+
   const rawPackageLabel =
+    parsedDuration?.label ??
     durationLabel(variant?.durationValue ?? null, variant?.durationUnit ?? null) ??
     variant?.variantName ??
     "Standard package";
   const packageLabel = normalizePlanLabel(rawPackageLabel);
 
   let title = (product.name ?? "").trim();
-  if (!title) {
+  if (/elevenlabs creator\s*—\s*shared plan/i.test(title)) {
+    title = "ElevenLabs Creator — AI Voice Studio";
+  } else if (!title) {
     title = brand || "Product";
   } else {
     title = normalizeProductTitle(title);
@@ -342,12 +352,19 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
         ? v.activationMethod.replace(/_/g, " ").toLowerCase()
         : activationLabel(product.fulfillmentType);
 
+      const vParsed =
+        extractDuration(v.variantName) ??
+        extractDuration(product.name) ??
+        extractDuration(product.slug);
+      const vDurLabel =
+        vParsed?.label ?? durationLabel(v.durationValue, v.durationUnit);
+
       return {
         sku: v.sku,
         variantName: v.variantName,
-        durationLabel: durationLabel(v.durationValue, v.durationUnit),
-        durationValue: v.durationValue,
-        durationUnit: v.durationUnit,
+        durationLabel: vDurLabel,
+        durationValue: vParsed?.value ?? v.durationValue,
+        durationUnit: vParsed?.unit ?? v.durationUnit,
         priceNprMinor: vPrice,
         compareAtPriceNprMinor: vCompareAt,
         discountPercent: vDiscount,
@@ -363,6 +380,11 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     })
     .sort((a, b) => (a.priceNprMinor ?? 0) - (b.priceNprMinor ?? 0));
 
+  const cardParsedDuration =
+    extractDuration(product.name) ||
+    extractDuration(product.sourceListingText) ||
+    extractDuration(product.slug);
+
   return {
     slug: product.slug,
     brandSlug: product.brandSlug,
@@ -374,11 +396,14 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     title,
     packageLabel,
     shortDescription: product.shortDescription,
-    durationLabel: durationLabel(
-      variant?.durationValue ?? null,
-      variant?.durationUnit ?? null,
-    ),
+    durationLabel:
+      cardParsedDuration?.label ??
+      durationLabel(
+        variant?.durationValue ?? null,
+        variant?.durationUnit ?? null,
+      ),
     activationLabel: activationLabel(product.fulfillmentType),
+    fulfillmentType: product.fulfillmentType,
     fulfillmentEstimate: fulfillmentEstimate(product.fulfillmentType),
     warrantyLabel: defaultPolicy.label,
     priceNprMinor: price,

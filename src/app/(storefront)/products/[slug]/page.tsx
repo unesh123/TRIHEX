@@ -28,6 +28,7 @@ import {
   findFamilyPlans,
   productFamilyKey,
 } from "@/lib/catalog/product-families";
+import { extractDuration } from "@/lib/catalog/duration-parser";
 import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { getProductCover } from "@/lib/catalog/product-covers";
 import { resolveProductGallery } from "@/lib/catalog/product-image-resolver";
@@ -95,7 +96,11 @@ export default async function ProductDetailPage({
 
   const catalogue = await getLiveMerchandisingCatalogue();
   const familyPlans = findFamilyPlans(catalogue, product.slug);
-  const familyTitle = familyDisplayTitle(product);
+  let familyTitle = familyDisplayTitle(product);
+  if (/elevenlabs/i.test(product.slug) || /elevenlabs/i.test(product.title)) {
+    familyTitle = "ElevenLabs Creator — AI Voice Studio";
+  }
+
   const familyCards = catalogue.filter(
     (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
   );
@@ -105,18 +110,65 @@ export default async function ProductDetailPage({
     const sortedFamilyCards = [...familyCards].sort(
       (a, b) => durationSortDays(a) - durationSortDays(b),
     );
+
+    // Deduplicate cards with identical normalized duration label (prioritize purchasable / lowest price)
+    const dedupedCards: typeof sortedFamilyCards = [];
+    const seenDurations = new Set<string>();
+
     for (const card of sortedFamilyCards) {
+      const parsedDur =
+        extractDuration(card.title) ||
+        extractDuration(card.slug) ||
+        extractDuration(card.durationLabel) ||
+        extractDuration(card.packageLabel);
+      const key = (parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "").toLowerCase().trim();
+      if (card.purchasable && !seenDurations.has(key)) {
+        seenDurations.add(key);
+        dedupedCards.push(card);
+      }
+    }
+    for (const card of sortedFamilyCards) {
+      const parsedDur =
+        extractDuration(card.title) ||
+        extractDuration(card.slug) ||
+        extractDuration(card.durationLabel) ||
+        extractDuration(card.packageLabel);
+      const key = (parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "").toLowerCase().trim();
+      if (!seenDurations.has(key)) {
+        seenDurations.add(key);
+        dedupedCards.push(card);
+      }
+    }
+
+    const finalSortedCards = dedupedCards.sort(
+      (a, b) => durationSortDays(a) - durationSortDays(b),
+    );
+
+    for (const card of finalSortedCards) {
       const priceNpr = Math.round((card.priceNprMinor ?? 0) / 100);
       const isPrivate =
         /private|own account/i.test(card.title) ||
         /private/i.test(card.packageLabel);
       const isShared =
-        /shared/i.test(card.title) || /shared/i.test(card.packageLabel);
+        /shared/i.test(card.title) ||
+        /shared/i.test(card.packageLabel) ||
+        /shared/i.test(card.slug);
+
       const accessType = isPrivate
         ? "Private (Own Account)"
         : isShared
           ? "Shared Plan"
-          : "Standard Plan";
+          : card.categorySlug === "developer-tools"
+            ? "Developer Access"
+            : card.fulfillmentType === "OFFICIAL_REDEEM_CODE"
+              ? "Official Redeem Code"
+              : card.fulfillmentType === "OFFICIAL_TEAM_INVITATION"
+                ? "Official Team Invite"
+                : card.fulfillmentType === "API_POWERED_ACCESS"
+                  ? "API Access"
+                  : card.fulfillmentType === "LICENSE_KEY_FROM_AUTHORIZED_DISTRIBUTOR"
+                    ? "Official License"
+                    : "Official Activation";
 
       const warrantyLabel =
         card.warrantyLabel && card.warrantyLabel !== "No warranty"
@@ -127,10 +179,18 @@ export default async function ProductDetailPage({
               ? "Full term replacement warranty"
               : "Full term warranty";
 
+      const parsedDur =
+        extractDuration(card.title) ||
+        extractDuration(card.slug) ||
+        extractDuration(card.durationLabel) ||
+        extractDuration(card.packageLabel);
+      const planDuration =
+        parsedDur?.label ?? card.durationLabel ?? card.packageLabel ?? "Standard plan";
+
       purchasePlans.push({
         id: card.variantSku || card.slug,
         slug: card.slug,
-        durationLabel: card.durationLabel ?? card.packageLabel ?? "Standard plan",
+        durationLabel: planDuration,
         accessLabel: accessType,
         warrantyLabel,
         activationLabel: card.activationLabel ?? "Instant activation",
@@ -140,6 +200,8 @@ export default async function ProductDetailPage({
           ? Math.round(card.compareAtPriceNprMinor / 100)
           : null,
         discountPercent: card.discountPercent ?? null,
+        isPrivate,
+        isShared,
       });
     }
   } else if (product.variants && product.variants.length > 1) {
@@ -147,11 +209,37 @@ export default async function ProductDetailPage({
       const priceNpr = Math.round(
         (v.priceNprMinor ?? product.priceNprMinor ?? 0) / 100,
       );
+      const parsedDur =
+        extractDuration(v.variantName) ??
+        extractDuration(v.durationLabel) ??
+        extractDuration(product.title) ??
+        extractDuration(product.slug);
+      const durLabel =
+        parsedDur?.label ??
+        v.durationLabel ??
+        product.durationLabel ??
+        "Standard plan";
+
+      const isPrivate =
+        /private|own account/i.test(v.variantName) ||
+        /private/i.test(product.title);
+      const isShared =
+        /shared/i.test(v.variantName) ||
+        /shared/i.test(product.slug) ||
+        /shared/i.test(product.title);
+      const accessType = isPrivate
+        ? "Private (Own Account)"
+        : isShared
+          ? "Shared Plan"
+          : v.variantName && !/standard/i.test(v.variantName)
+            ? v.variantName
+            : "Official Activation";
+
       purchasePlans.push({
         id: v.sku,
         slug: product.slug,
-        durationLabel: v.durationLabel ?? product.durationLabel ?? "Standard plan",
-        accessLabel: v.variantName || "Standard Plan",
+        durationLabel: durLabel,
+        accessLabel: accessType,
         warrantyLabel: v.warrantyLabel ?? product.warrantyLabel ?? "Full warranty",
         activationLabel:
           v.activationLabel ?? product.activationLabel ?? "Direct activation",
@@ -163,22 +251,34 @@ export default async function ProductDetailPage({
           ? Math.round(v.compareAtPriceNprMinor / 100)
           : null,
         discountPercent: v.discountPercent ?? null,
+        isPrivate,
+        isShared,
       });
     }
   } else {
     const priceNpr = Math.round((product.priceNprMinor ?? 0) / 100);
     const isPrivate = /private|own account/i.test(product.title);
-    const isShared = /shared/i.test(product.title);
+    const isShared = /shared/i.test(product.title) || /shared/i.test(product.slug);
+    const parsedDur =
+      extractDuration(product.title) ||
+      extractDuration(product.slug) ||
+      extractDuration(product.durationLabel) ||
+      extractDuration(product.packageLabel);
+    const durLabel =
+      parsedDur?.label ??
+      product.durationLabel ??
+      product.packageLabel ??
+      "Standard plan";
+
     purchasePlans.push({
       id: product.variantSku || product.slug,
       slug: product.slug,
-      durationLabel:
-        product.durationLabel ?? product.packageLabel ?? "Standard plan",
+      durationLabel: durLabel,
       accessLabel: isPrivate
         ? "Private (Own Account)"
         : isShared
           ? "Shared Plan"
-          : "Standard access",
+          : "Official Activation",
       warrantyLabel: product.warrantyLabel ?? "Full replacement warranty",
       activationLabel: product.activationLabel ?? "Direct activation",
       availability: product.purchasable ? "available" : "under_review",
@@ -187,6 +287,8 @@ export default async function ProductDetailPage({
         ? Math.round(product.compareAtPriceNprMinor / 100)
         : null,
       discountPercent: product.discountPercent ?? null,
+      isPrivate,
+      isShared,
     });
   }
   const related = withFamilyGrouping(catalogue
