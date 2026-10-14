@@ -559,7 +559,14 @@ export function ProductPurchasePanel({
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold text-slate-900">
-              {plan.durationLabel} {plan.isPrivate ? "· Private" : "· Shared"}
+              {plan.durationLabel}
+              {plan.isPrivate
+                ? " · Private"
+                : plan.isShared
+                  ? " · Shared"
+                  : plan.accessLabel
+                    ? ` · ${plan.accessLabel}`
+                    : ""}
             </p>
             <p className="font-[family-name:var(--font-sora)] text-base font-black text-slate-950">
               Rs. {plan.priceNpr.toLocaleString()}
