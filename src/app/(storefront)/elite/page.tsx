@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { TrixVipVaultShowcase } from "@/components/vault/trix-vip-vault-showcase";
 
 export const metadata: Metadata = {
   title: "TRIHEX ELITE — Founder & AI Intelligence Membership",
@@ -112,6 +113,11 @@ export default function EliteMembershipPage() {
               Applications are reviewed manually to ensure high professional conduct.
             </p>
           </div>
+        </div>
+
+        {/* Launched by Trix — VIP Vault Showcase */}
+        <div className="mt-20">
+          <TrixVipVaultShowcase />
         </div>
 
         {/* The 4 Core Pillars */}

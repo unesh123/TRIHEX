@@ -20,6 +20,7 @@ export type AuditAction =
   | "DEAL_APPROVED"
   | "DEAL_REJECTED"
   | "DEAL_CREATED"
+  | "DEAL_DELETED"
   | "VAULT_ACCESS_UNLOCKED"
   | "SYSTEM_EVENT";
 

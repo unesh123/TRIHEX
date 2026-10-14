@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { UnifiedVaultHub } from "@/components/vault/unified-vault-hub";
 import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
+import { TrixVipVaultShowcase } from "@/components/vault/trix-vip-vault-showcase";
 
 export const metadata: Metadata = {
   title: "TRIHEX VAULT — Premium Resources, Verified Deals, Developer Perks & Research",
@@ -28,7 +29,10 @@ export default function VaultPage() {
       title="TRIHEX VAULT"
       description="Nepal's unified intelligence & discovery center: Verified vendor software deals, VIP toolkits, free developer credits, AI prompt packs, and public records."
     >
-      <UnifiedVaultHub initialEntries={entries} />
+      <div className="space-y-12">
+        <TrixVipVaultShowcase />
+        <UnifiedVaultHub initialEntries={entries} />
+      </div>
     </StorefrontPageShell>
   );
 }

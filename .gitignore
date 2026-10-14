@@ -72,6 +72,8 @@ data/backups/
 # handover packages and internal pricing matrices
 trihex_handover_package/
 TRIHEX_30_INDIVIDUAL_PRODUCT_IMAGES/
+trihex product images/
+trihex-digital-complete-kit/
 *HANDOVER*
 *CHECKLIST*
 AGENT_IMPLEMENTATION_PROMPT*

@@ -174,33 +174,6 @@ export const INITIAL_DEAL_CANDIDATES: DealCandidate[] = [
     createdAt: "2026-09-01T09:00:00Z",
     updatedAt: "2026-09-04T12:00:00Z",
   },
-  {
-    id: "deal-pcloud-lifetime-radar",
-    sourceId: "src-resourify-deals",
-    sourceExternalId: "pcloud-flash-2tb",
-    title: "pCloud 2TB Lifetime Flash Promotion (Expired)",
-    slug: "pcloud-2tb-flash-deal",
-    vendor: "pCloud AG",
-    summary: "One-time payment lifetime cloud storage promo with client-side encryption.",
-    dealType: "DISCOUNT",
-    detectedValueNprMinor: 3990000,
-    currency: "NPR",
-    sourceClaimUrl: "https://resourify.com/deal/pcloud-2tb",
-    officialVendorUrl: "https://www.pcloud.com/promo",
-    discoveredAt: "2026-08-01T00:00:00Z",
-    validUntil: "2026-08-20T23:59:59Z", // Past date
-    lastVerifiedAt: "2026-08-21T00:00:00Z",
-    verificationScore: 40,
-    vendorClaimSummary: "Vendor official promo page has expired.",
-    status: "EXPIRED",
-    approvalType: "FREE",
-    saleRightsStatus: "FREE_LINK_ONLY",
-    revisions: [],
-    cardRequired: true,
-    category: "CLOUD",
-    createdAt: "2026-08-01T00:00:00Z",
-    updatedAt: "2026-08-21T00:00:00Z",
-  },
 ];
 
 // In-memory mirror for low-latency synchronous reads
@@ -579,6 +552,27 @@ export function addDealCandidate(candidate: DealCandidate): DealCandidate {
   }
 
   return candidate;
+}
+
+export function deleteDeal(candidateId: string): boolean {
+  const index = dealsStore.findIndex((d) => d.id === candidateId);
+  if (index === -1) return false;
+
+  dealsStore.splice(index, 1);
+
+  const db = getDb();
+  if (db) {
+    (async () => {
+      try {
+        await db.delete(schema.dealRevisions).where(eq(schema.dealRevisions.dealId, candidateId));
+        await db.delete(schema.dealCandidates).where(eq(schema.dealCandidates.id, candidateId));
+      } catch (e) {
+        // Table may not exist or DB may be offline
+      }
+    })();
+  }
+
+  return true;
 }
 
 export function checkDealExpirations(): { expiredCount: number; expiringSoonCount: number } {

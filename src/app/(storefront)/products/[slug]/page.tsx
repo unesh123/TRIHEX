@@ -205,7 +205,9 @@ export default async function ProductDetailPage({
       });
     }
   } else if (product.variants && product.variants.length > 1) {
-    for (const v of product.variants) {
+    const activeVariants = product.variants.filter((v) => v.purchasable !== false);
+    const variantsToUse = activeVariants.length > 0 ? activeVariants : product.variants;
+    for (const v of variantsToUse) {
       const priceNpr = Math.round(
         (v.priceNprMinor ?? product.priceNprMinor ?? 0) / 100,
       );

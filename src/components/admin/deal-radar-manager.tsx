@@ -45,7 +45,7 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
 
   const handleAction = async (
     candidateId: string,
-    action: "approve" | "reject" | "verify",
+    action: "approve" | "reject" | "verify" | "delete",
     options?: { approvalType?: "FREE" | "PAID"; reason?: string }
   ) => {
     setActionLoadingId(candidateId);
@@ -66,6 +66,18 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
       const data = await res.json();
       if (!data.ok) {
         throw new Error(data.error || "Action failed");
+      }
+
+      if (action === "delete") {
+        setDeals((prev) => prev.filter((item) => item.id !== candidateId));
+        if (selectedCandidate?.id === candidateId) {
+          setSelectedCandidate(null);
+        }
+        setMessage({
+          text: "Deal successfully deleted from database.",
+          type: "success",
+        });
+        return;
       }
 
       setDeals((prev) =>
@@ -382,6 +394,17 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-surface border border-border hover:bg-surface-raised text-text"
                 >
                   <RotateCw className="w-3.5 h-3.5" /> Re-Verify Vendor
+                </button>
+                <button
+                  disabled={actionLoadingId === selectedCandidate.id}
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.confirm("Are you sure you want to permanently remove this deal candidate?")) {
+                      handleAction(selectedCandidate.id, "delete");
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 border border-slate-300 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 transition"
+                >
+                  <XCircle className="w-3.5 h-3.5" /> Delete Deal
                 </button>
               </div>
 

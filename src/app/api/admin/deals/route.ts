@@ -7,6 +7,7 @@ import {
   approveDeal,
   rejectDeal,
   updateDeal,
+  deleteDeal,
   addDealCandidate,
   checkDealExpirations,
 } from "@/lib/deals/store";
@@ -189,6 +190,23 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json({ ok: true, deal: updated });
+    }
+
+    if (action === "delete") {
+      const deleted = deleteDeal(candidateId);
+      if (!deleted) {
+        return NextResponse.json({ ok: false, error: "Could not delete deal" }, { status: 404 });
+      }
+
+      await appendAuditEvent({
+        action: "DEAL_DELETED",
+        actorId,
+        entityType: "deal_candidate",
+        entityId: candidateId,
+        metadata: { candidateId },
+      });
+
+      return NextResponse.json({ ok: true, deleted: true, candidateId });
     }
 
     return NextResponse.json({ ok: false, error: "Invalid action" }, { status: 400 });
