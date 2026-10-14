@@ -26,6 +26,9 @@ import {
   Map,
   Scale,
   GitCompare,
+  Crown,
+  GraduationCap,
+  Shield,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
@@ -36,27 +39,29 @@ import { CommandPalette } from "@/components/search/command-palette";
 
 const PRIMARY_NAV = [
   { href: "/products", label: "Products" },
-  { href: "/vault", label: "Vault 🔥" },
+  { href: "/vip", label: "VIP Vault 💎" },
+  { href: "/academy", label: "Academy 🎓" },
+  { href: "/deals", label: "Deals Radar 🔥" },
   { href: "/ai-finder", label: "AI Finder 🎯" },
-  { href: "/prompts", label: "Prompts ⚡" },
   { href: "/nepal", label: "Nepal 🇳🇵" },
 ] as const;
 
 const EXPLORE_ITEMS = [
+  { href: "/vip", label: "TRIHEX VIP Vault 💎", icon: Crown, desc: "Launched by Trix: private chat rooms & methods" },
+  { href: "/academy", label: "Cybersecurity Academy 🎓", icon: GraduationCap, desc: "Ethical hacking, isolated labs & certificates" },
+  { href: "/security", label: "Security & Recovery 🛡️", icon: Shield, desc: "AES-256-GCM verification & disaster recovery" },
   { href: "/deals", label: "Verified Deals Radar", icon: Flame, desc: "Direct software savings, coupons & perks" },
   { href: "/skills", label: "Agent Skills Library", icon: Cpu, desc: "Multi-file skills for coding agents" },
   { href: "/guides", label: "Technical Guides", icon: BookOpen, desc: "Whitepapers & student blueprints" },
   { href: "/nepal", label: "Nepal Pulse 🇳🇵", icon: Zap, desc: "Live NRB Forex & USGS seismic feed" },
-  { href: "/map", label: "Interactive Map 🗺️", icon: Map, desc: "Geospatial civic explorer" },
-  { href: "/vault/research", label: "Research Vault", icon: Scale, desc: "Audited public court dockets" },
   { href: "/compare", label: "Product Compare", icon: GitCompare, desc: "Side-by-side feature matrix" },
 ] as const;
 
 const MOBILE_ACTIONS = [
   { href: "/", label: "Home", icon: ShoppingBag },
   { href: "/products", label: "Browse", icon: PackageSearch },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/vault", label: "Vault", icon: Flame },
+  { href: "/vip", label: "VIP", icon: Crown },
+  { href: "/academy", label: "Academy", icon: GraduationCap },
   { href: "/cart", label: "Cart", icon: ShoppingCart },
 ] as const;
 

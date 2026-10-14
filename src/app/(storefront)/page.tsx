@@ -23,6 +23,8 @@ import { MarketplaceHero } from "@/components/storefront/marketplace-hero";
 import { TrendingDealsCarousel } from "@/components/storefront/trending-deals-carousel";
 import { FreeVaultSection } from "@/components/storefront/free-vault-section";
 import { PremiumVaultSection } from "@/components/storefront/premium-vault-section";
+import { CyberAcademySection } from "@/components/storefront/cyber-academy-section";
+import { DefensiveSecuritySection } from "@/components/storefront/defensive-security-section";
 import { LiveDealRadarSection } from "@/components/storefront/live-deal-radar-section";
 import { DailyDropsSection } from "@/components/storefront/daily-drops-section";
 import { MarketplaceCategoriesGrid } from "@/components/storefront/marketplace-categories-grid";
@@ -144,6 +146,12 @@ export default async function HomePage() {
 
       {/* ── 4. TRIHEX PREMIUM VIP VAULT (LUXURY DARK ASSETS) ── */}
       <PremiumVaultSection />
+
+      {/* ── 4B. TRIHEX CYBERSECURITY ACADEMY & ISOLATED LABS ── */}
+      <CyberAcademySection />
+
+      {/* ── 4C. DEFENSIVE SECURITY & DISASTER RECOVERY ENGINE ── */}
+      <DefensiveSecuritySection />
 
       {/* ── 5. LIVE DEAL RADAR & CLOUD CREDITS (PUBLIC FEED) ── */}
       <LiveDealRadarSection deals={verifiedDeals} />
