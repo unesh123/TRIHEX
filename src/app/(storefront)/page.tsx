@@ -34,6 +34,7 @@ import { PricingTrustSection } from "@/components/storefront/pricing-trust-secti
 import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
 import { ReturningUserFeed } from "@/components/personalization/returning-user-feed";
 import { UnifiedDiscoveryFeed } from "@/components/storefront/discovery-feed";
+import { ExpertRecommendationsSection } from "@/components/storefront/expert-recommendations-section";
 import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
 import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
@@ -233,6 +234,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── 11B. EXPERT RECOMMENDATIONS & VIP DECISION BOARD ── */}
+      <ExpertRecommendationsSection />
 
       {/* ── 12. TRUST SYSTEM & PROOF MATRIX ── */}
       <MarketplaceTrustSection />

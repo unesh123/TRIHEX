@@ -135,10 +135,10 @@ describe("product image mapping", () => {
     }
   });
 
-  it("Cursor and Canva EDU are not purchasable without authorization", () => {
-    const cursor = visible.filter((p) => p.brandSlug === "cursor");
+  it("Legacy unverified Cursor packages and Canva EDU are not purchasable without authorization", () => {
+    const legacy = visible.filter((p) => p.slug === "cursor-pro-1-month" || p.slug === "cursor-pro-30-days");
     const edu = visible.find((p) => p.slug === "canva-edu-1-year");
-    for (const c of cursor) expect(c.purchasable).toBe(false);
+    for (const c of legacy) expect(c.purchasable).toBe(false);
     if (edu) expect(edu.purchasable).toBe(false);
   });
 

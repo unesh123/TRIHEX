@@ -151,6 +151,14 @@ export const PACKAGE_FEATURES: Record<string, string[]> = {
     "Under review until supply authorization is confirmed",
     "WhatsApp for availability updates",
   ],
+  "cursor-pro-12m": [
+    "Cursor Pro 1-Year AI Code Editor (Full 365 Days Warranty)",
+    "Available in 1-Year Shared Access (Rs. 8,999) or 1-Year Private Account (Rs. 23,999)",
+    "Agent Composer: multi-file repository codebase indexing & automated refactoring",
+    "Direct integration with Claude 3.7 Sonnet, GPT-4o, and DeepSeek V3",
+    "Instant terminal execution, syntax error fixing, and inline completions",
+    "Instant activation via email with local WhatsApp dedicated support",
+  ],
   "cursor-pro-1-month": [
     "Cursor Pro developer access — about 1 month",
     "Not authorized for third-party resale on this storefront",
@@ -504,9 +512,9 @@ export function detailMetaForSlug(slug: string): {
   }
   if (slug.includes("cursor")) {
     return {
-      warranty: "Not offered — package blocked for resale compliance",
-      delivery: "N/A",
-      notes: "Cursor does not authorize third-party subscription resellers.",
+      warranty: "365 Days Full Replacement Warranty and license continuity",
+      delivery: "Usually 1 to 2 hours after payment verification",
+      notes: "Cursor Pro official activation. Shared (Rs. 8,999) or Private (Rs. 23,999) options.",
     };
   }
   if (slug.includes("edu") || slug.includes("student-pack")) {

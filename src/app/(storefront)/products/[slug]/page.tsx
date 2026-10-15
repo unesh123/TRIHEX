@@ -178,9 +178,11 @@ export default async function ProductDetailPage({
   }
 
   // 2. Supplement / combine with family cards across the catalog
-  const familyCards = catalogue.filter(
-    (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
-  );
+  const familyCards = product.slug === "cursor-pro-12m"
+    ? []
+    : catalogue.filter(
+        (c) => productFamilyKey(c.slug) === productFamilyKey(product.slug),
+      );
 
   if (familyCards.length > 0) {
     const sortedFamilyCards = [...familyCards].sort(
@@ -459,12 +461,16 @@ export default async function ProductDetailPage({
                 dur &&
                 pkg.toLowerCase() !== dur.toLowerCase() &&
                 !pkg.toLowerCase().includes(dur.toLowerCase());
+              const activePlanCount =
+                purchasePlans.length > 0
+                  ? purchasePlans.length
+                  : familyPlans.length;
               return (
                 <>
                   {pkg}
                   {showDur ? ` · ${dur}` : ""}
-                  {familyPlans.length > 1
-                    ? ` · ${familyPlans.length} plans available`
+                  {activePlanCount > 1
+                    ? ` · ${activePlanCount} plans available`
                     : ""}
                 </>
               );

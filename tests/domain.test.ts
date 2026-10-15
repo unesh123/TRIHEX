@@ -97,14 +97,20 @@ describe("seed audit", () => {
     ).toBe(false);
   });
 
-  it("Cursor remains blocked", () => {
-    const cursor = ALL_SEED_PRODUCTS.filter((p) =>
-      p.slug.startsWith("cursor-"),
+  it("Legacy unverified Cursor packages remain blocked while authorized 12M is public", () => {
+    const legacyCursor = ALL_SEED_PRODUCTS.filter(
+      (p) => p.slug === "cursor-pro-1-month" || p.slug === "cursor-pro-30-days"
     );
-    for (const p of cursor) {
+    for (const p of legacyCursor) {
       expect(p.productStatus).toBe("BLOCKED");
       expect(p.variants[0]!.purchasable).toBe(false);
     }
+    const authorizedCursor = ALL_SEED_PRODUCTS.find(
+      (p) => p.slug === "cursor-pro-12m"
+    );
+    expect(authorizedCursor).toBeDefined();
+    expect(authorizedCursor?.productStatus).toBe("PUBLIC");
+    expect(authorizedCursor?.complianceStatus).toBe("APPROVED");
   });
 });
 

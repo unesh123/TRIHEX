@@ -24,6 +24,21 @@ export type CatalogueOverride = {
 /** SELL — Add-to-Cart enabled */
 export const OWNER_AVAILABLE: CatalogueOverride[] = [
   {
+    slug: "cursor-pro-12m",
+    name: "Cursor Pro — AI Code Editor",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    needsDataVerification: false,
+    blockedReason: null,
+    featured: true,
+    priceNpr: 8999,
+    costNpr: 5000,
+    purchasable: true,
+    seedVisibleQuantity: 25,
+    shortDescription:
+      "Cursor Pro AI-first code editor. 1-Year Shared at Rs. 8,999 and 1-Year Private Account at Rs. 23,999. Full 365-day warranty.",
+  },
+  {
     slug: "gemini-pro-18-months-link",
     name: "Gemini Pro 5 TB — 18 Months",
     productStatus: "PUBLIC",
@@ -545,6 +560,52 @@ export function applyOverride(
   product: SeedProduct,
   o: CatalogueOverride,
 ): SeedProduct {
+  if (product.slug === "cursor-pro-12m") {
+    return {
+      ...product,
+      name: "Cursor Pro — AI Code Editor",
+      productStatus: "PUBLIC",
+      complianceStatus: "APPROVED",
+      needsDataVerification: false,
+      blockedReason: undefined,
+      featured: true,
+      variants: [
+        {
+          sku: "CUR-PRO-1Y-SHARED",
+          variantName: "Pro · 1 Year Shared Access",
+          durationValue: 1,
+          durationUnit: "YEAR",
+          warrantyValue: 365,
+          warrantyUnit: "DAY",
+          warrantyCoverage: "FULL",
+          activationMethod: "CUSTOMER_EMAIL_ACTIVATION",
+          supplierCostUsdMinor: 4000,
+          seedVisibleQuantity: 25,
+          manualSellingPriceNprMinor: 899900, // Rs. 8,999
+          compareAtPriceNprMinor: 1500000,
+          pricingMode: "MANUAL_ONLY",
+          purchasable: true,
+        },
+        {
+          sku: "CUR-PRO-1Y-PRIVATE",
+          variantName: "Pro · 1 Year Private Account",
+          durationValue: 1,
+          durationUnit: "YEAR",
+          warrantyValue: 365,
+          warrantyUnit: "DAY",
+          warrantyCoverage: "FULL",
+          activationMethod: "CUSTOMER_EMAIL_ACTIVATION",
+          supplierCostUsdMinor: 12000,
+          seedVisibleQuantity: 15,
+          manualSellingPriceNprMinor: 2399900, // Rs. 23,999
+          compareAtPriceNprMinor: 3200000,
+          pricingMode: "MANUAL_ONLY",
+          purchasable: true,
+        },
+      ],
+    };
+  }
+
   const priceMinor =
     o.priceNpr != null ? Math.round(o.priceNpr * 100) : undefined;
   const costUsdMinor =

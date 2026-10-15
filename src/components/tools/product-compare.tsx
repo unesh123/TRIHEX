@@ -59,17 +59,17 @@ const PRESET_BATTLES = [
   },
   {
     name: "Lovable Pro vs Cursor Pro",
-    slugs: ["lovable-ai-pro-1-month", "cursor-pro-30-days"],
+    slugs: ["lovable-pro-12m", "cursor-pro-12m"],
     tag: "Autonomous Dev Battle",
   },
   {
     name: "CapCut Pro vs ElevenLabs",
-    slugs: ["capcut-pro-30-days", "elevenlabs-1-month"],
+    slugs: ["capcut-pro", "elevenlabs-creator-shared"],
     tag: "Creator Video/Voice",
   },
   {
     name: "Full-Stack Dev Trio",
-    slugs: ["claude-pro-1-month", "cursor-pro-30-days", "supabase-pro-1-year"],
+    slugs: ["claude-code-api-access", "cursor-pro-12m", "lovable-pro-12m"],
     tag: "Production Stack",
   },
 ];
