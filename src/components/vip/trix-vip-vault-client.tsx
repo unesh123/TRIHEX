@@ -26,18 +26,9 @@ import {
   Copy,
 } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import type { VipVaultItem } from "@/lib/vip/vip-store";
 
-export interface VipVaultItem {
-  id: string;
-  number: string;
-  title: string;
-  category: "VIP ACCESS & CHATS" | "CYBERSECURITY & DEFENSE" | "AI & CREATIVE" | "AUTOMATION & SYSTEMS";
-  tag: string;
-  summary: string;
-  boldItems: string[];
-  status: "EXCLUSIVE" | "VERIFIED" | "HOT" | "ACTIVE";
-  badgeColor: string;
-}
+export type { VipVaultItem };
 
 export const VIP_ROSTER: VipVaultItem[] = [
   {
@@ -289,12 +280,13 @@ const CATEGORIES = [
   "AUTOMATION & SYSTEMS",
 ] as const;
 
-export function TrixVipVaultClient() {
+export function TrixVipVaultClient({ initialItems }: { initialItems?: VipVaultItem[] } = {}) {
+  const itemsList = initialItems || VIP_ROSTER;
   const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const filteredItems = VIP_ROSTER.filter((item) => {
+  const filteredItems = itemsList.filter((item) => {
     if (activeCategory !== "ALL" && item.category !== activeCategory) {
       return false;
     }

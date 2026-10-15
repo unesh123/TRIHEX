@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { TrixVipVaultClient } from "@/components/vip/trix-vip-vault-client";
+import { getAllVipVaultItems } from "@/lib/vip/vip-store";
 
 export const metadata: Metadata = {
   title: "TRIHEX VIP VAULT — Launched by Trix | Private Intelligence & Community",
@@ -44,6 +45,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default function VipVaultPage() {
+  const vipItems = getAllVipVaultItems();
   const waVipUrl = buildWhatsAppUrl(
     "Hello Trix. I am requesting direct verification and invitation access to the TRIHEX VIP Vault, Private Mastermind Community & Advanced VIP Chat Rooms."
   );
@@ -137,7 +139,7 @@ export default function VipVaultPage() {
 
         {/* Client Interactive VIP Vault List with Category Filter & Search */}
         <div className="mt-14">
-          <TrixVipVaultClient />
+          <TrixVipVaultClient initialItems={vipItems} />
         </div>
 
         {/* Bottom VIP Access Protocol Notice */}

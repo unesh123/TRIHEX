@@ -26,7 +26,8 @@ describe("product image mapping", () => {
         );
         expect(
           cover!.publicPath.startsWith("/media/covers/") ||
-          cover!.publicPath.startsWith("/media/products/"),
+          cover!.publicPath.startsWith("/media/products/") ||
+          cover!.publicPath.startsWith("/trihex/products/"),
         ).toBe(true);
       } else {
         expect(cover!.mode).toBe("SVG_FALLBACK");

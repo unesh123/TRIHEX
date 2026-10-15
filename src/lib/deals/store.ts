@@ -1,4 +1,5 @@
 import { DealCandidate, DealApprovalType, DealRevision, DealType } from "./types";
+import { CAMPFIRE_AND_STUDENT_DEALS } from "./campfire-student-deals";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
@@ -174,6 +175,7 @@ export const INITIAL_DEAL_CANDIDATES: DealCandidate[] = [
     createdAt: "2026-09-01T09:00:00Z",
     updatedAt: "2026-09-04T12:00:00Z",
   },
+  ...CAMPFIRE_AND_STUDENT_DEALS,
 ];
 
 // In-memory mirror for low-latency synchronous reads
