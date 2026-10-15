@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { DealClaimModal } from "@/components/deals/deal-claim-modal";
 import {
   VaultEntry,
   VaultEntityType,
@@ -26,6 +28,12 @@ interface VaultEntryCardProps {
 }
 
 export function VaultEntryCard({ entry }: VaultEntryCardProps) {
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const isDealOrPerk =
+    entry.entityType === "DEAL" ||
+    entry.entityType === "FREE_RESOURCE" ||
+    Boolean(entry.promoCode);
+
   const isExternal =
     entry.priceMode === "EXTERNAL" || entry.destinationUrl.startsWith("http");
 
@@ -221,7 +229,16 @@ export function VaultEntryCard({ entry }: VaultEntryCardProps) {
           )}
         </div>
 
-        {isExternal ? (
+        {isDealOrPerk ? (
+          <button
+            type="button"
+            onClick={() => setShowClaimModal(true)}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer ${config.ctaStyle}`}
+          >
+            <span>{config.ctaText}</span>
+            <Sparkles className="h-3.5 w-3.5" />
+          </button>
+        ) : isExternal ? (
           <a
             href={entry.destinationUrl}
             target="_blank"
@@ -241,6 +258,13 @@ export function VaultEntryCard({ entry }: VaultEntryCardProps) {
           </Link>
         )}
       </div>
+
+      {showClaimModal && (
+        <DealClaimModal
+          entry={entry}
+          onClose={() => setShowClaimModal(false)}
+        />
+      )}
     </article>
   );
 }

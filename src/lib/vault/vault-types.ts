@@ -52,6 +52,10 @@ export interface VaultEntry {
   badgeText?: string;
   highlights?: string[];
   isFeatured?: boolean;
+  promoCode?: string;
+  eligibility?: string;
+  cardRequired?: boolean;
+  officialVendorUrl?: string;
 }
 
 export interface VaultFilterOptions {

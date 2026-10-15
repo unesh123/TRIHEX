@@ -188,7 +188,7 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
                         rel="noreferrer"
                         className="inline-flex items-center gap-0.5 text-blue-600 hover:underline"
                       >
-                        Resourify Claim <ExternalLink className="w-2.5 h-2.5" />
+                        Vendor Claim <ExternalLink className="w-2.5 h-2.5" />
                       </a>
                     </div>
                   </td>
@@ -296,7 +296,7 @@ export function DealRadarManager({ initialDeals }: DealRadarManagerProps) {
               {/* Left: Discovered 3rd Party Claim */}
               <div className="rounded-xl border border-border bg-slate-50 p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-900">Third-Party Claim (Resourify)</h3>
+                  <h3 className="text-sm font-bold text-slate-900">Discovered Partner Claim</h3>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
                     UNVERIFIED CANDIDATE
                   </span>

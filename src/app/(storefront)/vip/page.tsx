@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { TrixVipVaultClient } from "@/components/vip/trix-vip-vault-client";
+import { VipPricingCheckout } from "@/components/vip/vip-pricing-checkout";
 import { getAllVipVaultItems } from "@/lib/vip/vip-store";
 
 export const metadata: Metadata = {
@@ -90,14 +91,21 @@ export default function VipVaultPage() {
           {/* Quick CTA Actions */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <a
-              href={waVipUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#vip-pricing"
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.5)] transition duration-200 hover:scale-[1.02]"
             >
               <Crown className="h-4 w-4" />
-              <span>Unlock VIP Access via Founder Desk</span>
+              <span>Unlock VIP Pass &amp; Plans</span>
               <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href={waVipUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/30 px-6 py-3.5 text-sm font-semibold text-emerald-300 hover:bg-emerald-900/40 transition backdrop-blur-sm"
+            >
+              <MessageSquare className="h-4 w-4 text-emerald-400" />
+              <span>Founder Hotline</span>
             </a>
             <Link
               href="/academy"
@@ -137,8 +145,13 @@ export default function VipVaultPage() {
           </div>
         </div>
 
+        {/* VIP Clearance Pricing Tiers (1 Mo: 3999, 6 Mo: 5999, Lifetime: 7999) */}
+        <div id="vip-pricing" className="mt-16 scroll-mt-24">
+          <VipPricingCheckout />
+        </div>
+
         {/* Client Interactive VIP Vault List with Category Filter & Search */}
-        <div className="mt-14">
+        <div className="mt-20">
           <TrixVipVaultClient initialItems={vipItems} />
         </div>
 

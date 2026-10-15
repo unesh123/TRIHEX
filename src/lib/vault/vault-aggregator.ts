@@ -96,6 +96,10 @@ export function getAllVaultEntries(): VaultEntry[] {
         deal.eligibility || "Global / Nepal Accessible",
       ],
       isFeatured: deal.verificationScore >= 80,
+      promoCode: deal.promoCode,
+      eligibility: deal.eligibility,
+      cardRequired: deal.cardRequired,
+      officialVendorUrl: deal.officialVendorUrl || deal.sourceClaimUrl,
     });
   }
 
