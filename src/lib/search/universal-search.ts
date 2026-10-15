@@ -8,6 +8,7 @@ import { getOpenDatasets } from "@/lib/nepal/open-data-adapter";
 import { VAULT_ITEMS } from "@/lib/catalog/vault-items";
 
 import { recordSearchQuery } from "./analytics";
+import { getAllCuratedRepos } from "@/lib/github/curated-repos";
 export * from "./analytics";
 
 export type SearchEntityType =
@@ -15,10 +16,11 @@ export type SearchEntityType =
   | "DEAL"
   | "PROMPT"
   | "SKILL"
+  | "GITHUB_REPO"
+  | "VAULT"
   | "GUIDE"
   | "RESEARCH"
-  | "DATASET"
-  | "VAULT";
+  | "DATASET";
 
 export interface UniversalSearchResult {
   id: string;
@@ -59,6 +61,8 @@ export async function performUniversalSearch(
   const deals = getPublishedDeals();
   const prompts = getAllPrompts();
   const skills = getAllSkills();
+  const curatedRepos = getAllCuratedRepos();
+  const vaultItems = VAULT_ITEMS;
   const guides = getAllGuides();
   const research = getAllResearchItems();
   const datasets = getOpenDatasets();
@@ -162,13 +166,15 @@ export async function performUniversalSearch(
       (s) =>
         s.name.toLowerCase().includes(q) ||
         s.summary.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q) ||
+        s.category.toLowerCase().includes(q) ||
         s.tags.some((t) => t.toLowerCase().includes(q))
     )
     .map((s) => ({
       id: s.id,
       type: "SKILL" as const,
       title: s.name,
-      subtitle: `${s.category} · ${s.files.length} Skill Files`,
+      subtitle: `${s.category} · ${s.compatibility.join(", ")} · ${s.files.length} Files`,
       description: s.summary,
       url: `/skills/${s.slug}`,
       badge: "Agent Skill",
@@ -181,6 +187,67 @@ export async function performUniversalSearch(
       label: "Autonomous Agent Skills",
       count: matchedSkills.length,
       results: matchedSkills.slice(0, limitPerCategory),
+    });
+  }
+
+  // 5. Curated Advanced GitHub Repositories
+  const matchedRepos: UniversalSearchResult[] = curatedRepos
+    .filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.fullName.toLowerCase().includes(q) ||
+        r.description.toLowerCase().includes(q) ||
+        r.topics.some((t) => t.toLowerCase().includes(q)) ||
+        r.category.toLowerCase().includes(q) ||
+        r.language.toLowerCase().includes(q)
+    )
+    .map((r) => ({
+      id: r.id,
+      type: "GITHUB_REPO" as const,
+      title: `${r.name} (${r.fullName})`,
+      subtitle: `⭐ ${r.starsFormatted} · ${r.language} · ${r.category}`,
+      description: r.description,
+      url: r.url,
+      badge: "GitHub Repo",
+      badgeColor: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+      score: r.name.toLowerCase().includes(q) ? 98 : 48,
+    }));
+  if (matchedRepos.length > 0) {
+    groups.push({
+      type: "GITHUB_REPO",
+      label: "Advanced GitHub Repositories",
+      count: matchedRepos.length,
+      results: matchedRepos.slice(0, limitPerCategory),
+    });
+  }
+
+  // 6. VIP Vault Drops & Exclusive Bundles
+  const matchedVault: UniversalSearchResult[] = vaultItems
+    .filter(
+      (v) =>
+        v.title.toLowerCase().includes(q) ||
+        v.shortDescription.toLowerCase().includes(q) ||
+        v.category.toLowerCase().includes(q) ||
+        v.highlights.some((h) => h.toLowerCase().includes(q)) ||
+        v.classificationBadge.toLowerCase().includes(q)
+    )
+    .map((v) => ({
+      id: v.id,
+      type: "VAULT" as const,
+      title: v.title,
+      subtitle: `${v.classificationBadge} · ${v.originalValuation}`,
+      description: v.shortDescription,
+      url: `/vault`,
+      badge: v.priceNpr ? `VIP · Rs. ${v.priceNpr}` : "VIP Drop",
+      badgeColor: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+      score: v.title.toLowerCase().includes(q) ? 92 : 42,
+    }));
+  if (matchedVault.length > 0) {
+    groups.push({
+      type: "VAULT",
+      label: "VIP Vault Drops & Toolkits",
+      count: matchedVault.length,
+      results: matchedVault.slice(0, limitPerCategory),
     });
   }
 

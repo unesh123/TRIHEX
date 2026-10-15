@@ -15,7 +15,9 @@ export type SkillCategory =
   | "SECURITY"
   | "RESEARCH"
   | "AUTOMATION"
-  | "DATA";
+  | "DATA"
+  | "DEVOPS"
+  | "AI_ENGINEERING";
 
 export interface AgentSkill {
   id: string;

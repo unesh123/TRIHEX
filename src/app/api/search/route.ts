@@ -15,8 +15,10 @@ export async function GET(req: Request) {
     const forwarded = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
     const ip = forwarded.split(",")[0].trim();
     const ipHash = hashIpForAnalytics(ip);
+    const limitParam = parseInt(searchParams.get("limit") ?? "6", 10);
+    const limit = isNaN(limitParam) ? 6 : Math.min(Math.max(limitParam, 1), 20);
 
-    const results = await performUniversalSearch(q, 4, { ipHash, trackAnalytics: true });
+    const results = await performUniversalSearch(q, limit, { ipHash, trackAnalytics: true });
     return NextResponse.json(results);
   } catch (err: any) {
     console.error("[search] universal search error", err);
