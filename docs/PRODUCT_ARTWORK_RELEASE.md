@@ -4,7 +4,7 @@
 
 This change replaces text posters with price-free generated raster artwork, shared across duration variants. It adds MuseAI at NPR 399 with **1 billion tokens and no time-based duration**. ElevenLabs Creator's existing one-month SKU has a fixed 72-hour NPR 1,000 campaign from 21 October 2026 19:45 to 24 October 2026 19:45 Nepal time. Three days is interpreted as the sale window, not the access duration.
 
-Antigravity is concurrently editing authentication, checkout, VIP and admin workflows in this checkout. The release is prepared separately from the verified production commit `a6b38cda58c68e30c4f97fa5db45e8bba8ed2fd4`, with only this task's changes applied. Check production again before promotion to avoid replacing a newer deployment.
+Antigravity is concurrently editing authentication, checkout, VIP and admin workflows in this checkout. The final release is prepared separately from the newest committed baseline `88790ae0f5984f468bbab9188c2b02079578870e`, preserving the recent security changes. The older isolated release from 21 October is superseded and must not be deployed.
 
 ## Images
 
@@ -25,12 +25,16 @@ The campaign price is applied in merchandising and server-side order pricing, an
 ## Existing platform findings
 
 - The initial workspace test run passed 58 files / 298 tests. Type checking passed. The shared production build also passed.
-- Full repository lint reported 148 errors and 511 warnings. These are broader than this artwork release and are not a clean platform health result.
-- Builds reported missing `prompts` and `deal_candidates` tables and used in-memory fallbacks. Those features cannot be described as fully persistent until their database migrations are reconciled.
+- The latest test run passes 59 files / 302 tests. Type checking and the current production build pass. Full repository lint now has zero errors and 631 warnings.
+- An updated database table audit finds all 62 expected tables present. The earlier missing-table issue has been resolved at the table-presence level; persistence still needs feature-level verification.
 - Live ElevenLabs data has missing vendor proof and unknown supply authorization. Existing purchase gates can reject checkout even though merchandising presents the product as available. Do not bypass those gates or manufacture proof.
 - Parallel build workers exhausted the database's 200-client limit with ten connections per worker. This release reduces each client pool to two connections, with idle and connect timeouts.
 - A successful HTTP response or `/api/health` response does not demonstrate complete admin, fulfillment or paid checkout functionality.
 
 ## Final validation
 
-Pending artwork completion, asset audit, release tests, visual inspection, deployment and live verification. Update this section with actual results before calling the release complete.
+All 72 images are generated and visually inspected as a contact sheet. The asset audit covers 168 current catalogue products with zero missing files or mapping errors. All assets are 960×960 WebP, the largest is 179,864 bytes, and the complete set is 8,214,026 bytes. Full per-product subjects are in `artwork-generation-prompts.json`.
+
+The final deployment was built from `C:/Users/unesh/.codex/trihex-complete-artwork-20261022`, retaining the latest committed security changes. Production deployment `dpl_6yz6jimRU4Q8WxkZXGFWeCKQzBCi` is READY and promoted to https://trihexdigital.shop. All 72 live image URLs pass format/payload checks; home, catalogue, MuseAI, ElevenLabs, admin login and health endpoints return HTTP 200. The staged MuseAI asset's SHA-256 matches the local file. Desktop (1440px) and mobile (390px) MuseAI/ElevenLabs browser checks show loaded images, no horizontal overflow and no JavaScript errors. The database media sync completed for all 168 current products; a pre-update media backup is retained in the ignored `data/backups/` folder.
+
+See `CURRENT_STATUS_AND_FIX_PLAN_2026-10-22.md` for the remaining Google/VIP/admin findings; this image release does not resolve those authentication issues. Antigravity's new uncommitted auth work is excluded. Full live-check evidence is in `artifacts/artwork-check/`.

@@ -1,0 +1,366 @@
+{
+  "mode": "built-in imagegen",
+  "brief": "Premium square photorealistic 3D ecommerce artwork, refined materials and lighting, central composition, 12% safe margins, full bleed, no words, letters, numbers, prices, labels or watermark.",
+  "subjects": [
+    {
+      "key": "chatgpt",
+      "subject": "a luminous interwoven white six-loop AI knot sculpture, emerald light, dark green glass",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "claude",
+      "subject": "a warm terracotta radial sunburst sculpture floating above cream and copper glass",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "claude-code",
+      "subject": "a floating terminal glass panel with abstract code-like light lines, terracotta starburst sculpture, no legible code",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "gemini",
+      "subject": "an iridescent four-point blue-purple star sculpture, colorful refracted glass, cloudlike gradients",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "grok",
+      "subject": "a luminous orbital slash and black chrome sphere with dramatic white and purple rim light",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "canva",
+      "subject": "flowing cyan purple iridescent design ribbons and translucent colorful layers",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "capcut",
+      "subject": "a black metallic crossed ribbon on a white sculptural pedestal, cyan purple cinematic accents",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "cursor",
+      "subject": "a faceted black and white cursor arrow sculpture in a futuristic minimalist coding studio",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "coursera",
+      "subject": "a blue luminous open book and graduation cap with premium studio lighting",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "kling",
+      "subject": "a gold and black cinema camera surrounded by amber film-like light trails",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "lovable",
+      "subject": "a luminous multicolor orange pink blue heart sculpture with abstract floating app panels",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "factory",
+      "subject": "a silver robotic hand assembling luminous geometric software blocks, black orange lighting",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "framer",
+      "subject": "a geometric black angular folded sculpture composed of triangular blocks, pink purple lighting",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "gamma",
+      "subject": "a fan of floating iridescent presentation slides, purple blue glass, luminous arc",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "granola",
+      "subject": "an elegant silver studio recorder with organic green leaves and flowing lime sound waves",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "gumloop",
+      "subject": "a flowing chain of vibrant connected magenta orange loops, glass workflow nodes",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "higgsfield",
+      "subject": "a cinematic silver camera lens surrounded by fluid blue violet dimensional waves",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "manus",
+      "subject": "a polished white robotic hand with delicate blue light trails arranging floating glass panels",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "mobbin",
+      "subject": "a carefully curated fan of elegant smartphone interface screens without any text, black white orange lighting",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "n8n",
+      "subject": "a connected coral pink branching workflow node sculpture, dramatic dark blue backdrop",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "notion",
+      "subject": "an elegant ivory notebook with floating geometric black and white blocks and cream light",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "railway",
+      "subject": "a futuristic silver train curving around a luminous purple orbital rail through clouds",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "runway",
+      "subject": "a floating cinematic clapperboard and iridescent liquid film ribbon, green violet rim light",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "supabase",
+      "subject": "an emerald glass lightning bolt suspended above a futuristic database cylinder, dark forest green",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "warp",
+      "subject": "an iridescent blue teal terminal window sculpture and flowing fast luminous ribbon trails",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "veo",
+      "subject": "a luminous blue violet play triangle in a cinematic glass camera lens surrounded by film light",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "prompt-pack",
+      "subject": "a luxury black and cyan digital library box with floating illuminated prompt cards without lettering",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "business-setup",
+      "subject": "a polished futuristic desktop workstation with interconnected luminous blue tools and elegant glass dashboard",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "automation",
+      "subject": "a sculptural system of connected polished chrome gears and glowing blue workflow nodes",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "ai-course",
+      "subject": "a premium stacked black and gold digital course box set with a luminous abstract neural brain",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "sales-course",
+      "subject": "a luxury book set with golden concentric conversation rings and elegant emerald black lighting",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "leads-course",
+      "subject": "a luxury dark book and flowing network of luminous violet connected audience nodes",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "developer-pack",
+      "subject": "a premium black cyan developer toolkit case with floating glass code panels and luminous orange agent nodes",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "vip",
+      "subject": "an elegant black platinum membership card with a large sculptural gold hexagon floating in a luxury vault",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "museai",
+      "subject": "an elegant holographic human profile made of violet cyan light with musical sound waves and luminous creative particles",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "adobe",
+      "subject": "sculptural crimson creative loop surrounding prismatic glass creative tools",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "prime-video",
+      "subject": "cinematic blue curved smile ribbon encircling a glass play triangle",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "beautiful-ai",
+      "subject": "polished presentation slides floating in an elegant violet crystal fan",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "character-ai",
+      "subject": "expressive white ceramic robot face with playful colorful speech bubbles",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "crunchyroll",
+      "subject": "orange crescent surrounding a luminous anime-inspired fantasy planet",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "disney",
+      "subject": "enchanted blue castle with luminous silver arc across a starry sky",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "duolingo",
+      "subject": "friendly bright green owl sculpture with floating learning blocks",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "envato",
+      "subject": "glossy emerald leaf with fan of vivid creative media tiles",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "evernote",
+      "subject": "emerald elephant paper sculpture beside an ivory notebook",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "vpn",
+      "subject": "polished blue shield and globe with illuminated secure network rings",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "figma",
+      "subject": "five connected glossy pill-shaped blocks in coral violet blue and green",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "freepik",
+      "subject": "electric blue creative eye sculpture with floating image frames",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "copilot",
+      "subject": "friendly black robotic pilot visor with glowing blue code particles",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "grammarly",
+      "subject": "emerald circular writing assistant sculpture with silver feather and paper",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "hailuo",
+      "subject": "blue and orange flowing cinematic waves around crystal camera",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "jetbrains",
+      "subject": "black glass software cube with luminous multicolor diagonal light streaks",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "leonardo",
+      "subject": "golden renaissance-style sculpted human bust emerging from colorful digital paint",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "linkedin",
+      "subject": "blue professional learning book and chrome graduation cap",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "luma",
+      "subject": "iridescent dream sphere swirling with cinematic frames",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "masterclass",
+      "subject": "matte black master course book with elegant crimson light seam",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "microsoft",
+      "subject": "four floating glass window squares red green blue yellow above silver desktop",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "midjourney",
+      "subject": "white futuristic sailing ship floating on an iridescent dream sea",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "netflix",
+      "subject": "sculptural crimson folded N ribbon with cinematic film frames on black",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "perplexity",
+      "subject": "geometric turquoise wireframe answer compass on dark teal glass",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "pika",
+      "subject": "colorful cinematic camera with playful magenta yellow and cyan ribbons",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "poe",
+      "subject": "violet clustered conversational speech bubbles in glass",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "shutterstock",
+      "subject": "red camera aperture with floating premium photography frames",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "skillshare",
+      "subject": "dark emerald learning book with twin luminous mint dots",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "spotify",
+      "subject": "emerald audio sphere with three black curved sound wave bands",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "suno",
+      "subject": "orange magenta chrome music waveform emerging from black glass speaker",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "todoist",
+      "subject": "red checklist notebook sculpture with white diagonal checkmarks no words",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "udio",
+      "subject": "black polished music disc with iridescent violet sound ribbons",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "windows",
+      "subject": "four ice blue luminous window panels floating above reflective dark desk",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "windsurf",
+      "subject": "turquoise flowing S-shaped wave and silver coding terminal",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "youtube",
+      "subject": "glossy red rounded rectangle play button with silver cinema lights",
+      "mode": "built-in imagegen"
+    },
+    {
+      "key": "1password",
+      "subject": "blue circular polished vault lock with silver keyhole",
+      "mode": "built-in imagegen"
+    }
+  ],
+  "elevenlabs": {
+    "mode": "edit",
+    "reference": "public/trihex/products/elevenlabs-creator.webp",
+    "prompt": "Preserve the realistic microphone and blue-purple voice waves. Remove all lettering, prices, badges and UI. Luxury dark lighting, square central composition, generous safe margins."
+  }
+}

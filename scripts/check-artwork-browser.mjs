@@ -13,7 +13,9 @@ try {
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
     for (const slug of ["elevenlabs-creator-shared", "museai"]) {
-      const response = await page.goto(`${base}/products/${slug}`, { waitUntil: "networkidle" });
+      const response = await page.goto(`${base}/products/${slug}`, { waitUntil: "domcontentloaded", timeout: 60000 });
+      await page.locator("h1").waitFor();
+      await page.waitForFunction(() => Array.from(document.images).some(img => img.src.includes("artwork") && img.getBoundingClientRect().width > 0 && img.complete && img.naturalWidth > 0), undefined, { timeout: 30000 });
       await page.screenshot({ path: `${out}/${slug}-${viewport.width}.png`, fullPage: false });
       const body = await page.locator("body").innerText();
       const images = await page.locator('img[src*="artwork"]').evaluateAll(nodes => nodes.map(n => ({ src: n.currentSrc, loaded: n.complete && n.naturalWidth > 0 })));

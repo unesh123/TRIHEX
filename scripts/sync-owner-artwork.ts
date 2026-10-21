@@ -11,7 +11,7 @@ async function main() {
   if (!url) throw new Error("Database configuration is missing");
   const sql = postgres(url, { max: 5, prepare: false });
   try {
-    const rows = await sql<{ id: string; slug: string; name: string }[]>`select id, slug, name from products`;
+    const rows = await sql<{ id: string; slug: string; name: string }[]>`select id, slug, name from products where product_status in ('PUBLIC','DRAFT')`;
     const media = rows.flatMap(row => {
       const artwork = premiumArtworkForSlug(row.slug);
       return artwork ? [{ ...row, artwork }] : [];

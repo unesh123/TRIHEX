@@ -44,22 +44,8 @@ const PRODUCT_ARTWORK: Array<[RegExp, string]> = [
   [/^udemy-16/, "developer-pack"], [/^trihex-vip/, "vip"],
 ];
 
-export const AVAILABLE_ARTWORK = new Set([
-  "adobe",
-  "canva",
-  "capcut",
-  "chatgpt",
-  "claude-code",
-  "claude",
-  "coursera",
-  "cursor",
-  "elevenlabs",
-  "gemini",
-  "grok",
-  "kling",
-  "lovable",
-  "museai",
-]);
+// All mapped assets are generated and checked by the catalogue image audit.
+export const AVAILABLE_ARTWORK = new Set(PRODUCT_ARTWORK.map(([, key]) => key));
 
 export function premiumArtworkForSlug(slug: string): string | null {
   const key = PRODUCT_ARTWORK.find(([pattern]) => pattern.test(slug.toLowerCase()))?.[1];
