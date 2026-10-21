@@ -116,12 +116,19 @@ export async function fetchNrbForexRates(): Promise<ForexSnapshot> {
   const db = getDb();
   if (db) {
     try {
-      const [latest] = await db
+      const queryPromise = db
         .select()
         .from(schema.feedSnapshots)
         .where(eq(schema.feedSnapshots.feedType, "NRB_FOREX"))
         .orderBy(desc(schema.feedSnapshots.fetchedAt))
         .limit(1);
+
+      const [latest] = await Promise.race([
+        queryPromise,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Forex DB query timeout")), 400),
+        ),
+      ]);
 
       if (latest && latest.normalizedData && (latest.normalizedData as any).rates) {
         const data = latest.normalizedData as any;

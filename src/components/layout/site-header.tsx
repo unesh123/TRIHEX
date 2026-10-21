@@ -75,6 +75,26 @@ export function SiteHeader() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion();
+  const [currentUser, setCurrentUser] = useState<{
+    fullName?: string;
+    avatarUrl?: string | null;
+    customerCode?: string;
+    vipStatus?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        } else {
+          setCurrentUser(null);
+        }
+      })
+      .catch(() => {});
+  }, [pathname]);
+
   const waHref = buildWhatsAppUrl(
     "Hello TRIHEX DIGITAL. I need information about your products.",
   );
@@ -213,8 +233,27 @@ export function SiteHeader() {
               prefetch={true}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 transition hover:text-slate-900"
             >
-              <User className="h-4 w-4" />
-              <span>Sign in</span>
+              {currentUser ? (
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 py-1 pl-1 pr-2.5 hover:bg-slate-100">
+                  <div className="relative h-6 w-6 rounded-full overflow-hidden border border-indigo-400 bg-slate-800 text-[10px] text-white flex items-center justify-center font-bold">
+                    {currentUser.avatarUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={currentUser.avatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      currentUser.fullName?.[0]?.toUpperCase() || "U"
+                    )}
+                  </div>
+                  <span className="max-w-[70px] truncate">{currentUser.fullName?.split(" ")[0] || "Account"}</span>
+                  {currentUser.vipStatus === "ACTIVE" && (
+                    <Crown className="h-3 w-3 text-amber-500 fill-amber-500" />
+                  )}
+                </div>
+              ) : (
+                <>
+                  <User className="h-4 w-4" />
+                  <span>Sign in</span>
+                </>
+              )}
             </Link>
 
             <Link

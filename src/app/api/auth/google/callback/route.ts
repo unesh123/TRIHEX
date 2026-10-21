@@ -8,6 +8,7 @@ import {
   buildAdminSessionCookieValue,
 } from "@/lib/admin/session-cookie";
 import { isOwnerEmail } from "@/lib/auth/owner";
+import { isSecureCookie } from "@/lib/auth/cookie-config";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -117,7 +118,7 @@ export async function GET(request: Request) {
     response.cookies.set(USER_SESSION_COOKIE, encodeUserSession(userPayload), {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecureCookie(),
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days
     });
@@ -128,14 +129,14 @@ export async function GET(request: Request) {
       response.cookies.set(ADMIN_SESSION_COOKIE, signedSession, {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecureCookie(),
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
       response.cookies.set("trihex_vault_clearance", "cleared_zone_9702", {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecureCookie(),
         path: "/",
         maxAge: 60 * 60 * 12,
       });

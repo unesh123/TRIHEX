@@ -5,6 +5,7 @@ import {
   parseAdminSessionCookie,
 } from "@/lib/admin/session-cookie";
 import { isOwnerEmail } from "@/lib/auth/owner";
+import { isSecureCookie } from "@/lib/auth/cookie-config";
 
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Frame-Options", "DENY");
@@ -79,7 +80,7 @@ export function proxy(request: NextRequest) {
       path: "/",
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecureCookie(),
       maxAge: 60 * 60 * 12,
     });
     return applySecurityHeaders(redirectResponse);
@@ -92,7 +93,7 @@ export function proxy(request: NextRequest) {
       path: "/",
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecureCookie(),
       maxAge: 60 * 60 * 12,
     });
     response.headers.set("x-pathname", pathname);

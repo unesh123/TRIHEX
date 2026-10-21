@@ -23,10 +23,17 @@ export async function resolveStorefrontBankQrPath(): Promise<string> {
   try {
     const db = getDb();
     if (!db) return STOREFRONT_BANK_QR_PATH;
-    const rows = await db
+
+    const queryPromise = db
       .select({ socialLinks: schema.businessSettings.socialLinks })
       .from(schema.businessSettings)
       .limit(1);
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Bank QR DB timeout")), 300),
+    );
+
+    const rows = await Promise.race([queryPromise, timeoutPromise]);
     const links = rows[0]?.socialLinks ?? {};
     const url =
       typeof links.bankQrUrl === "string" && links.bankQrUrl.startsWith("http")

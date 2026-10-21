@@ -63,7 +63,7 @@ const loadCatalogueProductsCached = unstable_cache(
   if (!db) return ALL_SEED_PRODUCTS;
 
   try {
-    const rows = await db
+    const queryPromise = db
       .select({
         id: schema.products.id,
         slug: schema.products.slug,
@@ -113,6 +113,13 @@ const loadCatalogueProductsCached = unstable_cache(
         schema.productVariants,
         eq(schema.productVariants.productId, schema.products.id),
       );
+
+    const rows = await Promise.race([
+      queryPromise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Catalogue DB query timeout")), 600),
+      ),
+    ]);
 
     if (!rows.length) return ALL_SEED_PRODUCTS.filter(p => !isInternalOrTestSku(p.slug));
 
@@ -386,7 +393,7 @@ const loadPrimaryCoverPathsCached = unstable_cache(
     if (!db) return Object.fromEntries(map);
 
     try {
-      const rows = await db
+      const queryPromise = db
         .select({
           slug: schema.products.slug,
           url: schema.productMedia.url,
@@ -398,6 +405,13 @@ const loadPrimaryCoverPathsCached = unstable_cache(
           schema.products,
           eq(schema.productMedia.productId, schema.products.id),
         );
+
+      const rows = await Promise.race([
+        queryPromise,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Covers DB query timeout")), 600),
+        ),
+      ]);
 
       const best = new Map<string, { url: string; score: number }>();
       for (const row of rows) {

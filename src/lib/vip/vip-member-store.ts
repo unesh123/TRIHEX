@@ -187,12 +187,12 @@ const MEMORY_VIP_MEMBERS: VipMember[] = [
 ];
 
 export async function getAllVipMembers(): Promise<VipMember[]> {
-  // If database is live, merge registered profiles with phone numbers
+  // If database is live, merge registered profiles with phone numbers (guarded with fast timeout)
   if (isDatabaseConfigured()) {
     try {
       const db = getDb();
       if (db) {
-        const liveProfiles = await db
+        const queryPromise = db
           .select({
             id: schema.profiles.id,
             email: schema.profiles.email,
@@ -203,6 +203,12 @@ export async function getAllVipMembers(): Promise<VipMember[]> {
           })
           .from(schema.profiles)
           .limit(100);
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("DB profiles query timeout")), 400),
+        );
+
+        const liveProfiles = await Promise.race([queryPromise, timeoutPromise]);
 
         // Augment with live user profiles
         for (const p of liveProfiles) {
@@ -234,8 +240,8 @@ export async function getAllVipMembers(): Promise<VipMember[]> {
           }
         }
       }
-    } catch (err) {
-      console.warn("[VipMemberStore] DB sync fallback note:", err);
+    } catch {
+      // Non-fatal fallback to MEMORY_VIP_MEMBERS
     }
   }
 

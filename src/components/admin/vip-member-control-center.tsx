@@ -94,12 +94,18 @@ export function VipMemberControlCenter({
 
   const filteredMembers = members.filter((m) => {
     const q = searchQuery.toLowerCase().trim();
+    const cleanQ = q.replace(/\D/g, "");
+    const cleanPhone = m.phone ? m.phone.replace(/\D/g, "") : "";
+    const matchesPhone = cleanQ.length >= 4 && cleanPhone.includes(cleanQ);
+
     const matchesSearch =
       !q ||
       m.phone.includes(q) ||
+      matchesPhone ||
       m.email.toLowerCase().includes(q) ||
       m.name.toLowerCase().includes(q) ||
       m.verificationToken.toLowerCase().includes(q) ||
+      m.id.toLowerCase().includes(q) ||
       (m.adminNotes && m.adminNotes.toLowerCase().includes(q));
 
     let matchesFilter = true;
@@ -470,7 +476,7 @@ export function VipMemberControlCenter({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             type="text"
-            placeholder="Search by phone number (98...), email, name, token..."
+            placeholder="Search by Customer User ID (THX-USR-...), phone (98...), email, or name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 text-sm border-slate-200"
@@ -559,11 +565,17 @@ export function VipMemberControlCenter({
                       {/* Phone Number Display */}
                       <div className="flex items-center gap-1 text-xs font-mono font-bold text-indigo-700 mt-0.5">
                         <Phone className="h-3 w-3" />
-                        <span>{member.phone}</span>
+                        <span>{member.phone || "No phone linked"}</span>
                       </div>
 
                       <div className="text-[11px] text-slate-500 line-clamp-1">
                         {member.email}
+                      </div>
+
+                      {/* Customer User ID Badge */}
+                      <div className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 mt-1.5 inline-flex">
+                        <span className="text-slate-500 font-sans text-[9px] uppercase font-bold">USER ID:</span>
+                        <span>{member.verificationToken}</span>
                       </div>
                     </div>
                   </div>

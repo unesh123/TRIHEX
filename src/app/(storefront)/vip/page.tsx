@@ -31,6 +31,9 @@ import { VipPricingCheckout } from "@/components/vip/vip-pricing-checkout";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { isOwnerEmail } from "@/lib/auth/owner";
 import { resolveStorefrontBankQrPath } from "@/lib/payments/resolve-bank-qr";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { PaymentQrCard } from "@/components/storefront/payment-qr-card";
+import { STOREFRONT_BANK_QR_PATH } from "@/lib/payments/storefront-payment";
 
 export const metadata: Metadata = {
   title: "TRIHEX VIP VAULT — 564+ Advanced Tools & Verified Developer Perks",
@@ -114,38 +117,52 @@ export default async function VipVaultPage({ searchParams }: VipPageProps) {
             /* CASE 2: SIGNED IN WITH GOOGLE -> SHOW BOLD "REQUEST ACCESS FOR VIP" */
             <VipRequestAccessForm user={user} existingMember={vipRecord} qrSrc={qrSrc} />
           ) : (
-            /* CASE 3: GUEST / DIRECT VIP ACTIVATION */
-            <div className="mx-auto max-w-md rounded-3xl border border-slate-700 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-md">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-inner">
-                <Crown className="h-7 w-7" />
-              </div>
-              <h3 className="mt-4 text-xl font-bold text-white">
-                VIP Vault Pass Activation
-              </h3>
-              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-                Connect directly with TRIHEX Operator on WhatsApp to activate your VIP Vault Pass and unlock instant access to 564+ AI subscriptions and tools.
-              </p>
+            /* CASE 3: GUEST -> PROMPT GOOGLE SIGN-IN TO LINK USER ID & QR CHECKOUT */
+            <div className="mx-auto max-w-xl space-y-6">
+              <div className="rounded-3xl border border-amber-500/40 bg-slate-900/95 p-6 sm:p-8 text-center shadow-2xl backdrop-blur-md">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-inner">
+                  <Crown className="h-7 w-7" />
+                </div>
+                <h3 className="mt-4 text-2xl font-bold text-white tracking-tight">
+                  Sign in with Google to Unlock VIP
+                </h3>
+                <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+                  Sign in with your Google account to get your verified <strong>Customer User ID</strong>, access the scan-to-pay QR checkout, and link your VIP Vault clearance.
+                </p>
 
-              <div className="mt-6 flex flex-col gap-3">
-                <a
-                  href={buildWhatsAppUrl("Hello TRIHEX, I want to activate my VIP Vault Pass.", "9702910130")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg hover:from-amber-400 hover:to-amber-500 transition cursor-pointer"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span>Request VIP on WhatsApp</span>
-                </a>
-                <Link
-                  href="/track-order"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
-                >
-                  <span>Already Have a Pass? Check Status</span>
-                </Link>
+                <div className="mt-6">
+                  <GoogleAuthButton nextUrl="/vip" label="Sign in with Google to Unlock" />
+                </div>
               </div>
 
-              <div className="mt-6 border-t border-slate-800 pt-4 text-[11px] text-slate-500">
-                <span>Immediate activation via eSewa, Khalti, or Mobile Banking QR.</span>
+              {/* VIP Pricing & Payment QR Preview */}
+              <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6 text-center space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-bold text-amber-300">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  <span>3 OFFICIAL VIP CLEARANCE TIERS</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+                    <span className="text-xs font-bold text-slate-300">1 Month Pass</span>
+                    <p className="text-lg font-black text-amber-300 font-mono mt-1">Rs. 3,999</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">30 Days Full Access</p>
+                  </div>
+                  <div className="rounded-2xl border border-amber-500/50 bg-amber-950/30 p-4 shadow-sm">
+                    <span className="text-xs font-bold text-amber-300">6 Months (Popular)</span>
+                    <p className="text-lg font-black text-amber-300 font-mono mt-1">Rs. 5,999</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">180 Days Full Access</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+                    <span className="text-xs font-bold text-slate-300">Lifetime Pack</span>
+                    <p className="text-lg font-black text-amber-300 font-mono mt-1">Rs. 7,999</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Permanent Access</p>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-400">
+                  Direct payment via eSewa, Khalti, or Mobile Banking QR. Admin confirms payment on WhatsApp and unlocks the VIP Vault for your Google ID.
+                </p>
               </div>
             </div>
           )}

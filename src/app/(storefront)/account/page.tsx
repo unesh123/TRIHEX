@@ -13,17 +13,30 @@ import {
   ExternalLink,
   User,
   LogOut,
+  Clock,
+  MessageCircle,
 } from "lucide-react";
-import { createSupabaseServerClient } from "@/lib/auth/supabase-server";
 import { getCurrentStorefrontUser } from "@/lib/auth/user-session";
-import { getVipMemberByEmail } from "@/lib/vip/vip-member-store";
+import { getVipMemberRecordByEmail } from "@/lib/vip/vip-member-store";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { CustomerPhoneEditor } from "@/components/account/customer-phone-editor";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const user = await getCurrentStorefrontUser();
+  const vipMember = user?.email ? await getVipMemberRecordByEmail(user.email) : null;
+  const customerCode = user?.customerCode || vipMember?.verificationToken || `THX-USR-${user?.email ? user.email.slice(0, 4).toUpperCase() : "9702"}`;
 
-  const vipMember = user?.email ? await getVipMemberByEmail(user.email) : null;
+  const waConfirmUrl = user ? buildWhatsAppUrl(
+    `Hello Trix (Admin)! I am checking my VIP Vault status on TRIHEX.\n\n` +
+    `User ID: ${customerCode}\n` +
+    `Name: ${user.fullName}\n` +
+    `Email: ${user.email}\n` +
+    `Mobile: ${user.phone || vipMember?.phone || "Pending verification"}\n\n` +
+    `Please confirm my VIP clearance status.`
+  ) : "#";
 
   return (
     <AccountShell
@@ -49,7 +62,7 @@ export default async function AccountPage() {
                     {user.fullName?.[0]?.toUpperCase() || "U"}
                   </div>
                 )}
-                {vipMember && (
+                {vipMember && vipMember.status === "ACTIVE" && (
                   <div className="absolute -bottom-1 -right-1 rounded-full bg-amber-400 p-1 text-slate-950 shadow">
                     <Crown className="h-3.5 w-3.5" />
                   </div>
@@ -72,7 +85,7 @@ export default async function AccountPage() {
                   type="submit"
                   variant="outline"
                   size="sm"
-                  className="border-slate-700 bg-slate-800/80 text-xs text-slate-200 hover:bg-slate-700"
+                  className="border-slate-700 bg-slate-800/80 text-xs text-slate-200 hover:bg-slate-700 cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5 mr-1" /> Sign Out
                 </Button>
@@ -80,10 +93,16 @@ export default async function AccountPage() {
             </div>
           </div>
 
+          {/* User ID & WhatsApp Phone Synchronization */}
+          <CustomerPhoneEditor
+            initialPhone={user.phone || vipMember?.phone || null}
+            customerCode={customerCode}
+          />
+
           {/* VIP Status Card */}
           {vipMember && vipMember.status === "ACTIVE" ? (
             <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 p-6 text-slate-100 shadow-[0_0_25px_rgba(245,158,11,0.15)]">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
                     <Crown className="h-5 w-5" />
@@ -99,40 +118,51 @@ export default async function AccountPage() {
                 </div>
                 <Link
                   href="/vip"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-4 py-2 text-xs font-bold text-slate-950 shadow-md hover:scale-105 transition duration-150"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-md hover:scale-105 transition duration-150 cursor-pointer shrink-0"
                 >
                   Enter VIP Vault <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
               <p className="mt-3 text-xs text-slate-300 leading-relaxed">
-                Your account has full clearance for private chat rooms, 564+ verified developer offers, Lovable unmetered scripts, and direct founder hotline.
+                Your account has full clearance for private mastermind tools, 564+ verified developer offers, Lovable unmetered scripts, and direct founder hotline.
               </p>
               <div className="mt-4 flex flex-wrap gap-4 text-xs font-mono text-slate-400 border-t border-slate-800 pt-3">
                 <span>STATUS: <span className="text-emerald-400 font-bold">{vipMember.status}</span></span>
-                <span>EXPIRES: <span className="text-amber-300 font-bold">{vipMember.isLifetime ? "PERMANENT LIFETIME" : vipMember.expiresAt ? vipMember.expiresAt.slice(0, 10) : "Active"}</span></span>
+                <span>CLEARANCE: <span className="text-amber-300 font-bold">{vipMember.isLifetime ? "PERMANENT LIFETIME" : vipMember.expiresAt ? vipMember.expiresAt.slice(0, 10) : "Active"}</span></span>
               </div>
             </div>
           ) : vipMember && vipMember.status === "PENDING_VERIFICATION" ? (
-            <div className="rounded-2xl border border-amber-400/50 bg-gradient-to-br from-amber-50 via-white to-amber-50/30 p-6 shadow-sm">
+            <div className="rounded-2xl border-2 border-amber-400/80 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 p-6 text-slate-100 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 border border-amber-300 px-3 py-1 text-[11px] font-bold text-amber-900 uppercase tracking-wider">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-600 animate-pulse" />
-                    <span>VIP Request Pending Admin Approval</span>
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 px-3 py-1 text-[11px] font-bold text-amber-300 uppercase tracking-wider">
+                    <Clock className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+                    <span>VIP Request Pending Admin Verification</span>
                   </div>
-                  <h4 className="mt-2 text-base font-bold text-slate-900">
-                    Your VIP Access Request is Under Review
+                  <h4 className="mt-2 text-base font-bold text-white">
+                    Payment Submitted · Waiting for Trix (Admin)
                   </h4>
-                  <p className="mt-1 text-xs text-slate-600">
-                    Payment verification submitted. Trix (Admin) is reviewing your payment and will activate your 👑 <strong>VIP Tag</strong> shortly.
+                  <p className="mt-1 text-xs text-slate-300 max-w-lg">
+                    Your payment slip has been submitted under User ID <strong className="text-amber-300 font-mono">{customerCode}</strong>. Trix is confirming your slip on WhatsApp and will activate your 👑 VIP clearance tag shortly.
                   </p>
                 </div>
-                <Link
-                  href="/vip"
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition"
-                >
-                  Check VIP Gateway <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  <a
+                    href={waConfirmUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition cursor-pointer"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    <span>WhatsApp Admin Desk</span>
+                  </a>
+                  <Link
+                    href="/vip"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
+                  >
+                    <span>Check VIP Portal</span>
+                  </Link>
+                </div>
               </div>
             </div>
           ) : (
@@ -147,14 +177,14 @@ export default async function AccountPage() {
                     Unlock Private VIP Community &amp; 564+ Advanced AI Methods
                   </h4>
                   <p className="mt-1 text-xs text-slate-500">
-                    Get access to private mastermind chatrooms, Lovable builders, and developer blueprints.
+                    Get access to private mastermind chatrooms, Lovable unmetered scripts, and secret software drops.
                   </p>
                 </div>
                 <Link
                   href="/vip"
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition"
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 px-5 py-3 text-xs font-bold text-slate-950 shadow-sm transition cursor-pointer"
                 >
-                  Request VIP Access <ArrowRight className="h-3.5 w-3.5" />
+                  Enter VIP Gateway &amp; Scan QR <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </div>
@@ -197,41 +227,43 @@ export default async function AccountPage() {
           </div>
         </div>
       ) : (
-        /* Guest / Unauthenticated State with Direct Tracking */
+        /* Guest / Unauthenticated State with Seamless Google Sign In */
         <div className="mt-8 mx-auto max-w-md rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xl text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-inner">
-            <Package className="h-7 w-7" />
+            <User className="h-7 w-7" />
           </div>
 
           <h3 className="mt-4 font-[family-name:var(--font-sora)] text-2xl font-bold text-slate-900">
-            Track Orders & Delivery
+            Sign in with Google
           </h3>
           <p className="mt-2 text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
-            Account registration is not required to access your order history or digital package delivery. Enter your order token or phone number below.
+            Sign in to get your verified <strong>Customer User ID</strong>, track your purchased software licenses, and activate your VIP Vault access.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3">
-            <Link
-              href="/track-order"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition cursor-pointer"
-            >
-              <span>Instant Order Tracking</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-
-            <Link
-              href="/contact"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-            >
-              <Headphones className="h-3.5 w-3.5 text-violet-600" />
-              <span>Contact Priority WhatsApp Support</span>
-            </Link>
+          <div className="mt-6">
+            <GoogleAuthButton nextUrl="/account" />
           </div>
 
-          <div className="mt-6 border-t border-slate-100 pt-5 text-center">
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Google Single Sign-On is currently undergoing a scheduled root security review. Order fulfillment, delivery tracking, and live WhatsApp verification remain 100% active.
+          <div className="mt-8 border-t border-slate-100 pt-6">
+            <p className="text-xs text-slate-500 font-semibold mb-3">
+              Looking for an order without signing in?
             </p>
+            <div className="flex flex-col gap-2.5">
+              <Link
+                href="/track-order"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              >
+                <Package className="h-3.5 w-3.5 text-blue-600" />
+                <span>Track Order by Token or Phone</span>
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <Headphones className="h-3.5 w-3.5 text-violet-600" />
+                <span>Contact Priority WhatsApp Support</span>
+              </Link>
+            </div>
           </div>
         </div>
       )}

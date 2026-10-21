@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Copy,
   Check,
+  User,
 } from "lucide-react";
 import type { StorefrontUser } from "@/lib/auth/user-session";
 import type { VipMember } from "@/lib/vip/vip-member-store";
@@ -37,7 +38,7 @@ export function VipRequestAccessForm({
 }: VipRequestAccessFormProps) {
   const router = useRouter();
   const [selectedTier, setSelectedTier] = useState<"1_MONTH" | "6_MONTHS" | "LIFETIME">("6_MONTHS");
-  const [phone, setPhone] = useState(existingMember?.phone || "");
+  const [phone, setPhone] = useState(user.phone || existingMember?.phone || "");
   const [paymentMethod, setPaymentMethod] = useState<"BANK_QR" | "ESEWA" | "KHALTI">("BANK_QR");
   const [paymentReference, setPaymentReference] = useState("");
   const [payerName, setPayerName] = useState(user.fullName || "");
@@ -49,7 +50,13 @@ export function VipRequestAccessForm({
     existingMember?.status === "PENDING_VERIFICATION" &&
       Boolean(existingMember.phone && existingMember.phone.length >= 7)
   );
+  const [copiedCode, setCopiedCode] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
+
+  const customerCode =
+    user.customerCode ||
+    existingMember?.verificationToken ||
+    `THX-USR-${user.email ? user.email.slice(0, 4).toUpperCase() : "9702"}`;
 
   const priceMap = {
     "1_MONTH": { npr: 3999, label: "1 Month VIP Pass", duration: "30 Days Access" },
@@ -57,11 +64,30 @@ export function VipRequestAccessForm({
     "LIFETIME": { npr: 7999, label: "Permanent Lifetime VIP", duration: "Zero Expiry · All Future Toolkits" },
   };
 
+  const currentPrice = priceMap[selectedTier];
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(customerCode);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedAccount(key);
     setTimeout(() => setCopiedAccount(null), 2000);
   };
+
+  const waConfirmUrl = buildWhatsAppUrl(
+    `Hello Trix (Admin)! I have completed payment for TRIHEX VIP Vault.\n\n` +
+    `User ID: ${customerCode}\n` +
+    `Name: ${user.fullName || payerName}\n` +
+    `Email: ${user.email}\n` +
+    `Mobile: ${phone}\n` +
+    `Selected Plan: ${currentPrice.label} (Rs. ${currentPrice.npr.toLocaleString()})\n` +
+    `Payment Ref: ${paymentReference || "Direct Bank QR"}\n\n` +
+    `Please confirm my payment and activate my VIP Vault access!`
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +118,8 @@ export function VipRequestAccessForm({
       const data = await res.json();
       if (data.success) {
         setSuccessStatus(true);
+        // Open WhatsApp directly to Trix with pre-filled details
+        window.open(waConfirmUrl, "_blank");
         router.refresh();
       } else {
         setErrorMsg(data.error || "Failed to submit VIP access request.");
@@ -103,19 +131,8 @@ export function VipRequestAccessForm({
     }
   };
 
-  const currentPrice = priceMap[selectedTier];
-  const waConfirmUrl = buildWhatsAppUrl(
-    `Hello Trix (Admin)! I have submitted my VIP Access Request on TRIHEX.\n\n` +
-    `Name: ${user.fullName}\n` +
-    `Email: ${user.email}\n` +
-    `Mobile: ${phone}\n` +
-    `Plan: ${currentPrice.label} (Rs. ${currentPrice.npr.toLocaleString()})\n` +
-    `Payment Ref: ${paymentReference || "Direct Bank QR"}\n\n` +
-    `Please confirm my payment and approve my VIP tag for instant Vault access.`
-  );
-
   return (
-    <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900/90 via-slate-950 to-slate-900/90 p-6 sm:p-10 shadow-[0_0_50px_rgba(245,158,11,0.15)] text-slate-100 backdrop-blur-xl">
+    <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-slate-900/95 via-slate-950 to-slate-900/95 p-6 sm:p-10 shadow-[0_0_50px_rgba(245,158,11,0.15)] text-slate-100 backdrop-blur-xl">
       {/* Glow highlight */}
       <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-48 w-96 rounded-full bg-amber-500/20 blur-3xl" />
 
@@ -123,14 +140,32 @@ export function VipRequestAccessForm({
       <div className="relative text-center space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-950/60 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
           <Crown className="h-4 w-4 text-amber-400" />
-          <span>TRIHEX VIP CLEARANCE REGISTRATION</span>
+          <span>TRIHEX VIP CLEARANCE ACTIVATION</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Request Access for VIP
         </h2>
         <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Logged in as <strong className="text-white">{user.fullName}</strong> (<span className="text-amber-300 font-mono">{user.email}</span>). Submit your payment confirmation below. Trix (Admin) will approve and activate your VIP tag.
+          Logged in with Google as <strong className="text-white">{user.fullName}</strong> (<span className="text-amber-300 font-mono">{user.email}</span>).
         </p>
+
+        {/* Customer User ID Badge */}
+        <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-slate-950/90 px-4 py-2 text-xs">
+          <span className="text-slate-400 font-semibold uppercase tracking-wider">
+            Your Customer User ID:
+          </span>
+          <span className="font-mono font-black text-amber-300 text-sm tracking-wide">
+            {customerCode}
+          </span>
+          <button
+            type="button"
+            onClick={handleCopyCode}
+            className="flex items-center gap-1 rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-300 hover:bg-amber-500/30 transition cursor-pointer"
+          >
+            {copiedCode ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+            <span>{copiedCode ? "Copied" : "Copy"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Success / Pending State */}
@@ -147,8 +182,10 @@ export function VipRequestAccessForm({
               VIP Request Registered &amp; Queued for Activation
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
-              Your request for <strong className="text-amber-300">{existingMember?.tierName || currentPrice.label}</strong> has been transmitted directly to the Admin Desk.
-              As soon as payment is confirmed by Trix, your account will be granted the 👑 <strong className="text-amber-300">VIP Tag</strong> and the complete Vault directory will unlock automatically.
+              Your request for <strong className="text-amber-300">{existingMember?.tierName || currentPrice.label}</strong> has been transmitted directly to the Admin Desk under User ID <strong className="text-amber-300 font-mono">{customerCode}</strong>.
+            </p>
+            <p className="mt-1 text-xs text-slate-400 max-w-md mx-auto">
+              Trix is verifying your payment slip on WhatsApp and will activate your 👑 <strong className="text-amber-300">VIP Tag</strong> in the system. The complete Vault directory will unlock automatically.
             </p>
           </div>
 
@@ -157,7 +194,7 @@ export function VipRequestAccessForm({
               href={waConfirmUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition hover:scale-105"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition hover:scale-105 cursor-pointer"
             >
               <MessageCircle className="h-4 w-4" />
               <span>Confirm on WhatsApp for Fast Clearance</span>
@@ -166,21 +203,21 @@ export function VipRequestAccessForm({
             <button
               type="button"
               onClick={() => router.refresh()}
-              className="w-full sm:w-auto rounded-xl border border-slate-700 bg-slate-800/80 px-5 py-3.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition"
+              className="w-full sm:w-auto rounded-xl border border-slate-700 bg-slate-800/80 px-5 py-3.5 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition cursor-pointer"
             >
               Refresh Status
             </button>
             <button
               type="button"
               onClick={() => setSuccessStatus(false)}
-              className="w-full sm:w-auto rounded-xl border border-amber-500/40 bg-amber-950/40 px-5 py-3.5 text-xs font-semibold text-amber-300 hover:bg-amber-900/60 transition"
+              className="w-full sm:w-auto rounded-xl border border-amber-500/40 bg-amber-950/40 px-5 py-3.5 text-xs font-semibold text-amber-300 hover:bg-amber-900/60 transition cursor-pointer"
             >
               Edit Payment Slip / Plan
             </button>
           </div>
         </div>
       ) : (
-        /* The Bold Request Form */
+        /* The Bold Request Form with Exact Product Checkout QR Card */
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           {/* 1. Plan Tier Selector */}
           <div>
@@ -227,7 +264,7 @@ export function VipRequestAccessForm({
                 2. Official Payment Gateway (Scan to Pay)
               </span>
               <span className="text-[11px] font-mono text-emerald-400 font-semibold">
-                Instant Fonepay / eSewa / Bank
+                Instant Fonepay / eSewa / Bank QR
               </span>
             </div>
 
@@ -240,7 +277,7 @@ export function VipRequestAccessForm({
                   <button
                     type="button"
                     onClick={() => handleCopy("9801970291", "esewa")}
-                    className="text-amber-400 hover:text-amber-300 p-1"
+                    className="text-amber-400 hover:text-amber-300 p-1 cursor-pointer"
                     title="Copy eSewa ID"
                   >
                     {copiedAccount === "esewa" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -259,7 +296,7 @@ export function VipRequestAccessForm({
               <PaymentQrCard
                 amountMinor={currentPrice.npr * 100}
                 qrSrc={qrSrc}
-                orderNumber={`VIP-${selectedTier}-${phone ? phone.slice(-4) : "PASS"}`}
+                orderNumber={`VIP-${selectedTier}-${phone ? phone.slice(-4) : customerCode.slice(-4)}`}
               />
             </div>
           </div>
@@ -310,7 +347,7 @@ export function VipRequestAccessForm({
             >
               <Crown className="h-5 w-5" />
               <span className="tracking-wide">
-                {loading ? "SUBMITTING VIP REQUEST…" : "REQUEST ACCESS FOR VIP"}
+                {loading ? "SUBMITTING VIP REQUEST…" : "COMPLETE PAYMENT & CONFIRM ON WHATSAPP"}
               </span>
               <ArrowRight className="h-5 w-5" />
             </button>

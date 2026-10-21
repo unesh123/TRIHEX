@@ -50,7 +50,13 @@ export async function getSystemHealth(): Promise<SystemHealth> {
     try {
       const db = getDb();
       if (db) {
-        await db.execute(sql`select 1`);
+        const pingPromise = db.execute(sql`select 1`);
+        await Promise.race([
+          pingPromise,
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Health DB ping timeout")), 300),
+          ),
+        ]);
         database = "ok";
       }
     } catch {

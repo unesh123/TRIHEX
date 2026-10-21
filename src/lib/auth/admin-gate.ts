@@ -62,6 +62,36 @@ export async function checkAdminSession(
     return { ok: true, session };
   }
 
+  // Fast path: Cryptographically signed admin session cookie
+  let cookieHeader = requestHeaders?.get("cookie") ?? "";
+  let sessionData = parseAdminSessionCookie(cookieHeader);
+
+  if (!sessionData) {
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      const rawCookie = cookieStore.get(ADMIN_SESSION_COOKIE)?.value ?? "";
+      if (rawCookie) {
+        sessionData = parseAdminSessionCookie(rawCookie);
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
+  if (sessionData?.email && isOwnerEmail(sessionData.email)) {
+    return {
+      ok: true,
+      session: {
+        authenticated: true,
+        userId: "root-operator",
+        email: sessionData.email,
+        role: "SUPER_ADMIN",
+        bypass: false,
+      },
+    };
+  }
+
   // Supabase session path when configured
   if (
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -102,35 +132,6 @@ export async function checkAdminSession(
     } catch {
       // Fall through to stub cookie if supabase client fails in demo
     }
-  }
-
-  let cookieHeader = requestHeaders?.get("cookie") ?? "";
-  let sessionData = parseAdminSessionCookie(cookieHeader);
-
-  if (!sessionData) {
-    try {
-      const { cookies } = await import("next/headers");
-      const cookieStore = await cookies();
-      const rawCookie = cookieStore.get(ADMIN_SESSION_COOKIE)?.value ?? "";
-      if (rawCookie) {
-        sessionData = parseAdminSessionCookie(rawCookie);
-      }
-    } catch {
-      // non-fatal
-    }
-  }
-
-  if (sessionData?.email && isOwnerEmail(sessionData.email)) {
-    return {
-      ok: true,
-      session: {
-        authenticated: true,
-        userId: "root-operator",
-        email: sessionData.email,
-        role: "SUPER_ADMIN",
-        bypass: false,
-      },
-    };
   }
 
   return {

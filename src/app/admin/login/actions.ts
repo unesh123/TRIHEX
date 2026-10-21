@@ -10,6 +10,7 @@ import {
 import { isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
 import { createSupabaseServerClient } from "@/lib/auth/supabase-server";
 import { getOwnerEmail, isOwnerEmail } from "@/lib/auth/owner";
+import { isSecureCookie } from "@/lib/auth/cookie-config";
 
 import { timingSafeEqual } from "crypto";
 
@@ -122,7 +123,7 @@ export async function adminLoginAction(formData: FormData): Promise<void> {
       {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecureCookie(),
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7 days
       },
@@ -131,7 +132,7 @@ export async function adminLoginAction(formData: FormData): Promise<void> {
     cookieStore.set("trihex_vault_clearance", "cleared_zone_9702", {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isSecureCookie(),
       path: "/",
       maxAge: 60 * 60 * 12, // 12 hours
     });

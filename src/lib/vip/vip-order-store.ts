@@ -185,8 +185,8 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
     try {
       const db = getDb();
       if (db) {
-        // Query recent orders from Postgres
-        const dbOrders = await db
+        // Query recent orders from Postgres with 400ms timeout guard
+        const ordersQueryPromise = db
           .select({
             id: schema.orders.id,
             orderNumber: schema.orders.humanReadableOrderNumber,
@@ -205,10 +205,17 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
           .orderBy(desc(schema.orders.createdAt))
           .limit(100);
 
+        const dbOrders = await Promise.race([
+          ordersQueryPromise,
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("DB orders query timeout")), 400),
+          ),
+        ]);
+
         const orderIds = dbOrders.map((o) => o.id);
 
         if (orderIds.length > 0) {
-          const [dbItems, dbProofs] = await Promise.all([
+          const itemsAndProofsPromise = Promise.all([
             db
               .select({
                 orderId: schema.orderItems.orderId,
@@ -229,6 +236,13 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
               })
               .from(schema.manualPaymentSubmissions)
               .where(inArray(schema.manualPaymentSubmissions.orderId, orderIds)),
+          ]);
+
+          const [dbItems, dbProofs] = await Promise.race([
+            itemsAndProofsPromise,
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("DB items query timeout")), 400),
+            ),
           ]);
 
           for (const ord of dbOrders) {
