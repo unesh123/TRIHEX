@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { getCurrentStorefrontUser } from "@/lib/auth/user-session";
 import { getVipMemberRecordByEmail } from "@/lib/vip/vip-member-store";
-import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { VipRequestAccessForm } from "@/components/vip/vip-request-access-form";
 import { FluxDirectoryVault } from "@/components/vip/flux-directory-vault";
 import { VipPricingCheckout } from "@/components/vip/vip-pricing-checkout";
@@ -115,28 +114,38 @@ export default async function VipVaultPage({ searchParams }: VipPageProps) {
             /* CASE 2: SIGNED IN WITH GOOGLE -> SHOW BOLD "REQUEST ACCESS FOR VIP" */
             <VipRequestAccessForm user={user} existingMember={vipRecord} qrSrc={qrSrc} />
           ) : (
-            /* CASE 3: GUEST / NOT SIGNED IN -> MUST SIGN IN WITH GOOGLE FIRST */
+            /* CASE 3: GUEST / DIRECT VIP ACTIVATION */
             <div className="mx-auto max-w-md rounded-3xl border border-slate-700 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-md">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-inner">
-                <Lock className="h-7 w-7" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-inner">
+                <Crown className="h-7 w-7" />
               </div>
               <h3 className="mt-4 text-xl font-bold text-white">
-                Google Sign-In Required
+                VIP Vault Pass Activation
               </h3>
               <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-                VIP activation requires a verified Google account. Sign in below to request VIP access and receive your 👑 <strong className="text-amber-300">VIP Tag</strong> from Admin.
+                Connect directly with TRIHEX Operator on WhatsApp to activate your VIP Vault Pass and unlock instant access to 564+ AI subscriptions and tools.
               </p>
 
-              <div className="mt-6">
-                <GoogleAuthButton
-                  label="Sign in with Google for VIP"
-                  nextUrl="/vip"
-                  variant="light"
-                />
+              <div className="mt-6 flex flex-col gap-3">
+                <a
+                  href={buildWhatsAppUrl("Hello TRIHEX, I want to activate my VIP Vault Pass.", "9702910130")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg hover:from-amber-400 hover:to-amber-500 transition cursor-pointer"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Request VIP on WhatsApp</span>
+                </a>
+                <Link
+                  href="/track-order"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
+                >
+                  <span>Already Have a Pass? Check Status</span>
+                </Link>
               </div>
 
               <div className="mt-6 border-t border-slate-800 pt-4 text-[11px] text-slate-500">
-                <span>Already requested on WhatsApp? Sign in to check your active status.</span>
+                <span>Immediate activation via eSewa, Khalti, or Mobile Banking QR.</span>
               </div>
             </div>
           )}

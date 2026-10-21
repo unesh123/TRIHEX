@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AccountShell } from "@/components/storefront/account-shell";
-import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Button } from "@/components/ui/button";
 import {
   Crown,
@@ -198,34 +197,41 @@ export default async function AccountPage() {
           </div>
         </div>
       ) : (
-        /* Guest / Unauthenticated State with Authentic Google Sign In */
+        /* Guest / Unauthenticated State with Direct Tracking */
         <div className="mt-8 mx-auto max-w-md rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xl text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-inner">
-            <User className="h-7 w-7" />
+            <Package className="h-7 w-7" />
           </div>
 
           <h3 className="mt-4 font-[family-name:var(--font-sora)] text-2xl font-bold text-slate-900">
-            Sign In with Google
+            Track Orders & Delivery
           </h3>
           <p className="mt-2 text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
-            Link your orders, download invoice receipts, claim warranty replacements, and link your VIP Vault clearance in 1-click.
+            Account registration is not required to access your order history or digital package delivery. Enter your order token or phone number below.
           </p>
 
-          <div className="mt-6">
-            <GoogleAuthButton
-              label="Sign in with Google"
-              nextUrl="/account"
-              variant="light"
-            />
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              href="/track-order"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition cursor-pointer"
+            >
+              <span>Instant Order Tracking</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/contact"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+            >
+              <Headphones className="h-3.5 w-3.5 text-violet-600" />
+              <span>Contact Priority WhatsApp Support</span>
+            </Link>
           </div>
 
-          <div className="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-5 text-xs text-slate-400">
-            <span>Don&apos;t have an account? Google Sign-In automatically creates your verified profile.</span>
-            <div className="mt-2 flex justify-center gap-4 text-indigo-600 font-semibold">
-              <Link href="/track-order" className="hover:underline">Track without login</Link>
-              <span>•</span>
-              <Link href="/contact" className="hover:underline">Need Help?</Link>
-            </div>
+          <div className="mt-6 border-t border-slate-100 pt-5 text-center">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Google Single Sign-On is currently undergoing a scheduled root security review. Order fulfillment, delivery tracking, and live WhatsApp verification remain 100% active.
+            </p>
           </div>
         </div>
       )}

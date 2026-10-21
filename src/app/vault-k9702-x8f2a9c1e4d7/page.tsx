@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { checkAdminSession, isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
 import { Logo } from "@/components/brand/logo";
-import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import {
   adminLoginAction,
   adminRequestPasswordResetAction,
@@ -152,28 +151,10 @@ export default async function EncryptedSecretAdminLoginPage({
           </Button>
         </form>
 
-        {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-800" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-900 px-3 font-mono text-[10px] text-slate-500">
-              OR 1-CLICK GOOGLE ADMIN
-            </span>
-          </div>
-        </div>
-
-        {/* Section 2: Google One-Click Admin Sign-In */}
-        <div className="space-y-2">
-          <GoogleAuthButton
-            label="Sign in with Google Admin"
-            nextUrl="/admin"
-            isAdmin={true}
-            className="border-cyan-500/40 hover:border-cyan-400 hover:shadow-cyan-500/20"
-          />
-          <p className="text-[11px] text-slate-500 font-mono text-center">
-            Restricted exclusively to authorized Google accounts.
+        {/* Security Notice */}
+        <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-cyan-950/20 p-3.5 text-center">
+          <p className="text-[11px] font-mono text-cyan-300/80 leading-relaxed">
+            Direct credential authentication required. Google SSO disabled during system security audit.
           </p>
         </div>
 

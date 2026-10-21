@@ -33,6 +33,13 @@ export function decodeUserSession(token: string): StorefrontUser | null {
     const raw = Buffer.from(token, "base64url").toString("utf8");
     const parsed = JSON.parse(raw);
     if (!parsed || !parsed.email) return null;
+
+    // Security incident response: invalidate all pre-cutoff sessions
+    const SESSION_REVOCATION_CUTOFF_MS = 1792605928398;
+    if (!parsed.ts || parsed.ts < SESSION_REVOCATION_CUTOFF_MS) {
+      return null;
+    }
+
     return {
       id: parsed.id || `usr-${parsed.email.split("@")[0]}`,
       email: parsed.email.toLowerCase().trim(),

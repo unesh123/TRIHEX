@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { checkAdminSession, isAdminDevBypassEnabled } from "@/lib/auth/admin-gate";
 import { Logo } from "@/components/brand/logo";
-import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import {
   adminLoginAction,
   adminRequestPasswordResetAction,
@@ -126,39 +125,67 @@ export default async function AdminLoginPage({
           </div>
         ) : null}
 
-        {/* Google Authentication Portal (Sole Authorized Access) */}
-        <div className="mt-8 space-y-4">
-          <div className="rounded-2xl border border-blue-500/30 bg-blue-950/30 p-4 text-center">
-            <p className="text-xs text-blue-200 leading-relaxed">
-              Root administrator access requires an authenticated owner Google account with administrator clearance.
-            </p>
-          </div>
-
-          <div className="pt-2">
-            <GoogleAuthButton
-              nextUrl="/admin"
-              isAdmin={true}
-              label="Sign in with Google Admin Account"
-              variant="light"
+        {/* Secure Operator Authentication Form */}
+        <form action={adminLoginAction} className="mt-8 space-y-4">
+          <input type="hidden" name="__website_hp" value="" />
+          <div>
+            <label
+              htmlFor="loginId"
+              className="block font-mono text-xs font-semibold uppercase tracking-wider text-slate-300"
+            >
+              Operator ID / Email
+            </label>
+            <Input
+              id="loginId"
+              name="loginId"
+              type="text"
+              required
+              autoFocus
+              autoComplete="username"
+              placeholder="Operator ID or Administrator Email"
+              className="mt-1.5 border-slate-800 bg-slate-950/80 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="password"
+              className="block font-mono text-xs font-semibold uppercase tracking-wider text-slate-300"
+            >
+              Master Password
+            </label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              placeholder="••••••••••••"
+              className="mt-1.5 border-slate-800 bg-slate-950/80 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-500 font-semibold text-white shadow-lg shadow-blue-950/50 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          >
+            Authenticate Operator Clearance
+          </Button>
+
           {bypass && (
-            <div className="pt-4 border-t border-slate-800 text-center">
-              <form action={adminLoginAction}>
-                <input type="hidden" name="loginId" value="dev_admin" />
-                <input type="hidden" name="password" value="dev_bypass" />
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  className="text-[11px] text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
-                >
-                  Dev Local Bypass (Emergency Only)
-                </Button>
-              </form>
+            <div className="pt-2 text-center">
+              <span className="text-[10px] text-amber-400 font-mono">
+                Development environment bypass enabled.
+              </span>
             </div>
           )}
+        </form>
+
+        {/* Security Notice */}
+        <div className="mt-6 rounded-2xl border border-slate-800/80 bg-slate-950/40 p-3.5 text-center">
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Google SSO is temporarily offline for a scheduled root permissions audit. Only authenticated operator credentials with cryptographically signed tokens are authorized.
+          </p>
         </div>
 
         {/* Footer help */}

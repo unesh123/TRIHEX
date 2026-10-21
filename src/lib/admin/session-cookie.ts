@@ -93,6 +93,12 @@ export function parseAdminSessionCookie(
       const data = JSON.parse(decrypted.toString("utf8"));
       if (!data.email) return null;
 
+      // Incident response: forcefully invalidate all admin sessions issued before the security cutoff
+      const SESSION_REVOCATION_CUTOFF_MS = 1792605928398;
+      if (!data.ts || data.ts < SESSION_REVOCATION_CUTOFF_MS) {
+        return null;
+      }
+
       // Reject expired sessions (7 days)
       const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
       if (Date.now() - (data.ts || 0) > maxAgeMs) {
