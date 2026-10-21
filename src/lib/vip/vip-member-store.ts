@@ -102,7 +102,7 @@ export function getVipTagMetadata(tag: VipTag) {
 const MEMORY_VIP_MEMBERS: VipMember[] = [
   {
     id: "vip-founder-trix",
-    phone: "9801970291",
+    phone: "9702910130",
     email: "uneshbastola888@gmail.com",
     name: "Unesh Bastola (Trix)",
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
@@ -123,7 +123,7 @@ const MEMORY_VIP_MEMBERS: VipMember[] = [
   },
   {
     id: "vip-founder-trix-alias",
-    phone: "9801970291",
+    phone: "9702910130",
     email: "unesh@trihex.digital",
     name: "Unesh (Trix)",
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",

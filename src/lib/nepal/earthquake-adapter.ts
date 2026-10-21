@@ -56,18 +56,29 @@ export const BASELINE_NEPAL_SEISMIC: SeismicEvent[] = [
   },
 ];
 
+let memoryCachedSeismic: {
+  data: { events: SeismicEvent[]; source: string; isLive: boolean };
+  expiresAt: number;
+} | null = null;
+const SEISMIC_MEMORY_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
 export async function fetchNepalSeismicEvents(): Promise<{
   events: SeismicEvent[];
   source: string;
   isLive: boolean;
 }> {
+  // Return instantly from in-memory cache if fresh
+  if (memoryCachedSeismic && Date.now() < memoryCachedSeismic.expiresAt) {
+    return memoryCachedSeismic.data;
+  }
+
   // Nepal bounding box coordinates: 26N to 31N, 80E to 89E
   const url =
     "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=2.5&minlatitude=26&maxlatitude=31&minlongitude=80&maxlongitude=89&limit=15";
 
   try {
     const result = await safeFetch<any>(url, {
-      timeoutMs: 4000,
+      timeoutMs: 3000,
       allowedDomains: ["earthquake.usgs.gov"],
     });
 
@@ -90,11 +101,16 @@ export async function fetchNepalSeismicEvents(): Promise<{
       });
 
       if (parsed.length > 0) {
-        return {
+        const liveData = {
           events: parsed,
           source: "USGS Earthquake Hazards Program (Live FDSN Feed)",
           isLive: true,
         };
+        memoryCachedSeismic = {
+          data: liveData,
+          expiresAt: Date.now() + SEISMIC_MEMORY_CACHE_TTL_MS,
+        };
+        return liveData;
       }
     }
   } catch {

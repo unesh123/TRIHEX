@@ -10,15 +10,23 @@ import { ForexSnapshot, ForexFreshnessStatus, BASELINE_NRB_RATES, formatRelative
 
 
 let previousSnapshotCache: ForexSnapshot | null = null;
+let memoryCachedForex: { snapshot: ForexSnapshot; expiresAt: number } | null = null;
+const FOREX_MEMORY_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 export async function fetchNrbForexRates(): Promise<ForexSnapshot> {
   const now = new Date();
+
+  // Return instantly from in-memory cache if fresh
+  if (memoryCachedForex && Date.now() < memoryCachedForex.expiresAt) {
+    return memoryCachedForex.snapshot;
+  }
+
   const today = now.toISOString().split("T")[0];
   const url = `https://www.nrb.org.np/api/forex/v1/rates?page=1&per_page=1&from=${today}&to=${today}`;
 
   try {
     const result = await safeFetch<any>(url, {
-      timeoutMs: 4000,
+      timeoutMs: 3000,
       allowedDomains: ["www.nrb.org.np", "nrb.org.np"],
     });
 
@@ -65,6 +73,10 @@ export async function fetchNrbForexRates(): Promise<ForexSnapshot> {
       };
 
       previousSnapshotCache = liveSnapshot;
+      memoryCachedForex = {
+        snapshot: liveSnapshot,
+        expiresAt: Date.now() + FOREX_MEMORY_CACHE_TTL_MS,
+      };
 
       // Persist snapshot to database asynchronously
       const db = getDb();

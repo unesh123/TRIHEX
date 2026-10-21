@@ -64,13 +64,16 @@ export function ProductGrid({
   products,
   emptyMessage = "No products match your filters.",
   showFilters = true,
+  initialLimit = 24,
 }: {
   products: Array<MerchCard | ProductCardProps>;
   emptyMessage?: string;
   showFilters?: boolean;
+  initialLimit?: number;
 }) {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [query, setQuery] = useState("");
+  const [displayCount, setDisplayCount] = useState<number>(initialLimit);
 
   const normalizedCards = useMemo(() => {
     const list = products.map(toMerch);
@@ -224,11 +227,32 @@ export function ProductGrid({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filtered.map((product) => (
-            <ProductCard key={product.slug} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {(query.trim() ? filtered : filtered.slice(0, displayCount)).map((product) => (
+              <ProductCard key={product.slug} product={product} />
+            ))}
+          </div>
+
+          {!query.trim() && displayCount < filtered.length && (
+            <div className="pt-6 pb-2 text-center flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setDisplayCount((prev) => Math.min(prev + 24, filtered.length))}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-800 shadow-xs hover:border-slate-400 hover:bg-slate-50 transition cursor-pointer"
+              >
+                <span>Load More ({filtered.length - displayCount} remaining)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDisplayCount(filtered.length)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition cursor-pointer"
+              >
+                <span>View All {filtered.length} Products</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

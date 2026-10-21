@@ -19,15 +19,15 @@ describe("VIP Member & Customer Intelligence Store", () => {
     const founder = members.find((m) => m.id === "vip-founder-trix");
     expect(founder).toBeDefined();
     expect(founder?.isLifetime).toBe(true);
-    expect(founder?.phone).toBe("9801970291");
+    expect(founder?.phone).toBe("9702910130");
     expect(founder?.status).toBe("ACTIVE");
     expect(founder?.deviceTelemetry).toBeDefined();
   });
 
   it("searches members by phone number, email, or token", async () => {
-    const byPhone = await searchVipMembers("9801970291");
+    const byPhone = await searchVipMembers("9702910130");
     expect(byPhone.length).toBeGreaterThanOrEqual(1);
-    expect(byPhone[0].phone).toContain("9801970291");
+    expect(byPhone[0].phone).toContain("9702910130");
 
     const byEmail = await searchVipMembers("unesh@trihex.digital");
     expect(byEmail.length).toBeGreaterThanOrEqual(1);

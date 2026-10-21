@@ -130,7 +130,7 @@ export default async function AdminLoginPage({
         <div className="mt-8 space-y-4">
           <div className="rounded-2xl border border-blue-500/30 bg-blue-950/30 p-4 text-center">
             <p className="text-xs text-blue-200 leading-relaxed">
-              Root administrator access requires an authenticated owner Google account (<span className="font-mono text-blue-300">uneshbastola888@gmail.com</span>).
+              Root administrator access requires an authenticated owner Google account with administrator clearance.
             </p>
           </div>
 
