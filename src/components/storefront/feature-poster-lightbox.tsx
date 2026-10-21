@@ -87,14 +87,14 @@ export function FeaturePosterLightbox({
           className,
         )}
       >
-        <div className="relative aspect-[4/5] w-full">
+        <div className={cn("relative w-full", activeSrc.startsWith("/media/artwork/") ? "aspect-square" : "aspect-[4/5]")}>
           <Image
             src={activeSrc}
             alt={alt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 640px"
-            quality={82}
-            className="object-contain p-2.5 transition duration-500 group-hover:scale-[1.018]"
+            quality={80}
+            className={cn("object-contain transition duration-500 group-hover:scale-[1.018]", !activeSrc.startsWith("/media/artwork/") && "p-2.5")}
             priority={priority}
           />
         </div>
@@ -103,7 +103,7 @@ export function FeaturePosterLightbox({
         <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-xl border border-white/90 bg-slate-950/80 px-3.5 py-2 text-white opacity-0 shadow-lg backdrop-blur-md transition-opacity duration-200 group-hover:opacity-100">
           <span className="flex items-center gap-1.5 text-xs font-semibold">
             <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-            Click to view full feature infographic
+            Click to view full product image
           </span>
           <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/20 text-white">
             <Maximize2 className="h-3.5 w-3.5" />
@@ -126,7 +126,7 @@ export function FeaturePosterLightbox({
           <div className="flex w-full max-w-5xl items-center justify-between px-2 py-2 text-white">
             <div className="flex items-center gap-2.5">
               <span className="rounded-full bg-blue-500/20 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-cyan-300 border border-blue-400/30">
-                Official Spec Poster
+                Product Image
               </span>
               <h3 className="font-[family-name:var(--font-sora)] text-sm font-semibold text-white/90 sm:text-base line-clamp-1">
                 {title}
@@ -209,8 +209,8 @@ export function FeaturePosterLightbox({
               <Image
                 src={activeSrc}
                 alt={alt}
-                width={1600}
-                height={2400}
+                width={activeSrc.startsWith("/media/artwork/") ? 960 : 1600}
+                height={activeSrc.startsWith("/media/artwork/") ? 960 : 2400}
                 unoptimized
                 className="max-h-[80vh] w-auto rounded-xl object-contain shadow-2xl ring-1 ring-white/10"
                 priority

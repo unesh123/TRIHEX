@@ -22,9 +22,9 @@ const TRIX_VIP_FEATURE_LIST = [
     title: "Advanced VIP Chat Rooms & Mastermind Access",
     tag: "PRIVATE CHANNELS",
     badge: "EXCLUSIVE",
-    desc: "Encrypted Telegram and Discord channels for senior engineers and founders. Real-time method drops, zero-day alerts, and direct collaboration.",
+    desc: "Encrypted private developer rooms and Discord channels for senior engineers and founders. Real-time method drops, zero-day alerts, and direct collaboration.",
     bullets: [
-      "Encrypted Telegram Private Channels: Daily operational intel",
+      "Encrypted Private Dispatch Channels: Daily operational intel",
       "Private Discord Alpha Guild: Screen shares & code reviews",
       "Direct Founder Hotline: Direct access to Trix for rapid escalation",
     ],

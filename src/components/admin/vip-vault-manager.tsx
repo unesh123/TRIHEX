@@ -179,13 +179,68 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
     }
   };
 
+  const handleStartEdit = (item: VipVaultItem) => {
+    setEditingItem(item);
+    setFormTitle(item.title);
+    setFormCategory(item.category);
+    setFormTag(item.tag);
+    setFormSummary(item.summary);
+    setFormBoldItems(item.boldItems.join("\n"));
+    setFormStatus(item.status);
+    setFormIsWorking(item.isWorking ?? true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem || !formTitle || !formSummary) return;
+
+    setIsSubmitting(true);
+    const bullets = formBoldItems
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const updatedItemPayload: Partial<VipVaultItem> = {
+      title: formTitle,
+      category: formCategory,
+      tag: formTag || "EXCLUSIVE ASSET",
+      summary: formSummary,
+      boldItems: bullets.length > 0 ? bullets : [formSummary],
+      status: formStatus,
+      isWorking: formIsWorking,
+    };
+
+    try {
+      const res = await fetch("/api/admin/vip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          id: editingItem.id,
+          item: updatedItemPayload,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.item) {
+        setItems((prev) =>
+          prev.map((i) => (i.id === editingItem.id ? data.item : i))
+        );
+        setEditingItem(null);
+      }
+    } catch (err) {
+      console.error("Error updating item", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. Header KPIs */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <div className="rounded-2xl border border-amber-500/20 bg-slate-900/80 p-4 backdrop-blur shadow-sm">
           <div className="flex items-center justify-between text-xs text-amber-400 font-medium">
-            <span>VIP Balls &amp; Perks</span>
+            <span>VIP Vault Blueprints &amp; Perks</span>
             <Crown className="h-4 w-4 text-amber-400" />
           </div>
           <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-white font-mono">
@@ -371,7 +426,7 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
                   {/* Bold Items List preview */}
                   <div className="mt-3 rounded-xl border border-white/5 bg-slate-950/60 p-3.5 space-y-2">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400/90 font-bold block">
-                      ⚡ TRIX TV VIP BOLD LIST SPECIFICATION:
+                      ⚡ VIP BLUEPRINT SPECIFICATIONS &amp; HIGHLIGHTS:
                     </span>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                       {item.boldItems.map((bullet, idx) => {
@@ -424,6 +479,15 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
                     <option value="MAINTENANCE">MAINTENANCE</option>
                   </select>
 
+                  {/* Edit Button */}
+                  <button
+                    onClick={() => handleStartEdit(item)}
+                    className="rounded-xl border border-white/10 bg-slate-950/60 p-2 text-slate-400 hover:border-amber-500/40 hover:text-amber-400 transition"
+                    title="Edit item"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+
                   {/* Delete Button */}
                   <button
                     onClick={() => handleDelete(item.id)}
@@ -439,12 +503,15 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
         )}
       </div>
 
-      {/* 4. Add VIP Ball Modal */}
-      {isAddModalOpen && (
+      {/* 4. Add / Edit VIP Blueprint Modal */}
+      {(isAddModalOpen || editingItem) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
           <div className="relative w-full max-w-2xl rounded-3xl border border-amber-500/30 bg-slate-900 p-6 sm:p-8 text-slate-100 shadow-2xl">
             <button
-              onClick={() => setIsAddModalOpen(false)}
+              onClick={() => {
+                setIsAddModalOpen(false);
+                setEditingItem(null);
+              }}
               className="absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
             >
               <X className="h-5 w-5" />
@@ -453,14 +520,16 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
             <div className="flex items-center gap-2 mb-6">
               <Crown className="h-6 w-6 text-amber-400" />
               <div>
-                <h2 className="text-lg font-bold text-white">Add New VIP Ball / Method</h2>
+                <h2 className="text-lg font-bold text-white">
+                  {editingItem ? `Edit VIP Blueprint: ${editingItem.title}` : "Add New VIP Blueprint / Method"}
+                </h2>
                 <p className="text-xs text-slate-400">
-                  Adds an exclusive perk to the Launched by Trix VIP Vault.
+                  {editingItem ? "Update parameters, specifications, or operational status." : "Adds an exclusive perk to the Launched by Trix VIP Vault."}
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handleCreateSubmit} className="space-y-4">
+            <form onSubmit={editingItem ? handleEditSubmit : handleCreateSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
                   Title
@@ -526,7 +595,7 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
                 </label>
                 <textarea
                   rows={4}
-                  placeholder={`Zero Token Limits: Multi-agent continuous coding cycles\nSupabase Auto-Sync: Direct migrations and auth scaffolding\nGit Sync: Clean commit export to GitHub\n24/7 Trix Channel: Direct Telegram priority line`}
+                  placeholder={`Zero Token Limits: Multi-agent continuous coding cycles\nSupabase Auto-Sync: Direct migrations and auth scaffolding\nGit Sync: Clean commit export to GitHub\n24/7 Trix Channel: Direct WhatsApp VIP priority line`}
                   value={formBoldItems}
                   onChange={(e) => setFormBoldItems(e.target.value)}
                   className="w-full font-mono rounded-xl border border-white/10 bg-slate-950 px-3.5 py-2 text-xs text-white focus:border-amber-500 focus:outline-none"
@@ -567,7 +636,10 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
               <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={() => {
+                    setIsAddModalOpen(false);
+                    setEditingItem(null);
+                  }}
                   className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
                 >
                   Cancel
@@ -577,7 +649,13 @@ export function VipVaultManager({ initialItems }: VipVaultManagerProps) {
                   disabled={isSubmitting}
                   className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 disabled:opacity-50"
                 >
-                  {isSubmitting ? "Adding..." : "Publish to VIP Vault"}
+                  {isSubmitting
+                    ? editingItem
+                      ? "Saving..."
+                      : "Adding..."
+                    : editingItem
+                    ? "Save Changes"
+                    : "Publish to VIP Vault"}
                 </button>
               </div>
             </form>

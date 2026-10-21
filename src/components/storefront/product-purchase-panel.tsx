@@ -486,9 +486,7 @@ export function ProductPurchasePanel({
               Warranty Coverage
             </dt>
             <dd className="mt-0.5 font-semibold text-[var(--text)]">
-              {plan.warrantyLabel && plan.warrantyLabel !== "No warranty"
-                ? plan.warrantyLabel
-                : "Full term replacement"}
+              {plan.warrantyLabel || "Confirm warranty terms"}
             </dd>
           </div>
           <div>
@@ -496,7 +494,7 @@ export function ProductPurchasePanel({
               Fulfillment Target
             </dt>
             <dd className="mt-0.5 font-semibold text-[var(--text)]">
-              Usually 2 to 6 hours
+              {eligibility.allowed ? "Usually 2 to 6 hours" : "Confirm activation time"}
             </dd>
           </div>
         </dl>
@@ -570,7 +568,7 @@ export function ProductPurchasePanel({
       <div className="mt-4 flex items-center justify-between border-t border-[var(--border)]/70 pt-3 text-[11px] text-[var(--text-muted)]">
         <span className="flex items-center gap-1 font-medium">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-          TRIHEX-verified fulfillment
+          {eligibility.allowed ? "TRIHEX-verified fulfillment" : "Confirm fulfillment details"}
         </span>
         <span>Revalidated at checkout</span>
       </div>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclaimer";
 import { formatNpr } from "@/lib/money";
 import type { DemoCatalogItem } from "@/lib/catalog/demo-catalog";
-import { readCart, type CartLine } from "@/components/storefront/cart-view";
+import { readCart, writeCart, type CartLine } from "@/components/storefront/cart-view";
 import { PriceInquiryNotice } from "@/components/storefront/price-inquiry-notice";
 import { PaymentQrCard } from "@/components/storefront/payment-qr-card";
 import { STOREFRONT_PAYMENT_HINTS } from "@/lib/payments/storefront-payment";
@@ -49,11 +49,39 @@ export function CheckoutForm({ catalog, qrSrc }: CheckoutFormProps) {
 
   useEffect(() => {
     const id = window.setTimeout(() => {
-      setLines(readCart());
+      let currentLines = readCart();
+      if (typeof window !== "undefined") {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const queryProduct = params.get("product") || params.get("plan");
+          const querySku = params.get("sku");
+          if (queryProduct) {
+            const matched = catalog.find(
+              (c) =>
+                c.slug === queryProduct ||
+                c.variantSku === queryProduct ||
+                (querySku && c.variantSku === querySku),
+            );
+            if (matched) {
+              const newLine: CartLine = {
+                productSlug: matched.slug,
+                variantSku: querySku || matched.variantSku || "DEFAULT",
+                quantity: 1,
+                warranty: matched.warranty ?? undefined,
+              };
+              currentLines = [newLine];
+              writeCart(currentLines);
+            }
+          }
+        } catch {
+          /* fallback */
+        }
+      }
+      setLines(currentLines);
       setReady(true);
     }, 0);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [catalog]);
 
   useEffect(() => {
     if (!submitting) return;

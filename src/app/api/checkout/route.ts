@@ -85,6 +85,51 @@ export async function POST(request: Request) {
     // createOrder already persists the order — do not save again
     const order = result.order;
 
+    // Automatically register customer mobile number in VIP intelligence store for instant phone tracking
+    if (body.customerPhone && body.customerPhone.trim().length >= 7) {
+      try {
+        const { registerOrUpdateCustomerVip } = await import("@/lib/vip/vip-member-store");
+
+        // Detect if this order contains a VIP Pass
+        const vipLine = body.lines?.find((l) =>
+          l.productSlug?.startsWith("trihex-vip-pass") || l.variantSku?.startsWith("THX-VIP-")
+        );
+        let vipTier: "1_MONTH" | "6_MONTHS" | "LIFETIME" | "NORMAL" = "NORMAL";
+        let vipTag: "VIP" | "PRO" | "STARTER" | "NORMAL" = "NORMAL";
+        let isLifetime = false;
+
+        if (vipLine) {
+          const s = (vipLine.productSlug + " " + vipLine.variantSku).toLowerCase();
+          if (s.includes("life")) {
+            vipTier = "LIFETIME";
+            vipTag = "VIP";
+            isLifetime = true;
+          } else if (s.includes("6-month") || s.includes("6m")) {
+            vipTier = "6_MONTHS";
+            vipTag = "PRO";
+          } else {
+            vipTier = "1_MONTH";
+            vipTag = "VIP";
+          }
+        }
+
+        await registerOrUpdateCustomerVip({
+          phone: body.customerPhone.trim(),
+          name: body.customerName?.trim(),
+          email: body.customerEmail?.trim(),
+          tier: vipTier,
+          vipTag: vipTag,
+          status: "PENDING_VERIFICATION",
+          amountNpr: Math.round(order.totalNprMinor / 100),
+          adminNotes: vipLine
+            ? `VIP Pass Order #${order.orderNumber} (${vipTier}). Method: ${order.paymentMethod}`
+            : `Storefront Order #${order.orderNumber}. Method: ${order.paymentMethod}`,
+        });
+      } catch (syncErr) {
+        console.warn("[checkout] VIP member sync note:", syncErr);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       orderNumber: order.orderNumber,

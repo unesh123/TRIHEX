@@ -17,6 +17,7 @@ import { getRepositories } from "@/lib/repositories";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
 import { warrantyPolicy } from "@/lib/commerce/warranty-policy";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
+import { campaignPrice } from "@/lib/catalog/limited-offer";
 
 
 export type PaymentMethodPreference =
@@ -170,40 +171,46 @@ async function resolveProductLine(
         )
         .limit(1);
       const row = rows[0];
-      if (!row || !row.active) return null;
-      return {
-        slug: row.slug,
-        name: row.name,
-        productStatus: row.productStatus,
-        complianceStatus: row.complianceStatus,
-        supplyAuthorizationType: row.supplyAuthorizationType,
-        vendorProofStatus: row.vendorProofStatus,
-        variant: {
-          id: row.variantId,
-          sku: row.sku,
-          variantName: row.variantName,
-          supplierCostUsdMinor:
-            row.supplierCostUsdMinor ?? row.supplierCostMinor ?? 0,
-          manualSellingPriceNprMinor: row.manualSellingPriceNprMinor,
-          minimumProfitNprMinor: row.minimumProfitNprMinor ?? 0,
-          fxRateNprMinorPerUsd: row.fxRateSnapshot,
-          pricingMode: row.pricingMode,
-          purchasable: row.purchasable,
-          seedVisibleQuantity: row.seedVisibleQuantity,
-          durationValue: row.durationValue,
-          durationUnit: row.durationUnit,
-          warrantyValue: row.warrantyValue,
-          warrantyUnit: row.warrantyUnit,
-          warrantyCoverage: row.warrantyCoverage,
-          activationMethod: row.activationMethod,
-        },
-      };
+      if (row && row.active) {
+        return {
+          slug: row.slug,
+          name: row.name,
+          productStatus: row.productStatus,
+          complianceStatus: row.complianceStatus,
+          supplyAuthorizationType: row.supplyAuthorizationType,
+          vendorProofStatus: row.vendorProofStatus,
+          variant: {
+            id: row.variantId,
+            sku: row.sku,
+            variantName: row.variantName,
+            supplierCostUsdMinor:
+              row.supplierCostUsdMinor ?? row.supplierCostMinor ?? 0,
+            manualSellingPriceNprMinor: row.manualSellingPriceNprMinor,
+            minimumProfitNprMinor: row.minimumProfitNprMinor ?? 0,
+            fxRateNprMinorPerUsd: row.fxRateSnapshot,
+            pricingMode: row.pricingMode,
+            purchasable: row.purchasable,
+            seedVisibleQuantity: row.seedVisibleQuantity,
+            durationValue: row.durationValue,
+            durationUnit: row.durationUnit,
+            warrantyValue: row.warrantyValue,
+            warrantyUnit: row.warrantyUnit,
+            warrantyCoverage: row.warrantyCoverage,
+            activationMethod: row.activationMethod,
+          },
+        };
+      }
     }
   }
 
   const product = ALL_SEED_PRODUCTS.find((p) => p.slug === productSlug);
   if (!product) return null;
-  const variant = product.variants.find((v) => v.sku === variantSku);
+  const variant =
+    product.variants.find(
+      (v) =>
+        v.sku.toUpperCase() === variantSku.toUpperCase() ||
+        v.sku === variantSku,
+    ) ?? product.variants[0];
   if (!variant) return null;
   return {
     slug: product.slug,
@@ -384,7 +391,7 @@ export async function createOrder(
         roundingMode: "NEAREST_10",
         pricingMode,
         manualSellingPriceNprMinor:
-          product.variant.manualSellingPriceNprMinor,
+          campaignPrice(product.slug, product.variant.sku, product.variant.manualSellingPriceNprMinor) ?? null,
       });
 
       const baseUnit = pricing.finalPriceNprMinor;

@@ -1,15 +1,9 @@
 # TRIHEX Research Notes and Sources
 
-## Telegram webhook architecture
+## WhatsApp and Webhook Event Architecture
 
-Telegram’s official Bot API states that bots can receive updates through either `getUpdates` or an outgoing webhook. A configured webhook results in Telegram sending HTTPS POST requests containing serialized updates. The official API documents `secret_token` as a request-validation header and notes that polling cannot run while an outgoing webhook is configured.
+TRIHEX uses direct website-hosted event-driven notifications: an order transaction writes an event and dispatches notifications directly via customer WhatsApp links and audited outbox events. This maintains order database as the single source of truth without third-party messaging leaks.
 
-The official webhook guide describes webhook push as avoiding frequent polling and enabling immediate delivery. It specifies HTTPS/TLS requirements and supported ports. For TRIHEX, this supports event-driven website-hosted notifications: an order transaction should write an event and enqueue a notification; the bot webhook should consume user linking/status commands, validate the Telegram secret token, and deduplicate update IDs.
-
-Sources:
-
-1. https://core.telegram.org/bots/api
-2. https://core.telegram.org/bots/webhooks
 
 ## Google search and ecommerce guidance
 

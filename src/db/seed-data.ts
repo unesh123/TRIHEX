@@ -12,6 +12,7 @@ import {
 } from "./catalogue-overrides";
 import { sellNprFromUsdt, usdtToUsdMinor } from "./stock-pricing";
 import { NEW_STOCK_SEED_PRODUCTS } from "./new-stock-july2026";
+import { OWNER_PRODUCT_ADDITIONS } from "./owner-product-additions";
 
 export interface SeedVariant {
   sku: string;
@@ -81,6 +82,7 @@ export const SEED_CATEGORIES = [
 ] as const;
 
 export const SEED_BRANDS = [
+  { name: "MuseAI", slug: "museai", isOwnBrand: false },
   { name: "Google Gemini", slug: "gemini", isOwnBrand: false },
   { name: "OpenAI", slug: "openai", isOwnBrand: false },
   { name: "Adobe", slug: "adobe", isOwnBrand: false },
@@ -928,6 +930,124 @@ export const SEED_OWNED_PRODUCTS: SeedProduct[] = [
         manualSellingPriceNprMinor: 199900,
         minimumProfitNprMinor: 199900,
         purchasable: true,
+      },
+    ],
+  },
+];
+
+/** Official TRIHEX VIP Membership Passes (Instant Site Checkout & Bank QR Fulfillment) */
+export const SEED_VIP_PRODUCTS: SeedProduct[] = [
+  {
+    name: "TRIHEX VIP Pass — 1 Month (30 Days)",
+    slug: "trihex-vip-pass-1-month",
+    brandSlug: "trihex",
+    categorySlug: "services",
+    sourceListingText: "TRIHEX Official VIP Membership — 1 Month Full Clearance",
+    shortDescription:
+      "Full VIP Zone clearance for 30 days: exclusive toolkits, cloud archive, private leaks, developer blueprints, and direct founder hotline.",
+    longDescription:
+      "Everything in Pro included\nFull VIP Zone access (Exclusive Leaks & Setups, Cloud Software, Developer Courses, License Keys & Methods, Mobile Zone, VIP Blueprints)\nPrivate Founder & Researcher Hotline access\nPrivate VIP Database & Cloud Archive\nUntested fresh drops & beta releases first\nVIP Mobile Security & toolkit\nAdvanced Developer & Defense tools\nExclusive VIP courses & masterclasses",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "MANUAL_CUSTOMER_EMAIL_ACTIVATION",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VIP-1M",
+        variantName: "1 Month VIP Pass (30 Days)",
+        durationValue: 30,
+        durationUnit: "DAY",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 399900,
+        compareAtPriceNprMinor: 799900,
+        minimumProfitNprMinor: 399900,
+        pricingMode: "MANUAL_ONLY",
+        purchasable: true,
+        warrantyValue: 30,
+        warrantyUnit: "DAY",
+        warrantyCoverage: "FULL",
+        activationMethod: "INSTANT_MOBILE_VIP_ACTIVATION",
+      },
+    ],
+  },
+  {
+    name: "TRIHEX VIP Pass — 6 Months (180 Days)",
+    slug: "trihex-vip-pass-6-months",
+    brandSlug: "trihex",
+    categorySlug: "services",
+    sourceListingText: "TRIHEX Official VIP Membership — 6 Months Full Clearance",
+    shortDescription:
+      "Most popular VIP clearance: 180 days uninterrupted access to VIP tools, private community chat rooms, priority queue founder desk, and architecture reviews.",
+    longDescription:
+      "Everything in Pro included\nFull VIP Zone access (Exclusive Leaks & Setups, Cloud Software, Developer Courses, License Keys & Methods, Mobile Zone, VIP Blueprints)\nPrivate Founder Hotline access (Priority queue)\nPrivate VIP Database & Cloud Archive (6 months continuous updates)\nUntested fresh drops & beta releases first\nVIP Mobile Security & toolkit\nAdvanced Developer & Defense tools\nExclusive VIP courses & masterclasses\nDirect 1-on-1 architecture review via Discord/WhatsApp",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "MANUAL_CUSTOMER_EMAIL_ACTIVATION",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VIP-6M",
+        variantName: "6 Months VIP Pass (180 Days)",
+        durationValue: 180,
+        durationUnit: "DAY",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 599900,
+        compareAtPriceNprMinor: 1599900,
+        minimumProfitNprMinor: 599900,
+        pricingMode: "MANUAL_ONLY",
+        purchasable: true,
+        warrantyValue: 180,
+        warrantyUnit: "DAY",
+        warrantyCoverage: "FULL",
+        activationMethod: "INSTANT_MOBILE_VIP_ACTIVATION",
+      },
+    ],
+  },
+  {
+    name: "TRIHEX Permanent Lifetime VIP Pack",
+    slug: "trihex-vip-pass-lifetime",
+    brandSlug: "trihex",
+    categorySlug: "services",
+    sourceListingText: "TRIHEX Official VIP Membership — Unrestricted Lifetime Pack",
+    shortDescription:
+      "Permanent lifetime unrestricted VIP clearance: all future updates, zero cooldown founder desk, private Alpha Guild room access, and all commercial developer toolkits.",
+    longDescription:
+      "Everything in Pro included forever\nFull VIP Zone access (Exclusive Leaks & Setups, Cloud Software, Developer Courses, License Keys & Methods, Mobile Zone, VIP Blueprints)\nDirect Founder Hotline access (Zero cooldown priority)\nPrivate VIP Database & Cloud Archive (Permanent lifetime sync)\nUntested fresh drops & beta releases first (First wave access)\nVIP Mobile Security & toolkit (All future version updates)\nAdvanced Developer & Defense tools (All commercial rights)\nExclusive VIP courses & masterclasses (All future cohorts)\nVIP Alpha Guild membership in Discord & Private Founder Lounge",
+    productType: "OWNED_ASSET",
+    fulfillmentType: "MANUAL_CUSTOMER_EMAIL_ACTIVATION",
+    productStatus: "PUBLIC",
+    complianceStatus: "APPROVED",
+    supplyAuthorizationType: "OWN_DIGITAL_PRODUCT",
+    vendorProofStatus: "VERIFIED",
+    needsDataVerification: false,
+    featured: true,
+    variants: [
+      {
+        sku: "THX-VIP-LIFE",
+        variantName: "Permanent Lifetime VIP Pack",
+        durationValue: 99,
+        durationUnit: "YEAR",
+        supplierCostUsdMinor: 0,
+        seedVisibleQuantity: 999,
+        manualSellingPriceNprMinor: 799900,
+        compareAtPriceNprMinor: 2499900,
+        minimumProfitNprMinor: 799900,
+        pricingMode: "MANUAL_ONLY",
+        purchasable: true,
+        warrantyValue: 3650,
+        warrantyUnit: "DAY",
+        warrantyCoverage: "FULL",
+        activationMethod: "INSTANT_MOBILE_VIP_ACTIVATION",
       },
     ],
   },
@@ -1880,8 +2000,10 @@ export function withOwnerOverrides(products: SeedProduct[]): SeedProduct[] {
 }
 
 export const ALL_SEED_PRODUCTS = withOwnerOverrides([
+  ...OWNER_PRODUCT_ADDITIONS,
   ...SEED_SCREENSHOT_PRODUCTS,
   ...SEED_OWNED_PRODUCTS,
+  ...SEED_VIP_PRODUCTS,
   ...SEED_VAULT_PRODUCTS,
   ...SEED_NEW_OWNER_PRODUCTS,
   ...SEED_STOCK_EXPANSION,

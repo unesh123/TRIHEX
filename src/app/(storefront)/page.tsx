@@ -35,6 +35,7 @@ import { HomeVaultBanner } from "@/components/storefront/home-vault-banner";
 import { ReturningUserFeed } from "@/components/personalization/returning-user-feed";
 import { UnifiedDiscoveryFeed } from "@/components/storefront/discovery-feed";
 import { ExpertRecommendationsSection } from "@/components/storefront/expert-recommendations-section";
+import { RecentlyViewed } from "@/components/storefront/recently-viewed";
 import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
 import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
@@ -139,59 +140,59 @@ export default async function HomePage() {
         }}
       />
 
-      {/* ── 2. TRENDING PREMIUM DEALS CAROUSEL ── */}
-      <TrendingDealsCarousel products={shopProducts} />
-
-      {/* ── 3. FREE DIGITAL VAULT ECOSYSTEM (COURSES, PROMPTS, CREDITS) ── */}
-      <FreeVaultSection />
-
-      {/* ── 4. TRIHEX PREMIUM VIP VAULT (LUXURY DARK ASSETS) ── */}
-      <PremiumVaultSection />
-
-      {/* ── 4B. TRIHEX CYBERSECURITY ACADEMY & ISOLATED LABS ── */}
-      <CyberAcademySection />
-
-      {/* ── 4C. DEFENSIVE SECURITY & DISASTER RECOVERY ENGINE ── */}
-      <DefensiveSecuritySection />
-
-      {/* ── 5. LIVE DEAL RADAR & CLOUD CREDITS (PUBLIC FEED) ── */}
-      <LiveDealRadarSection deals={verifiedDeals} />
-
-      {/* ── 6. TODAY'S DIGITAL DROPS (PRODUCT HUNT STYLE) ── */}
-      <DailyDropsSection />
-
-      {/* ── 7. MARKETPLACE CATEGORIES MATRIX ── */}
-      <MarketplaceCategoriesGrid />
-
-      {/* ── 8. RETURNING USER PERSONALIZATION & RECENTLY VIEWED ── */}
-      <ReturningUserFeed />
-
-      {/* ── 9. ALL VERIFIED PACKAGES (CATALOGUE GRID) ── */}
-      <section id="all-products" className="scroll-mt-24 py-14 sm:py-20 border-b border-border">
+      {/* ── 2. ALL VERIFIED PACKAGES (CATALOGUE GRID · 2 PER ROW ON MOBILE LIKE NIMBUSSTORE) ── */}
+      <section id="all-products" className="scroll-mt-20 py-6 sm:py-12 border-b border-slate-200/80 bg-white">
         <div className="store-container">
-          <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-5">
+          <Reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200/60 px-3 py-1 text-[11px] font-bold text-blue-700 uppercase tracking-wider mb-2">
                 <Package className="h-3.5 w-3.5 text-blue-600" />
-                <span>Complete Storefront Catalogue</span>
+                <span>Verified Nepal Storefront · Live Catalogue</span>
               </div>
-              <h2 className="font-[family-name:var(--font-sora)] text-2xl font-black tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+              <h2 className="font-[family-name:var(--font-sora)] text-xl font-black tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
                 All Available Software Packages
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-                {shopProducts.length} verified packages ready for instant checkout with live NPR prices. CapCut Pro 1-Month at Rs. 399, Gemini Pro 18-Months at Rs. 399, ChatGPT Plus, Claude Pro, and more.
+              <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-600">
+                {shopProducts.length} verified packages ready for instant checkout with live NPR prices. CapCut Pro at Rs. 399, Gemini Pro 18-Months at Rs. 399, ChatGPT Plus, Claude Pro, and VIP Passes.
               </p>
             </div>
             <Link
               href="/products"
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800"
+              className="hidden sm:inline-flex h-9 items-center justify-center rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800"
             >
-              Filter &amp; Search All →
+              Advanced Search →
             </Link>
           </Reveal>
           <ProductGrid products={shopProducts} />
         </div>
       </section>
+
+      {/* ── 3. TRENDING PREMIUM DEALS CAROUSEL ── */}
+      <TrendingDealsCarousel products={shopProducts} />
+
+      {/* ── 4. FREE DIGITAL VAULT ECOSYSTEM (COURSES, PROMPTS, CREDITS) ── */}
+      <FreeVaultSection />
+
+      {/* ── 5. TRIHEX PREMIUM VIP VAULT (LUXURY DARK ASSETS) ── */}
+      <PremiumVaultSection />
+
+      {/* ── 6. TRIHEX CYBERSECURITY ACADEMY & ISOLATED LABS ── */}
+      <CyberAcademySection />
+
+      {/* ── 7. DEFENSIVE SECURITY & DISASTER RECOVERY ENGINE ── */}
+      <DefensiveSecuritySection />
+
+      {/* ── 8. LIVE DEAL RADAR & CLOUD CREDITS (PUBLIC FEED) ── */}
+      <LiveDealRadarSection deals={verifiedDeals} />
+
+      {/* ── 9. TODAY'S DIGITAL DROPS (PRODUCT HUNT STYLE) ── */}
+      <DailyDropsSection />
+
+      {/* ── 10. MARKETPLACE CATEGORIES MATRIX ── */}
+      <MarketplaceCategoriesGrid />
+
+      {/* ── 11. RETURNING USER PERSONALIZATION & RECENTLY VIEWED ── */}
+      <ReturningUserFeed />
 
       {/* ── 10. UNIFIED DISCOVERY MATRIX (PRODUCTS + VAULT + DEALS + RESEARCH) ── */}
       <section className="py-14 sm:py-20 bg-slate-50/70 border-b border-slate-200/80">
@@ -237,6 +238,11 @@ export default async function HomePage() {
 
       {/* ── 11B. EXPERT RECOMMENDATIONS & VIP DECISION BOARD ── */}
       <ExpertRecommendationsSection />
+
+      {/* ── 11C. RECENTLY VIEWED PRODUCTS ── */}
+      <div className="store-container">
+        <RecentlyViewed excludeCurrent={false} />
+      </div>
 
       {/* ── 12. TRUST SYSTEM & PROOF MATRIX ── */}
       <MarketplaceTrustSection />

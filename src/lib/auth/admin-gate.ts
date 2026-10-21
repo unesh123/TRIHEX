@@ -7,6 +7,10 @@ import {
   isProductionRuntime,
   ConfigurationError,
 } from "@/lib/config/persistence-guard";
+import {
+  parseAdminSessionCookie,
+  ADMIN_SESSION_COOKIE,
+} from "@/lib/admin/session-cookie";
 
 export interface AdminSession {
   authenticated: boolean;
@@ -100,45 +104,43 @@ export async function checkAdminSession(
     }
   }
 
-  const cookieHeader = requestHeaders?.get("cookie") ?? "";
-  const hasStubSession = /(?:^|;\s*)trihex_admin_session=/.test(cookieHeader);
+  let cookieHeader = requestHeaders?.get("cookie") ?? "";
+  let sessionData = parseAdminSessionCookie(cookieHeader);
 
-  if (!hasStubSession) {
-    return {
-      ok: false,
-      reason: "unauthorized",
-      session: {
-        authenticated: false,
-        userId: null,
-        email: null,
-        role: "GUEST",
-        bypass: false,
-      },
-    };
+  if (!sessionData) {
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      const rawCookie = cookieStore.get(ADMIN_SESSION_COOKIE)?.value ?? "";
+      if (rawCookie) {
+        sessionData = parseAdminSessionCookie(rawCookie);
+      }
+    } catch {
+      // non-fatal
+    }
   }
 
-  // Development stub cookie — not valid when production guards run
-  if (isProductionRuntime()) {
+  if (sessionData?.email && isOwnerEmail(sessionData.email)) {
     return {
-      ok: false,
-      reason: "unauthorized",
+      ok: true,
       session: {
-        authenticated: false,
-        userId: null,
-        email: null,
-        role: "GUEST",
+        authenticated: true,
+        userId: "root-operator",
+        email: sessionData.email,
+        role: "SUPER_ADMIN",
         bypass: false,
       },
     };
   }
 
   return {
-    ok: true,
+    ok: false,
+    reason: "unauthorized",
     session: {
-      authenticated: true,
-      userId: "stub-admin",
-      email: getOwnerEmail(),
-      role: "ADMIN",
+      authenticated: false,
+      userId: null,
+      email: null,
+      role: "GUEST",
       bypass: false,
     },
   };

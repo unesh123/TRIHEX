@@ -248,7 +248,7 @@ export function PDPIntelligenceHub({ product }: PDPIntelligenceHubProps) {
               <tr className="border-b border-[var(--border)] bg-[var(--page-soft)]/60 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                 <th className="p-3">Evaluation Pillar</th>
                 <th className="p-3 text-emerald-700">TRIHEX DIGITAL (Verified)</th>
-                <th className="p-3 text-slate-500">Informal Gray Market / Telegram</th>
+                <th className="p-3 text-slate-500">Informal Gray Market / Unverified Resellers</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">

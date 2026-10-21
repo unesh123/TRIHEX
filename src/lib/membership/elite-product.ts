@@ -87,7 +87,7 @@ export const TRIHEX_ELITE_MEMBERSHIP: EliteMembershipTier = {
   ],
   deliverables: [
     "Annual TRIHEX ELITE Digital Credential & Member ID",
-    "Private Research Telegram/Signal channel for real-time circular dispatches",
+    "Private Research WhatsApp VIP Desk & Signal channel for real-time circular dispatches",
     "Quarterly 1-on-1 Software Portfolio & Licensing Optimization Review",
     "Immediate VIP bypass on order queues and customer support desks",
     "Full access to the TRIHEX Vault offline repository"

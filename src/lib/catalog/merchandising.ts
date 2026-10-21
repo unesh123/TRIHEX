@@ -27,6 +27,7 @@ import {
   normalizePlanLabel,
 } from "@/lib/catalog/content-normalization";
 import { extractDuration } from "@/lib/catalog/duration-parser";
+import { campaignPrice } from "./limited-offer";
 export {
   canPurchasePlan,
   type PlanEligibility,
@@ -253,7 +254,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
   const { title, packageLabel } = cleanCustomerTitle(product);
   const visibility = resolveVisibility(product);
   const purchasable = visibility === "AVAILABLE";
-  const price = resolvePrice(product);
+  const price = campaignPrice(product.slug, product.variants[0]?.sku ?? "", resolvePrice(product)) ?? null;
   const variant = product.variants?.[0];
   const costNprMinor =
     variant?.supplierCostUsdMinor != null
@@ -306,7 +307,7 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
     )
     .map((v) => {
       const vPrice =
-        v.manualSellingPriceNprMinor ??
+        campaignPrice(product.slug, v.sku, v.manualSellingPriceNprMinor) ??
         (product.brandSlug === "trihex" ? v.minimumProfitNprMinor ?? null : null);
       const vCostNprMinor =
         v.supplierCostUsdMinor != null

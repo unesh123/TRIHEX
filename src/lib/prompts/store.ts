@@ -128,7 +128,7 @@ export async function syncPromptsFromDatabase(): Promise<Prompt[]> {
             contentHash: hash,
             createdAt: new Date(p.createdAt),
             updatedAt: new Date(p.updatedAt),
-          });
+          }).onConflictDoNothing();
 
           // Insert initial version 1
           await db.insert(schema.promptVersions).values({
@@ -137,7 +137,7 @@ export async function syncPromptsFromDatabase(): Promise<Prompt[]> {
             content: p.content,
             contentHash: hash,
             capturedAt: new Date(p.createdAt),
-          });
+          }).onConflictDoNothing();
         } catch (insertErr) {
           console.error(`[prompts] Seed insert error for ${p.id}:`, insertErr);
         }

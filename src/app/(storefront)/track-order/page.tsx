@@ -4,18 +4,18 @@ import { TrackOrderForm } from "@/components/storefront/track-order-form";
 export const dynamic = "force-dynamic";
 
 interface TrackOrderPageProps {
-  searchParams: Promise<{ orderNumber?: string }>;
+  searchParams: Promise<{ orderNumber?: string; phone?: string }>;
 }
 
 export default async function TrackOrderPage({ searchParams }: TrackOrderPageProps) {
-  const { orderNumber } = await searchParams;
+  const { orderNumber, phone } = await searchParams;
 
   return (
     <StorefrontPageShell
-      title="Track order"
-      description="Enter your order number and the email or phone used at checkout."
+      title="Track Order & VIP Status"
+      description="Enter your Nepali mobile number or order number to track your VIP clearance, payment verification, and delivery timeline."
     >
-      <TrackOrderForm initialOrderNumber={orderNumber ?? ""} />
+      <TrackOrderForm initialOrderNumber={orderNumber ?? ""} initialPhone={phone ?? ""} />
     </StorefrontPageShell>
   );
 }

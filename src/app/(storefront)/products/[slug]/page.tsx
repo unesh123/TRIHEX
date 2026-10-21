@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { LimitedOfferBanner } from "@/components/storefront/limited-offer-banner";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCover } from "@/components/storefront/product-cover";
@@ -40,6 +41,8 @@ import { PDPFeatureGrid } from "@/components/storefront/pdp-feature-grid";
 import { PDPTargetAudience } from "@/components/storefront/pdp-target-audience";
 import { PDPFulfillmentTimeline } from "@/components/storefront/pdp-fulfillment-timeline";
 import { PDPVerifiedClaims } from "@/components/storefront/pdp-verified-claims";
+import { PDPFaq } from "@/components/storefront/pdp-faq";
+import { RecentlyViewed } from "@/components/storefront/recently-viewed";
 import {
   JsonLd,
   breadcrumbJsonLd,
@@ -453,6 +456,7 @@ export default async function ProductDetailPage({
           <h1 className="mt-4 font-[family-name:var(--font-sora)] text-3xl font-semibold text-[var(--text)] sm:text-4xl">
             {familyTitle}
           </h1>
+          <LimitedOfferBanner slug={product.slug} />
           <p className="mt-2 text-lg font-medium text-[var(--text-secondary)]">
             {(() => {
               const pkg = product.packageLabel?.trim() || "";
@@ -613,6 +617,8 @@ export default async function ProductDetailPage({
             </ol>
           </details>
 
+          <PDPFaq productTitle={product.title} />
+
           <ProductReviews reviews={reviews} />
         </div>
 
@@ -636,6 +642,19 @@ export default async function ProductDetailPage({
 
       <div className="store-container pb-10">
         <PDPIntelligenceHub product={product} />
+      </div>
+
+      <div className="store-container pb-10">
+        <RecentlyViewed
+          currentProduct={{
+            slug: product.slug,
+            title: product.title,
+            packageLabel: product.packageLabel,
+            priceNprMinor: product.priceNprMinor,
+            coverPublicPath: product.coverPublicPath,
+            brandFamily: product.brandFamily,
+          }}
+        />
       </div>
 
       {related.length ? (

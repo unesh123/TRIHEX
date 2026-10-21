@@ -259,7 +259,7 @@ export async function syncDealsFromDatabase(): Promise<DealCandidate[]> {
           lastVerifiedAt: d.lastVerifiedAt ? new Date(d.lastVerifiedAt) : null,
           createdAt: new Date(d.createdAt),
           updatedAt: new Date(d.updatedAt),
-        });
+        }).onConflictDoNothing();
       }
     }
 

@@ -135,11 +135,11 @@ const loadCatalogueProductsCached = unstable_cache(
         extractDuration(row.variantName);
 
       const effDurationValue =
-        parsedDur && (row.durationValue == null || (row.durationValue === 1 && parsedDur.value !== 1))
+        row.slug === "museai" ? null : parsedDur && (row.durationValue == null || (row.durationValue === 1 && parsedDur.value !== 1))
           ? parsedDur.value
           : (row.durationValue ?? parsedDur?.value ?? 1);
       const effDurationUnit =
-        parsedDur && (row.durationUnit == null || (row.durationValue === 1 && parsedDur.value !== 1))
+        row.slug === "museai" ? null : parsedDur && (row.durationUnit == null || (row.durationValue === 1 && parsedDur.value !== 1))
           ? parsedDur.unit
           : ((row.durationUnit as SeedVariant["durationUnit"]) ?? parsedDur?.unit ?? "MONTH");
 

@@ -217,7 +217,7 @@ export function ExpertRecommendationsSection() {
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/vip"
+                href="/vip#vip-pricing"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-xs font-black shadow-md hover:scale-105 transition"
               >
                 <Crown className="w-4 h-4" />
@@ -284,14 +284,15 @@ export function ExpertRecommendationsSection() {
                 </div>
 
                 <Link
-                  href="/vip"
+                  href={`/checkout?product=${tier.slug}&sku=${tier.sku}`}
                   className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                     tier.isPopular
                       ? "bg-amber-400 text-slate-950 hover:bg-amber-300 font-black"
                       : "bg-slate-800 hover:bg-slate-700 text-white border border-white/10"
                   }`}
                 >
-                  <span>Select {tier.name}</span>
+                  <Crown className="w-3.5 h-3.5" />
+                  <span>Get VIP — {tier.name}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>

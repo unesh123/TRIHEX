@@ -16,7 +16,7 @@ Visual impression: the hero’s Gemini promotional poster looks polished and str
 
 The public page is live at `/track-order`. It asks for an order number plus either checkout email or Nepali mobile number. It also displays browser-local “On this device” order history and statuses such as PROCESSING.
 
-The privacy design is directionally correct because phone or email alone does not appear sufficient; however, this is not phone-first self-service tracking. For the requested mobile-number / Telegram experience, it needs OTP verification, normalized `+977` handling, masked confirmations, authenticated notification consent, a Telegram deep link / bot lifecycle, and a structured status event timeline. The current page has no visible expected fulfilment time, progress stages, delivery evidence, resend update control, or cross-channel subscriptions.
+The privacy design is directionally correct because phone or email alone does not appear sufficient; however, this is not phone-first self-service tracking. For the requested mobile-number / WhatsApp experience, it needs OTP verification, normalized `+977` handling, masked confirmations, authenticated notification consent, a WhatsApp direct link / event lifecycle, and a structured status event timeline. The current page has no visible expected fulfilment time, progress stages, delivery evidence, resend update control, or cross-channel subscriptions.
 
 ## Important constraints
 

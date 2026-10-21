@@ -1,5 +1,7 @@
 export interface VipPricingTier {
   id: "1_MONTH" | "6_MONTHS" | "LIFETIME";
+  slug: string;
+  sku: string;
   name: string;
   durationLabel: string;
   priceNpr: number;
@@ -12,6 +14,8 @@ export interface VipPricingTier {
 export const VIP_PRICING_TIERS: VipPricingTier[] = [
   {
     id: "1_MONTH",
+    slug: "trihex-vip-pass-1-month",
+    sku: "THX-VIP-1M",
     name: "1 Month VIP Pass",
     durationLabel: "30 Days Full Access",
     priceNpr: 3999,
@@ -30,6 +34,8 @@ export const VIP_PRICING_TIERS: VipPricingTier[] = [
   },
   {
     id: "6_MONTHS",
+    slug: "trihex-vip-pass-6-months",
+    sku: "THX-VIP-6M",
     name: "6 Months VIP Pass",
     durationLabel: "180 Days Full Access",
     priceNpr: 5999,
@@ -51,6 +57,8 @@ export const VIP_PRICING_TIERS: VipPricingTier[] = [
   },
   {
     id: "LIFETIME",
+    slug: "trihex-vip-pass-lifetime",
+    sku: "THX-VIP-LIFE",
     name: "Lifetime VIP Pack",
     durationLabel: "Permanent Lifetime Access",
     priceNpr: 7999,
@@ -66,7 +74,7 @@ export const VIP_PRICING_TIERS: VipPricingTier[] = [
       "Advanced Developer & Defense tools (All commercial rights)",
       "Curated software configurations & license keys",
       "Exclusive VIP courses & masterclasses (All future cohorts)",
-      "VIP Alpha Guild membership in Discord & private Telegram",
+      "VIP Alpha Guild membership in Private Founder Lounge & Discord",
     ],
   },
 ];

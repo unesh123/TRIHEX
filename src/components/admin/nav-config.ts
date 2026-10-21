@@ -31,7 +31,7 @@ const NAV_GROUPS: AdminNavGroup[] = [
     items: [
       { href: "/admin/deal-radar", label: "Deal Radar", module: "deal_radar", permission: "products:edit" },
       { href: "/admin/vault", label: "Unified Vault", module: "vault", permission: "products:edit" },
-      { href: "/admin/vip", label: "VIP Vault & Balls 💎", module: "vault", permission: "products:edit" },
+      { href: "/admin/vip", label: "VIP Control & Members 👑", module: "vault", permission: "products:edit" },
       { href: "/admin/news", label: "Live News & Feeds", module: "news", permission: "products:edit" },
       { href: "/admin/resources", label: "Developer Resources", module: "resources", permission: "products:edit" },
       { href: "/admin/prompts", label: "Prompts & Templates", module: "prompts", permission: "products:edit" },

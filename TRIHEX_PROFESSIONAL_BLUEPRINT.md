@@ -98,7 +98,7 @@ The existing state machine is a useful base. The upgrade is an immutable `order_
 | New table / capability | Purpose |
 |---|---|
 | `order_events` | Immutable status/time/actor/reason/event metadata. Use as the source for tracking timeline and audit display. |
-| `order_contact_channels` | Normalized mobile, WhatsApp consent, email, Telegram chat ID, verification state, opt-in timestamps, and unsubscribe state. |
+| `order_contact_channels` | Normalized mobile, WhatsApp consent, email, verification state, opt-in timestamps, and unsubscribe state. |
 | `otp_challenges` | Phone verification hashed OTP, expiry, attempt count, rate limits, and consumption. Do not store usable OTPs. |
 | `notification_outbox` | Idempotent queued delivery events with channel, payload version, provider result, retry state, and a dead-letter view. |
 | `quotes` + `quote_items` | Quote number, customer/organization, scope, terms, line items, validity, approval, conversion to order, and audit log. |
@@ -110,16 +110,11 @@ The existing state machine is a useful base. The upgrade is an immutable `order_
 
 The current form’s order number plus email/phone verification is reasonable as a minimal privacy gate, but it is not enough for a mobile-first “all my orders” experience. Do not expose order totals, items, or status based solely on an unverified phone number. Apply rate limits, generic failure messages, OTP expiry, attempt caps, and audit events.
 
-### 5.3 Telegram bot: two viable delivery routes
+### 5.3 Site-first notifications and WhatsApp delivery
 
-Telegram supports both webhook push and polling, but its official documentation recommends webhook delivery for immediate updates and provides a `secret_token` request header to authenticate webhook calls. [1] [2]
+All status notifications are website-hosted and delivered directly to the customer via WhatsApp and email. The website remains the complete tracking experience with cryptographically signed tokens and verified customer mobile lookups.
 
-| Approach | User experience and trade-offs | Cost | Setup complexity |
-|---|---|---:|---|
-| **A. Website-hosted Telegram webhook** | Customer starts the bot from a signed deep link after checkout; bot verifies the phone/order using OTP or a short secure code, saves the chat ID, shows status, and sends event notifications. It is immediate, avoids polling, and keeps the order database as the source of truth. | Normal application hosting and messaging provider costs only. | Medium. Requires BotFather token, secret webhook token, an HTTPS endpoint, idempotency, and an admin notification log. |
-| **B. Website tracking first; Telegram only as an opt-in notification channel** | The website remains the complete tracking experience. Telegram sends minimal “status changed—open secure tracking page” messages after the customer explicitly links it. Lower bot UX scope and lower privacy risk; fewer self-service features. | Normal application hosting and messaging provider costs only. | Low–medium. Requires token, signed start link, webhook receiver, and notification outbox. |
-
-Both choices use event-driven delivery. Do **not** build periodic polling for order status: status changes originate in TRIHEX, so the payment-review/fulfillment transaction should publish a notification event immediately. Webhook requests must validate Telegram’s secret header, deduplicate `update_id`, and receive only needed update types. Telegram’s `getUpdates` and webhooks are mutually exclusive; use a secure HTTPS webhook in production. [1] [2]
+Both choices use event-driven delivery. Do **not** build periodic polling for order status: status changes originate in TRIHEX, so the payment-review/fulfillment transaction should publish a notification event immediately.
 
 ### 5.4 WhatsApp and email
 
@@ -235,11 +230,11 @@ This sequence turns TRIHEX into a reliable professional platform without destabi
 | **1. Commerce truth layer** | 1–2 weeks | Product data contract, family/variant model, content QA, evidence fields, accurate policy templates, catalogue clean-up. | Every public SKU meets publication rules; no stale/baked commercial claims in art. |
 | **2. Customer conversion redesign** | 2–3 weeks | Mobile navigation, redesigned cards/PDP, plans, trust modules, checkout stepper, accessible motion system, image master templates. | Mobile UX and accessibility review pass; field/click tracking is live. |
 | **3. Operations center** | 2–3 weeks | Today queue, order/payment/fulfillment workflows, quote pipeline, working inventory/stock tools, audit and role gates. | An operator completes proof → fulfillment without chat spreadsheets. |
-| **4. Tracking and notifications** | 2 weeks | OTP phone verification, customer timeline, notification outbox, customer channel preferences, selected Telegram option, WhatsApp/email templates. | Status change generates one audited, idempotent, secure update across selected channels. |
+| **4. Tracking and notifications** | 2 weeks | OTP phone verification, customer timeline, notification outbox, customer channel preferences, WhatsApp/email templates. | Status change generates one audited, idempotent, secure update across selected channels. |
 | **5. SEO and growth engine** | Continuous after phase 1 | Schema validation, Search Console, 12 authority pieces, Nepal query clusters, content operations, analytics dashboard. | Organic traffic and conversion are measured and content meets editorial standards. |
 | **6. Scale hardening** | 1–2 weeks | Load tests, caching review, queues/retry policies, alerts, backup/restore test, runbooks. | Measured target load supports the agreed traffic profile without order loss. |
 
-\*Durations are planning ranges, not guarantees; they depend on product authorization evidence, payment-provider credentials, hosting access, content approval, and the owner’s choice for Telegram/notification provider.
+\*Durations are planning ranges, not guarantees; they depend on product authorization evidence, payment-provider credentials, hosting access, content approval, and the owner’s choice for notification provider.
 
 ## 10. Measurement dashboard
 
@@ -271,7 +266,7 @@ A “perfect” platform is maintained with visible metrics, not subjective revi
 
 ## 12. Implementation decisions needed from the owner
 
-1. Select **Telegram Option A or Option B** from the table above; both are viable, but their customer experience and scope differ.
+1. Confirm customer communication channels (WhatsApp and email are live).
 2. Confirm which payment methods are truly live and which provider credentials/QR assets may be configured.
 3. Confirm the authorization and fulfillment model for every offered brand/product before enhancing promotional claims.
 4. Provide the intended support SLA, warranty/replacement policy, company/legal identity, and public business address if one exists.
@@ -279,9 +274,7 @@ A “perfect” platform is maintained with visible metrics, not subjective revi
 
 ## References
 
-[1] [Telegram Bot API — `setWebhook` and update delivery](https://core.telegram.org/bots/api)  
-[2] [Telegram — Webhooks guide](https://core.telegram.org/bots/webhooks)  
-[3] [Google Search Central — Creating helpful, reliable, people-first content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content)  
-[4] [Google Search Central — Ecommerce structured data](https://developers.google.com/search/docs/specialty/ecommerce/include-structured-data-relevant-to-ecommerce)  
+[1] [Google Search Central — Creating helpful, reliable, people-first content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content)  
+[2] [Google Search Central — Ecommerce structured data](https://developers.google.com/search/docs/specialty/ecommerce/include-structured-data-relevant-to-ecommerce)  
 [5] [Google Search Central — Product variant structured data](https://developers.google.com/search/docs/appearance/structured-data/product-variants)  
 [6] [Google Search Central — Ecommerce URL structure](https://developers.google.com/search/docs/specialty/ecommerce/designing-a-url-structure-for-ecommerce-sites)

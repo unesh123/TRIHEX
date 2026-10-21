@@ -1,4 +1,5 @@
 import coverManifest from "@/lib/catalog/product-cover-manifest.json";
+import { premiumArtworkForSlug } from "./premium-artwork";
 
 export type CoverMode = "ARTWORK_ONLY" | "FULL_CARD" | "SVG_FALLBACK";
 
@@ -23,6 +24,9 @@ const CANONICAL_FAMILY_MAP: Record<string, string> = {
   "super-grok-9-months": "supergrok-3-months",
   "super-grok-12-months": "supergrok-3-months",
   "claude-pro-12-months": "claude-pro-1-month",
+  "trihex-vip-pass-1-month": "ai-money-maker-digital-course-2026",
+  "trihex-vip-pass-6-months": "ai-money-maker-digital-course-2026",
+  "trihex-vip-pass-lifetime": "ai-money-maker-digital-course-2026",
 };
 
 /**
@@ -90,6 +94,12 @@ const bySlug = new Map(
 );
 
 export function getProductCover(slug: string): ProductCoverEntry | null {
+  const artwork = premiumArtworkForSlug(slug);
+  if (artwork) return {
+    slug, family: artwork.split("/").pop()!.replace(".webp", "").replace(/^claude-code$/, "claude"), canonical: artwork.split("/").pop()!,
+    publicPath: artwork, mode: "ARTWORK_ONLY", alt: `${slug} product artwork`,
+    artWidth: 960, artHeight: 960, lowResReplacementRecommended: false,
+  };
   const targetSlug = CANONICAL_FAMILY_MAP[slug] ?? slug;
 
   // 1. Check pristine verified Trihex product poster

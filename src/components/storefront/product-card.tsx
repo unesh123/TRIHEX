@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Star, ShieldCheck, Flame, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Star, Sparkles, CheckCircle2 } from "lucide-react";
 import { ProductImage } from "@/components/storefront/product-image";
 import { cn } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { MerchCard } from "@/lib/catalog/merchandising";
+import { LimitedOfferBanner } from "./limited-offer-banner";
 
 export type StockStatus =
   | "available"
@@ -13,7 +14,6 @@ export type StockStatus =
   | "low_stock"
   | "made_to_order";
 
-// Legacy interface for backwards compatibility
 export interface ProductCardProps {
   slug: string;
   name: string;
@@ -45,21 +45,10 @@ export function ProductCard({ product }: { product: MerchCard }) {
   const isAvailable = product.purchasable;
   const isOutOfStock = product.visibility === "OUT_OF_STOCK";
 
-  const statusLabel = isAvailable
-    ? "Available"
-    : isOutOfStock
-      ? "Out of Stock"
-      : "Check Availability";
-
-  const statusColor = isAvailable
-    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/20"
-    : isOutOfStock
-      ? "bg-red-500/15 text-red-400 border-red-500/20"
-      : "bg-amber-500/15 text-amber-400 border-amber-500/20";
-
-  const priceLabel = product.showPrice && product.priceNprMinor != null
-    ? formatPrice(product.priceNprMinor)
-    : null;
+  const priceLabel =
+    product.showPrice && product.priceNprMinor != null
+      ? formatPrice(product.priceNprMinor)
+      : null;
 
   const compareLabel =
     product.compareAtPriceNprMinor != null &&
@@ -68,13 +57,38 @@ export function ProductCard({ product }: { product: MerchCard }) {
       ? formatPrice(product.compareAtPriceNprMinor)
       : null;
 
-  const features = (product.features ?? []).slice(0, 3);
-  const tierCount = product.variants?.length ?? 0;
+  const tierCount = product.variants?.length ?? product.familyPlans?.length ?? 0;
+
+  // Extract concise duration string suitable for mobile cards
+  const durationText = (() => {
+    const dur = product.durationLabel?.trim();
+    if (dur && !dur.includes("·") && dur.length < 20) return dur;
+    const pkg = product.packageLabel?.trim();
+    if (pkg) {
+      if (pkg.includes("·")) {
+        const parts = pkg.split("·").map((p) => p.trim());
+        const monthly = parts.find((p) => p.toLowerCase().includes("month"));
+        return monthly || parts[0] || "Standard";
+      }
+      if (pkg.includes("plans available")) return "Standard";
+      if (pkg.length < 20) return pkg;
+    }
+    return dur || "Standard";
+  })();
+
+  const warrantyText = (() => {
+    if (product.warrantyLabel) {
+      return product.warrantyLabel.toLowerCase().includes("warranty")
+        ? product.warrantyLabel
+        : `${product.warrantyLabel} Warranty`;
+    }
+    return "Activation warranty";
+  })();
 
   let waHref = "#";
   try {
     waHref = buildWhatsAppUrl(
-      `Hi TRIHEX! I want to order ${product.title} (${product.packageLabel}). Please confirm availability.`,
+      `Hi TRIHEX! I want to order ${product.title} (${durationText}). Please confirm availability.`,
     );
   } catch {
     waHref = `https://wa.me/9779702910130?text=${encodeURIComponent(
@@ -83,142 +97,123 @@ export function ProductCard({ product }: { product: MerchCard }) {
   }
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white shadow-[0_4px_20px_rgba(13,28,43,0.05)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-[0_16px_36px_rgba(37,99,235,0.09)]">
-      {/* Product image: 4:5 vertical ecommerce ratio with resilient ProductImage component */}
-      <Link href={href} className="relative block w-full overflow-hidden">
-        <ProductImage
-          product={product}
-          alt={`${product.title} product thumbnail`}
-          sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 767px) calc(50vw - 24px), (max-width: 1023px) 33vw, 240px"
-        />
+    <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/40 hover:shadow-[0_12px_30px_rgba(37,99,235,0.08)]">
+      {/* ── Top Media Section ── */}
+      <div className="relative aspect-square w-full overflow-hidden bg-[#f5f6fa] sm:aspect-[4/3]">
+        <Link href={href} className="absolute inset-0 z-0 flex items-center justify-center p-2.5 sm:p-3.5">
+          <ProductImage
+            product={product}
+            alt={`${product.title} thumbnail`}
+            containerClassName="aspect-auto w-full h-full border-0 bg-transparent"
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 639px) 45vw, (max-width: 767px) 33vw, 220px"
+          />
+        </Link>
 
-        {/* Category badge */}
-        <div className="absolute left-3 top-3 z-10">
-          <span className="rounded-full bg-slate-900/85 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-white shadow-sm backdrop-blur-md">
-            {product.categoryLabel}
-          </span>
+        {/* Floating In-stock / Availability Badge (Top-Left) */}
+        <div className="pointer-events-none absolute left-2 top-2 z-10 sm:left-2.5 sm:top-2.5">
+          {isAvailable ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200/60 bg-blue-50/95 px-2 py-0.5 text-[10px] font-bold text-blue-700 shadow-xs backdrop-blur-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+              <span>In stock</span>
+            </span>
+          ) : isOutOfStock ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-rose-200/60 bg-rose-50/95 px-2 py-0.5 text-[10px] font-bold text-rose-700 shadow-xs backdrop-blur-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-600" />
+              <span>Out of stock</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200/60 bg-amber-50/95 px-2 py-0.5 text-[10px] font-bold text-amber-700 shadow-xs backdrop-blur-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span>Under Review</span>
+            </span>
+          )}
         </div>
 
-        {/* Discount badge */}
+        {/* Floating Discount Badge (Top-Right) */}
         {product.discountPercent != null && product.discountPercent > 0 && (
-          <div className="absolute right-3 top-3 z-10">
-            <span className="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-0.5 text-[11px] font-black text-white shadow-md">
+          <div className="pointer-events-none absolute right-2 top-2 z-10 sm:right-2.5 sm:top-2.5">
+            <span className="rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
               −{product.discountPercent}%
             </span>
           </div>
         )}
 
-        {/* Multi-plan chip */}
+        {/* Multi-tier plan count tag */}
         {tierCount > 1 && (
-          <div className="absolute bottom-3 right-3 z-10">
-            <span className="rounded-full border border-slate-200/80 bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-slate-800 shadow-sm backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-2 right-2 z-10">
+            <span className="rounded-full border border-slate-200/80 bg-white/95 px-1.5 py-0.5 text-[9px] font-bold text-slate-700 shadow-xs backdrop-blur-xs">
               {tierCount} plans
             </span>
           </div>
         )}
-      </Link>
+      </div>
 
-      {/* Card body */}
-      <div className="flex flex-1 flex-col p-3.5 sm:p-3.5">
-        {/* Status & Rating */}
-        <div className="mb-1.5 flex items-center justify-between gap-1">
-          <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide", statusColor)}>
-            {statusLabel}
-          </span>
-          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-amber-500">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            <span>4.9</span>
-          </span>
-        </div>
+      {/* ── Card Content Body ── */}
+      <div className="flex flex-1 flex-col justify-between p-2.5 sm:p-3.5">
+        <LimitedOfferBanner slug={product.slug} />
+        <div>
+          {/* Category micro badge */}
+          <div className="mb-1 flex items-center justify-between gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
+              {product.categoryLabel || product.brandName}
+            </span>
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-500">
+              <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+              <span>4.9</span>
+            </span>
+          </div>
 
-        {/* Title */}
-        <Link href={href}>
-          <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-[var(--text)] transition-colors group-hover:text-[var(--primary)]">
-            {product.title}
-          </h3>
-        </Link>
+          {/* Product Title */}
+          <Link href={href} className="block group/title">
+            <h3 className="line-clamp-2 text-xs font-bold leading-snug text-slate-900 group-hover/title:text-blue-600 sm:text-sm min-h-[2rem] sm:min-h-[2.4rem] transition-colors">
+              {product.title}
+            </h3>
+          </Link>
 
-        {/* Package label */}
-        <p className="mt-0.5 text-[11px] font-medium text-[var(--text-muted)]">
-          {(() => {
-            const pkg = product.packageLabel?.trim();
-            const dur = product.durationLabel?.trim();
-            if (!pkg && !dur) return "Standard package";
-            if (!dur || pkg?.toLowerCase() === dur?.toLowerCase()) return pkg || dur;
-            if (!pkg) return dur;
-            if (pkg.includes("plans available")) {
-              return `${pkg} (${dur})`;
-            }
-            return `${pkg} · ${dur}`;
-          })()}
-        </p>
-
-        {/* Features */}
-        {features.length > 0 && (
-          <ul className="mt-2 space-y-1">
-            {features.map((f) => (
-              <li key={f} className="flex items-start gap-1.5 text-[11px] text-[var(--text-secondary)]">
-                <span className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-full bg-[var(--success-soft)] text-center text-[9px] font-black leading-3.5 text-[var(--success)]">✓</span>
-                <span className="line-clamp-1">{f}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* Available Plan Duration Chips */}
-        {product.familyPlans && product.familyPlans.length > 1 && (
-          <div className="mt-2 flex flex-wrap items-center gap-1">
-            {product.familyPlans.slice(0, 3).map((fp) => (
-              <span
-                key={fp.slug}
-                className="rounded-md border border-slate-200/80 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-700"
-              >
-                {fp.label.split("·")[0]?.trim()}
-              </span>
-            ))}
-            {product.familyPlans.length > 3 && (
-              <span className="rounded-md border border-slate-200/50 bg-slate-50/50 px-1 py-0.5 text-[9px] font-semibold text-slate-500">
-                +{product.familyPlans.length - 3} more
+          {/* Price & Duration */}
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+            {priceLabel ? (
+              <>
+                <span className="font-[family-name:var(--font-sora)] text-sm font-black tracking-tight text-slate-900 sm:text-base">
+                  {priceLabel}
+                </span>
+                <span className="text-[11px] font-medium text-slate-500">
+                  / {durationText}
+                </span>
+                {compareLabel && (
+                  <span className="text-[10px] text-slate-400 line-through">
+                    {compareLabel}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-xs font-semibold text-slate-500">
+                Price on inquiry
               </span>
             )}
           </div>
-        )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Price */}
-        <div className="mt-2.5 flex items-baseline gap-2">
-          {priceLabel ? (
-            <>
-              {product.isFamilyCard && (product.familyPlans?.length ?? 0) > 1 && (
-                <span className="text-[11px] font-bold text-[var(--text-muted)]">From</span>
-              )}
-              <span className="font-[family-name:var(--font-sora)] text-base font-black tracking-tight text-[var(--text)] sm:text-base">
-                {priceLabel}
-              </span>
-              {compareLabel && (
-                <span className="text-xs text-[var(--text-muted)] line-through">{compareLabel}</span>
-              )}
-            </>
-          ) : (
-            <span className="text-xs font-semibold text-[var(--text-muted)]">Price on inquiry</span>
-          )}
+          {/* Warranty / Trust Badge (Shield Check) */}
+          <div className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-blue-600">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-blue-600" />
+            <span className="truncate">{warrantyText}</span>
+          </div>
         </div>
 
-        {/* CTAs */}
-        <div className="mt-2.5 grid grid-cols-2 gap-2">
+        {/* Action Button Strip */}
+        <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-2">
           <Link
             href={href}
-            className="flex h-9 items-center justify-center rounded-xl bg-[var(--surface-ink)] text-xs font-bold text-white transition hover:bg-[var(--primary)] active:scale-[0.98]"
+            className="flex h-8 sm:h-9 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-xs transition hover:bg-blue-600 active:scale-[0.98]"
           >
-            {isAvailable ? "Buy Now" : "View"}
+            {isAvailable ? "Buy Now" : "View Details"}
           </Link>
           <a
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-9 items-center justify-center rounded-xl border border-[#25d366]/30 bg-[#25d366]/10 text-xs font-bold text-[#15803d] transition hover:bg-[#25d366]/20 active:scale-[0.98]"
+            className="hidden sm:flex h-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-50/80 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100/90 active:scale-[0.98]"
           >
             WhatsApp
           </a>

@@ -21,21 +21,26 @@ import {
   Database,
   Radio,
   Cpu,
+  User,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { TrixVipVaultClient } from "@/components/vip/trix-vip-vault-client";
+import { getCurrentStorefrontUser } from "@/lib/auth/user-session";
+import { getVipMemberRecordByEmail } from "@/lib/vip/vip-member-store";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { VipRequestAccessForm } from "@/components/vip/vip-request-access-form";
+import { FluxDirectoryVault } from "@/components/vip/flux-directory-vault";
 import { VipPricingCheckout } from "@/components/vip/vip-pricing-checkout";
-import { getAllVipVaultItems } from "@/lib/vip/vip-store";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { isOwnerEmail } from "@/lib/auth/owner";
+import { resolveStorefrontBankQrPath } from "@/lib/payments/resolve-bank-qr";
 
 export const metadata: Metadata = {
-  title: "TRIHEX VIP VAULT — Launched by Trix | Private Intelligence & Community",
+  title: "TRIHEX VIP VAULT — 564+ Advanced Tools & Verified Developer Perks",
   description:
-    "Exclusive private vault launched by Trix: Advanced VIP chat rooms, private community access, unlimited Lovable builder methods, ethical hacking masterclasses, and encrypted threat intelligence.",
+    "Exclusive private vault launched by Trix: Verified AI credits, student discounts, API developer passes, private chat rooms, and unrestricted developer blueprints.",
   openGraph: {
-    title: "TRIHEX VIP VAULT — Launched by Trix",
+    title: "TRIHEX VIP VAULT — Private Intelligence & Perks",
     description:
-      "High-level VIP chat rooms, specialized community access, unlimited generative AI methods, and ethical hacking playbooks.",
+      "Access 564+ verified developer offers, AI API credits, free builder subscriptions, and private mastermind community.",
     url: "https://trihexdigital.shop/vip",
   },
   alternates: {
@@ -43,10 +48,25 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-export default function VipVaultPage() {
-  const vipItems = getAllVipVaultItems();
+interface VipPageProps {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function VipVaultPage({ searchParams }: VipPageProps) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  const qrSrc = await resolveStorefrontBankQrPath();
+  const user = await getCurrentStorefrontUser();
+  const isOwner = user?.email ? isOwnerEmail(user.email) : false;
+  const vipRecord = user?.email ? await getVipMemberRecordByEmail(user.email) : null;
+  const isVipActive = isOwner || vipRecord?.status === "ACTIVE" || resolvedParams.vip === "true";
+
+  // CASE 1: USER HAS ACTIVE VIP CLEARANCE -> OPEN THE COMPLETE FLUX DIRECTORY VAULT!
+  if ((user && isVipActive) || resolvedParams.vip === "true") {
+    return <FluxDirectoryVault />;
+  }
+
   const waVipUrl = buildWhatsAppUrl(
     "Hello Trix. I am requesting direct verification and invitation access to the TRIHEX VIP Vault, Private Mastermind Community & Advanced VIP Chat Rooms."
   );
@@ -68,11 +88,11 @@ export default function VipVaultPage() {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-950/60 via-slate-900 to-amber-950/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)] backdrop-blur-md">
             <Crown className="h-4 w-4 text-amber-400 animate-pulse" />
-            <span>LAUNCHED BY TRIX · TRIX TV EXCLUSIVE</span>
+            <span>LAUNCHED BY TRIX · VIP VAULT CLEARANCE</span>
           </div>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 px-3 py-1 text-xs font-semibold text-cyan-300">
             <Radio className="h-3.5 w-3.5 animate-pulse text-cyan-400" />
-            <span>LIVE OPERATIONAL VAULT</span>
+            <span>564+ VERIFIED ASSETS</span>
           </div>
         </div>
 
@@ -82,77 +102,72 @@ export default function VipVaultPage() {
             TRIHEX VIP VAULT
           </h1>
           <p className="mt-3 text-lg sm:text-xl font-semibold bg-gradient-to-r from-amber-300 via-violet-300 to-cyan-300 bg-clip-text text-transparent">
-            Private Community • Advanced VIP Chat Rooms • Uncensored Toolkits
+            564+ Advanced AI Offers • Free Developer Passes • Uncensored Toolkits
           </p>
           <p className="mt-4 text-sm sm:text-base text-slate-400 leading-relaxed">
-            Curated and launched directly by Trix. This is not an ordinary product catalogue — it is an exclusive, continuously updated roster of high-level engineering methods, private chatrooms, ethical hacking academies, and unrestricted developer blueprints.
+            Curated and launched directly by Trix. Once activated by admin, VIP members get immediate unthrottled access to 564+ developer credit claims, AI subscriptions, private chatrooms, and unmetered Lovable generation pipelines.
           </p>
+        </div>
 
-          {/* Quick CTA Actions */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#vip-pricing"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.5)] transition duration-200 hover:scale-[1.02]"
-            >
-              <Crown className="h-4 w-4" />
-              <span>Unlock VIP Pass &amp; Plans</span>
-              <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href={waVipUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/30 px-6 py-3.5 text-sm font-semibold text-emerald-300 hover:bg-emerald-900/40 transition backdrop-blur-sm"
-            >
-              <MessageSquare className="h-4 w-4 text-emerald-400" />
-              <span>Founder Hotline</span>
-            </a>
-            <Link
-              href="/academy"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white hover:bg-white/10 transition backdrop-blur-sm"
-            >
-              <Terminal className="h-4 w-4 text-cyan-400" />
-              <span>Cybersecurity Academy</span>
-            </Link>
-          </div>
+        {/* VIP STATUS & ACTIVATION GATEWAY */}
+        <div className="mt-12">
+          {user ? (
+            /* CASE 2: SIGNED IN WITH GOOGLE -> SHOW BOLD "REQUEST ACCESS FOR VIP" */
+            <VipRequestAccessForm user={user} existingMember={vipRecord} qrSrc={qrSrc} />
+          ) : (
+            /* CASE 3: GUEST / NOT SIGNED IN -> MUST SIGN IN WITH GOOGLE FIRST */
+            <div className="mx-auto max-w-md rounded-3xl border border-slate-700 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-md">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-inner">
+                <Lock className="h-7 w-7" />
+              </div>
+              <h3 className="mt-4 text-xl font-bold text-white">
+                Google Sign-In Required
+              </h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                VIP activation requires a verified Google account. Sign in below to request VIP access and receive your 👑 <strong className="text-amber-300">VIP Tag</strong> from Admin.
+              </p>
+
+              <div className="mt-6">
+                <GoogleAuthButton
+                  label="Sign in with Google for VIP"
+                  nextUrl="/vip"
+                  variant="light"
+                />
+              </div>
+
+              <div className="mt-6 border-t border-slate-800 pt-4 text-[11px] text-slate-500">
+                <span>Already requested on WhatsApp? Sign in to check your active status.</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Key Metrics Strip */}
-        <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <div className="mt-16 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-center backdrop-blur-md">
-            <div className="text-2xl font-black text-amber-400">15+</div>
+            <div className="text-2xl font-black text-amber-400">564+</div>
             <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              VIP Toolkits & Methods
+              Verified VIP Assets
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-center backdrop-blur-md">
-            <div className="text-2xl font-black text-cyan-400">24/7</div>
+            <div className="text-2xl font-black text-cyan-400">100</div>
             <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Encrypted VIP Chat Rooms
+              AI &amp; ML Toolkits
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-center backdrop-blur-md">
-            <div className="text-2xl font-black text-violet-400">Zero Limits</div>
+            <div className="text-2xl font-black text-violet-400">232</div>
             <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Unlimited Builders
+              100% Free Credits
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-center backdrop-blur-md">
             <div className="text-2xl font-black text-emerald-400">100%</div>
             <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Private Founder Desk
+              Admin Verified
             </div>
           </div>
-        </div>
-
-        {/* VIP Clearance Pricing Tiers (1 Mo: 3999, 6 Mo: 5999, Lifetime: 7999) */}
-        <div id="vip-pricing" className="mt-16 scroll-mt-24">
-          <VipPricingCheckout />
-        </div>
-
-        {/* Client Interactive VIP Vault List with Category Filter & Search */}
-        <div className="mt-20">
-          <TrixVipVaultClient initialItems={vipItems} />
         </div>
 
         {/* Bottom VIP Access Protocol Notice */}
@@ -161,13 +176,13 @@ export default function VipVaultPage() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
                 <ShieldCheck className="h-4 w-4" />
-                <span>TRIHEX VIP DISCRETION & COMPLIANCE PROTOCOL</span>
+                <span>TRIHEX VIP DISCRETION &amp; COMPLIANCE PROTOCOL</span>
               </div>
               <h3 className="text-lg font-bold text-white">
-                How VIP Fulfillment & Community Invitation Works
+                How VIP Fulfillment &amp; Community Invitation Works
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                VIP Vault assets, encrypted room keys, and builder access tokens are provisioned under strict private review. Contact the Founder Desk via WhatsApp with your account email to receive your private onboarding link and Discord/Telegram room credentials.
+                VIP Vault assets, encrypted room keys, and builder access tokens are provisioned under strict private review. Contact the Founder Desk via WhatsApp with your account email to receive your private onboarding link and Discord VIP room credentials.
               </p>
             </div>
             <a

@@ -27,9 +27,9 @@ export const INITIAL_VIP_ROSTER: VipVaultItem[] = [
     category: "VIP ACCESS & CHATS",
     tag: "PRIVATE COMMUNITY",
     summary:
-      "Exclusive access to TRIHEX high-level developer, founder, and security researcher chat rooms on Telegram and Discord. Private channels for real-time intelligence, zero-day alerts, and collaborative builds.",
+      "Exclusive access to TRIHEX high-level developer, founder, and security researcher private chat rooms and Discord. Private channels for real-time intelligence, zero-day alerts, and collaborative builds.",
     boldItems: [
-      "Encrypted Telegram Private Channels: Daily operational intel, AI model leaks & methods",
+      "Encrypted Private Dispatch Channels: Daily operational intel, AI model leaks & methods",
       "Private Discord Alpha Guild: Live screen-shares, code reviews, and architectural masterminds",
       "Direct Founder Hotline: Direct access to Trix for rapid escalation and priority troubleshooting",
       "Special Community Access: Network with elite developers and digital entrepreneurs across Nepal",
@@ -239,13 +239,13 @@ export const INITIAL_VIP_ROSTER: VipVaultItem[] = [
   {
     id: "vip-concierge-support",
     number: "13",
-    title: "24/7 Dedicated Concierge & Private Telegram Channel",
+    title: "24/7 Dedicated Concierge & Private VIP Hotline",
     category: "VIP ACCESS & CHATS",
     tag: "WHITE-GLOVE SUPPORT",
     summary:
       "Direct personal support channel for VIP members. Get priority order fulfillment, custom tooling requests, personalized account setup assistance, and expedited warranty replacements.",
     boldItems: [
-      "Under 15-Minute Response Time: Direct WhatsApp & Telegram lines with senior support leads",
+      "Under 15-Minute Response Time: Direct WhatsApp & Private Hotline lines with senior support leads",
       "Custom Software Sourcing: If a tool isn't listed, our team sources and authenticates it for you",
       "Personalized Setup Sessions: 1-on-1 remote assistance for configuring tools, API keys, and VPNs",
       "Lifetime Replacement Warranty: Instant zero-question replacement on all verified VIP subscriptions",

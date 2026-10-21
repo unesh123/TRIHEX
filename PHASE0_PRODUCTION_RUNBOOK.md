@@ -1,6 +1,6 @@
 # TRIHEX Phase 0 Production Runbook
 
-**Scope:** This runbook activates the permanent TRIHEX owner identity, the persistent website quote workflow, site-first order support, and the optional You.com research helper. It intentionally **does not** deploy Telegram or a third-party SMS/WhatsApp automation provider.
+**Scope:** This runbook activates the permanent TRIHEX owner identity, the persistent website quote workflow, site-first order support, and the optional You.com research helper. It intentionally focuses on site-first and WhatsApp support.
 
 > **Confirmed owner identity:** `uneshbastola888@gmail.com` is the canonical TRIHEX super-admin email. The application now rejects a conflicting `ADMIN_BOOTSTRAP_EMAIL` in production rather than silently assigning ownership elsewhere.
 
@@ -9,7 +9,6 @@
 | Owner access | The owner email is defined in `src/lib/auth/owner.ts`; Supabase bootstrap creates or upgrades it to `SUPER_ADMIN`. | Configure Supabase and database credentials, then run the bootstrap step below. |
 | Quotes | Website quote requests receive a durable `THX-Q-…` reference, secure URL, event log, and admin work queue. | Apply `drizzle/0003_quote_workflow.sql` to the production PostgreSQL database before using quote persistence. |
 | Order support | Customers track orders on-site with order number plus checkout email or Nepali mobile. WhatsApp is contextual and includes the order reference. | Keep the existing business WhatsApp environment values accurate. |
-| Telegram | Not integrated, by owner decision. | No action required. |
 | You.com research | An optional **admin-only**, server-side public-web research endpoint is prepared. It never sends order, payment, phone, email, or quote data to You.com. | Add `YOUCOM_API_KEY` only if this capability is wanted. The provided attachment contained no API key value. |
 
 ## 1. Set production environment values

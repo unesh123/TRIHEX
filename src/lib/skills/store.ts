@@ -2269,29 +2269,29 @@ export const CURATED_SKILLS: AgentSkill[] = [
         "filename": "SKILL.md",
         "language": "markdown",
         "sizeBytes": 1540,
-        "content": "# n8n Self-Hosted Enterprise Workflow Automation\n\nBuilding complex asynchronous workflow graphs, custom webhook handlers, error triggers, and AI Agent nodes.\n\n## Core Invariants & Rules\n1. Always include Error Trigger sub-workflows to capture failing executions and ping Telegram/Slack.\n2. Verify input validation and security boundaries on all executions.\n3. Keep configurations modular, typed, and auditable.\n\n## Operational Workflow\n1. Analyze requirements against existing codebase patterns.\n2. Apply standardized implementation templates.\n3. Execute verification suites before deployment."
+        "content": "# n8n Self-Hosted Enterprise Workflow Automation\n\nBuilding complex asynchronous workflow graphs, custom webhook handlers, error triggers, and AI Agent nodes.\n\n## Core Invariants & Rules\n1. Always include Error Trigger sub-workflows to capture failing executions and ping Discord/Slack.\n2. Verify input validation and security boundaries on all executions.\n3. Keep configurations modular, typed, and auditable.\n\n## Operational Workflow\n1. Analyze requirements against existing codebase patterns.\n2. Apply standardized implementation templates.\n3. Execute verification suites before deployment."
       },
       {
         "path": "references/implementation.ts",
         "filename": "implementation.ts",
         "language": "typescript",
         "sizeBytes": 980,
-        "content": "/**\n * n8n Self-Hosted Enterprise Workflow Automation Reference Implementation\n */\n\n// Connect Webhook Node -> Transform Code Node -> Postgres Insert -> Telegram Notification\n\nexport const capabilityMetadata = {\n  skillId: \"skill-n8n-workflow-automations\",\n  verifiedSafe: true,\n  version: \"2.1.0\",\n};\n"
+        "content": "/**\n * n8n Self-Hosted Enterprise Workflow Automation Reference Implementation\n */\n\n// Connect Webhook Node -> Transform Code Node -> Postgres Insert -> Discord Notification\n\nexport const capabilityMetadata = {\n  skillId: \"skill-n8n-workflow-automations\",\n  verifiedSafe: true,\n  version: \"2.1.0\",\n};\n"
       }
     ]
   },
   {
-    "id": "skill-telegram-bot-assistant",
-    "slug": "telegram-bot-assistant",
-    "name": "Telegram Bot Autonomous Agent with Grammy / Telegraf",
-    "summary": "Inline keyboards, webhook mode, file attachments, user session states, and voice message transcription.",
-    "description": "Deploying interactive Telegram bots connected to backend AI models and notification webhooks.",
+    "id": "skill-discord-bot-assistant",
+    "slug": "discord-bot-assistant",
+    "name": "Discord Bot Autonomous Agent with Discord.js / Webhooks",
+    "summary": "Slash commands, webhook mode, thread attachments, user session states, and message event listeners.",
+    "description": "Deploying interactive Discord bots connected to backend AI models and notification webhooks.",
     "category": "AUTOMATION",
     "tags": [
-      "telegram",
+      "discord",
       "bot",
-      "grammy",
-      "telegraf",
+      "discordjs",
+      "webhooks",
       "automation",
       "chatbots"
     ],
@@ -2312,14 +2312,14 @@ export const CURATED_SKILLS: AgentSkill[] = [
         "filename": "SKILL.md",
         "language": "markdown",
         "sizeBytes": 1540,
-        "content": "# Telegram Bot Autonomous Agent with Grammy / Telegraf\n\nInline keyboards, webhook mode, file attachments, user session states, and voice message transcription.\n\n## Core Invariants & Rules\n1. Use webhook mode in production behind Nginx/Cloudflare rather than long-polling.\n2. Verify input validation and security boundaries on all executions.\n3. Keep configurations modular, typed, and auditable.\n\n## Operational Workflow\n1. Analyze requirements against existing codebase patterns.\n2. Apply standardized implementation templates.\n3. Execute verification suites before deployment."
+        "content": "# Discord Bot Autonomous Agent with Discord.js / Webhooks\n\nSlash commands, webhook mode, thread attachments, user session states, and message event listeners.\n\n## Core Invariants & Rules\n1. Use webhook mode in production behind Nginx/Cloudflare rather than long-polling.\n2. Verify input validation and security boundaries on all executions.\n3. Keep configurations modular, typed, and auditable.\n\n## Operational Workflow\n1. Analyze requirements against existing codebase patterns.\n2. Apply standardized implementation templates.\n3. Execute verification suites before deployment."
       },
       {
         "path": "references/implementation.ts",
         "filename": "implementation.ts",
         "language": "typescript",
         "sizeBytes": 980,
-        "content": "/**\n * Telegram Bot Autonomous Agent with Grammy / Telegraf Reference Implementation\n */\n\nbot.command('status', (ctx) => ctx.reply('All operational systems nominal.'));\n\nexport const capabilityMetadata = {\n  skillId: \"skill-telegram-bot-assistant\",\n  verifiedSafe: true,\n  version: \"2.1.0\",\n};\n"
+        "content": "/**\n * Discord Bot Autonomous Agent with Discord.js Reference Implementation\n */\n\nclient.on('messageCreate', (message) => message.reply('All operational systems nominal.'));\n\nexport const capabilityMetadata = {\n  skillId: \"skill-discord-bot-assistant\",\n  verifiedSafe: true,\n  version: \"2.1.0\",\n};\n"
       }
     ]
   },

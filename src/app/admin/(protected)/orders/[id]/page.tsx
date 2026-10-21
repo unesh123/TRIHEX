@@ -5,7 +5,9 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { StatusPill } from "@/components/admin/admin-section-page";
 import { PaymentReviewActions } from "@/components/admin/payment-review-actions";
 import { Button } from "@/components/ui/button";
-import { requireDb } from "@/db";
+import { getDb } from "@/db";
+import { getRepositories } from "@/lib/repositories";
+import { getAllVipOrders } from "@/lib/vip/vip-order-store";
 import * as schema from "@/db/schema";
 import { formatNpr } from "@/lib/money";
 import { detectPaymentDuplicates } from "@/lib/payments/store";
@@ -13,6 +15,7 @@ import { fulfillmentStatusLabel } from "@/lib/orders/fulfillment-checklist";
 import { resolveProofViewUrl } from "@/lib/storage/proof-url";
 import { normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import { KeyRound } from "lucide-react";
+import { OrderDetailStatusChanger } from "@/components/admin/order-detail-status-changer";
 
 import {
   resolveSecretIdForSku,
@@ -47,35 +50,138 @@ export default async function AdminOrderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const db = requireDb();
+  const db = getDb();
 
-  const [byId] = await db
-    .select()
-    .from(schema.orders)
-    .where(eq(schema.orders.id, id))
-    .limit(1);
+  let order: any = null;
+  let items: any[] = [];
+  let proofs: any[] = [];
 
-  const order =
-    byId ??
-    (
-      await db
+  if (db) {
+    try {
+      const [byId] = await db
         .select()
         .from(schema.orders)
-        .where(eq(schema.orders.humanReadableOrderNumber, id))
-        .limit(1)
-    )[0];
+        .where(eq(schema.orders.id, id))
+        .limit(1);
+
+      order =
+        byId ??
+        (
+          await db
+            .select()
+            .from(schema.orders)
+            .where(eq(schema.orders.humanReadableOrderNumber, id))
+            .limit(1)
+        )[0];
+
+      if (order) {
+        items = await db
+          .select()
+          .from(schema.orderItems)
+          .where(eq(schema.orderItems.orderId, order.id));
+
+        proofs = await db
+          .select()
+          .from(schema.manualPaymentSubmissions)
+          .where(eq(schema.manualPaymentSubmissions.orderId, order.id));
+      }
+    } catch (err) {
+      console.warn("[AdminOrderDetailPage] DB query error:", err);
+    }
+  }
+
+  // Fallback to repositories if not found in DB
+  if (!order) {
+    try {
+      const repos = getRepositories();
+      const memOrder =
+        (await repos.orders.getByNumber(id)) ??
+        (await repos.orders.getBySecureToken(id));
+
+      if (memOrder) {
+        order = {
+          id: memOrder.id,
+          humanReadableOrderNumber: memOrder.orderNumber,
+          customerName: memOrder.customerName,
+          customerEmail: memOrder.customerEmail,
+          customerPhone: memOrder.customerPhone,
+          grandTotalMinor: memOrder.totalNprMinor,
+          subtotalMinor: memOrder.subtotalNprMinor,
+          orderStatus: memOrder.status,
+          paymentStatus: memOrder.paymentStatus,
+          fulfillmentActivated: memOrder.fulfillmentActivated ?? false,
+          fulfillmentEmailSent: memOrder.fulfillmentEmailSent ?? false,
+          fulfillmentWhatsappDelivered: memOrder.fulfillmentWhatsappDelivered ?? false,
+          fulfillmentNotes: memOrder.fulfillmentNotes ?? null,
+          fulfillmentDeliveredAt: memOrder.fulfillmentDeliveredAt ? new Date(memOrder.fulfillmentDeliveredAt) : null,
+          createdAt: new Date(memOrder.createdAt),
+          orderNotes: memOrder.notes,
+        };
+        items = (memOrder.lines ?? []).map((l, idx) => ({
+          id: `item-${idx}`,
+          orderId: memOrder.id,
+          productName: l.productName,
+          variantName: l.variantName,
+          quantity: l.quantity,
+          sku: l.variantSku,
+          unitPriceMinor: l.unitPriceNprMinor,
+          totalMinor: l.lineTotalNprMinor,
+          warrantyTier: l.warrantyTier,
+          warrantyLabel: l.warrantyLabel,
+          warrantyGuaranteeDays: l.warrantyGuaranteeDays,
+        }));
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // Fallback to VIP orders if still not found
+  if (!order) {
+    try {
+      const vipOrders = await getAllVipOrders();
+      const vipOrder = vipOrders.find((o) => o.id === id || o.orderNumber === id);
+      if (vipOrder) {
+        order = {
+          id: vipOrder.id,
+          humanReadableOrderNumber: vipOrder.orderNumber,
+          customerName: vipOrder.customerName,
+          customerEmail: vipOrder.customerEmail,
+          customerPhone: vipOrder.customerPhone,
+          grandTotalMinor: vipOrder.amountMinor,
+          subtotalMinor: vipOrder.amountMinor,
+          orderStatus: vipOrder.orderStatus,
+          paymentStatus: vipOrder.paymentStatus,
+          fulfillmentActivated: vipOrder.fulfillmentStatus === "DELIVERED",
+          fulfillmentEmailSent: false,
+          fulfillmentWhatsappDelivered: vipOrder.fulfillmentStatus === "DELIVERED",
+          fulfillmentNotes: vipOrder.notes,
+          fulfillmentDeliveredAt: vipOrder.fulfillmentStatus === "DELIVERED" ? new Date() : null,
+          createdAt: new Date(vipOrder.placedAt),
+          orderNotes: vipOrder.notes,
+        };
+        items = [
+          {
+            id: `vip-item-1`,
+            orderId: vipOrder.id,
+            productName: vipOrder.tierTitle,
+            variantName: vipOrder.tier,
+            quantity: 1,
+            sku: `VIP-${vipOrder.tier}`,
+            unitPriceMinor: vipOrder.amountMinor,
+            totalMinor: vipOrder.amountMinor,
+            warrantyTier: "protected",
+            warrantyLabel: "Full VIP Warranty",
+            warrantyGuaranteeDays: vipOrder.tier === "LIFETIME" ? 3650 : 180,
+          },
+        ];
+      }
+    } catch {
+      // non-fatal
+    }
+  }
 
   if (!order) notFound();
-
-  const items = await db
-    .select()
-    .from(schema.orderItems)
-    .where(eq(schema.orderItems.orderId, order.id));
-
-  const proofs = await db
-    .select()
-    .from(schema.manualPaymentSubmissions)
-    .where(eq(schema.manualPaymentSubmissions.orderId, order.id));
 
   const proofsWithUrl = await Promise.all(
     proofs.map(async (p) => {
@@ -144,6 +250,13 @@ export default async function AdminOrderDetailPage({
             ) : null}
           </div>
         }
+      />
+
+      <OrderDetailStatusChanger
+        orderId={order.id}
+        currentOrderStatus={String(order.orderStatus)}
+        currentPaymentStatus={String(order.paymentStatus)}
+        currentFulfillmentStatus={String(fulfillmentLabel)}
       />
 
       <div className="mb-6 flex flex-wrap gap-2">

@@ -91,13 +91,13 @@ describe("TRIHEX Classified Vault & Developer Loots", () => {
     expect(stats2026.equivalentToday).toBe(100);
   });
 
-  it("product-grid.tsx has single-column layout on mobile (grid-cols-1)", () => {
+  it("product-grid.tsx has two-column layout on mobile (grid-cols-2 like NimbusStore)", () => {
     const gridFile = fs.readFileSync(
       path.join(process.cwd(), "src/components/storefront/product-grid.tsx"),
       "utf8",
     );
-    expect(gridFile).toContain("grid-cols-1");
-    expect(gridFile).toContain("sm:grid-cols-2");
+    expect(gridFile).toContain("grid-cols-2");
+    expect(gridFile).toContain("md:grid-cols-3");
   });
 
   it("cryptographically signs, verifies, and rejects tampered delivery tokens", async () => {

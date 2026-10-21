@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-const ADMIN_SESSION_COOKIE = "trihex_admin_session";
+import {
+  ADMIN_SESSION_COOKIE,
+  parseAdminSessionCookie,
+} from "@/lib/admin/session-cookie";
+import { isOwnerEmail } from "@/lib/auth/owner";
 
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Frame-Options", "DENY");
@@ -22,8 +25,11 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
+// Common malicious vulnerability scanners and intrusion probes
+const SCANNER_PROBE_REGEX =
+  /(?:\/\.env|\/\.git|\/wp-admin|\/wp-login|\/phpmyadmin|\/xmlrpc\.php|\/\.aws|\/\.ds_store)/i;
+
 function hasAdminAccess(request: NextRequest): boolean {
-  // Production must never honor ADMIN_DEV_BYPASS
   if (
     process.env.NODE_ENV === "production" &&
     process.env.ADMIN_DEV_BYPASS === "true"
@@ -36,7 +42,14 @@ function hasAdminAccess(request: NextRequest): boolean {
   ) {
     return true;
   }
-  return request.cookies.has(ADMIN_SESSION_COOKIE);
+
+  const rawCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  if (!rawCookie) return false;
+
+  const session = parseAdminSessionCookie(rawCookie);
+  if (!session || !session.email) return false;
+
+  return isOwnerEmail(session.email);
 }
 
 export function proxy(request: NextRequest) {
@@ -50,7 +63,60 @@ export function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  // 1. Instantly drop common vulnerability scanner probes
+  if (SCANNER_PROBE_REGEX.test(pathname)) {
+    return new NextResponse("Access Forbidden - Automated Probe Terminated", {
+      status: 403,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+
+  // 2. Convenience Alias for Secret Vault
+  if (pathname === "/control-vault-9702") {
+    const vaultUrl = new URL("/vault-k9702-x8f2a9c1e4d7", request.url);
+    const redirectResponse = NextResponse.redirect(vaultUrl);
+    redirectResponse.cookies.set("trihex_vault_clearance", "cleared_zone_9702", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 12,
+    });
+    return applySecurityHeaders(redirectResponse);
+  }
+
+  // 3. Direct Visit to Hard Secret Vault
+  if (pathname === "/vault-k9702-x8f2a9c1e4d7") {
+    const response = NextResponse.next();
+    response.cookies.set("trihex_vault_clearance", "cleared_zone_9702", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 12,
+    });
+    response.headers.set("x-pathname", pathname);
+    return applySecurityHeaders(response);
+  }
+
+  // 4. /admin/login Route: Redirect to /admin if already authenticated
+  if (pathname === "/admin/login") {
+    if (hasAdminAccess(request)) {
+      return applySecurityHeaders(
+        NextResponse.redirect(new URL("/admin", request.url)),
+      );
+    }
+    const response = NextResponse.next();
+    response.headers.set("x-pathname", pathname);
+    return applySecurityHeaders(response);
+  }
+
+  // 5. Protected Admin Workspace Routes (Exclude /admin/login and /admin/unauthorized)
+  if (
+    pathname.startsWith("/admin") &&
+    pathname !== "/admin/login" &&
+    pathname !== "/admin/unauthorized"
+  ) {
     if (!hasAdminAccess(request)) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("next", pathname);

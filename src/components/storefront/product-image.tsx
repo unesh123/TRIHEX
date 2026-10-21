@@ -61,6 +61,7 @@ export function ProductImage({
     <div
       className={cn(
         "relative aspect-[4/5] w-full overflow-hidden border-b border-slate-100 bg-[linear-gradient(160deg,#ffffff_0%,#f8fafc_60%,#eff6ff_100%)]",
+        currentSrc.startsWith("/media/artwork/") && "aspect-square",
         containerClassName,
       )}
     >
@@ -85,6 +86,7 @@ export function ProductImage({
           onError={handleError}
           className={cn(
             "object-contain p-2.5 transition-all duration-300 group-hover:scale-[1.025]",
+            currentSrc.startsWith("/media/artwork/") && "p-0",
             isLoaded ? "opacity-100" : "opacity-0",
             className,
           )}

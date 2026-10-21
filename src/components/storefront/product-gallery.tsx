@@ -59,7 +59,7 @@ export function ProductGallery({
           {validImages.map((imgUrl, idx) => (
             <div
               key={imgUrl + idx}
-              className="relative aspect-[4/5] w-full shrink-0 snap-center p-3"
+              className={cn("relative w-full shrink-0 snap-center", imgUrl.startsWith("/media/artwork/") ? "aspect-square" : "aspect-[4/5] p-3")}
             >
               <FeaturePosterLightbox
                 src={imgUrl}
@@ -103,7 +103,7 @@ export function ProductGallery({
       <div className="hidden md:block">
         <FeaturePosterLightbox
           src={activeImage}
-          alt={`${title} feature infographic`}
+          alt={`${title} product artwork`}
           title={title}
           images={validImages}
           className="w-full max-w-xl shadow-[0_8px_30px_rgba(13,28,43,0.06)]"

@@ -11,7 +11,7 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgresql://localhost:5432/trihex_digital",
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL || "postgresql://localhost:5432/trihex_digital",
   },
   strict: true,
   verbose: true,

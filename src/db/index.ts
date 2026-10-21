@@ -29,7 +29,10 @@ function createDb(): Db | null {
     }
     const client = postgres(connectionString, {
       prepare: false,
-      max: 10,
+      // Each build worker / serverless instance has its own pool.
+      max: 2,
+      idle_timeout: 20,
+      connect_timeout: 10,
     });
     return drizzle(client, { schema });
   } catch (err) {

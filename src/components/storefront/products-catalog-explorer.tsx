@@ -442,7 +442,7 @@ export function ProductsCatalogExplorer({
           secondaryLabel="Inquire list"
         />
       ) : (
-        <ProductGrid products={filteredProducts} />
+        <ProductGrid products={filteredProducts} showFilters={false} />
       )}
     </div>
   );

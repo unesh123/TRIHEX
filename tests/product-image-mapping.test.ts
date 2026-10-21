@@ -27,6 +27,7 @@ describe("product image mapping", () => {
         expect(
           cover!.publicPath.startsWith("/media/covers/") ||
           cover!.publicPath.startsWith("/media/products/") ||
+          cover!.publicPath.startsWith("/media/artwork/") ||
           cover!.publicPath.startsWith("/trihex/products/"),
         ).toBe(true);
       } else {
@@ -81,12 +82,12 @@ describe("product image mapping", () => {
     for (const k of kling) expect(paths.has(k.publicPath)).toBe(false);
   });
 
-  it("Gemini mail variants retain separate covers", () => {
+  it("Gemini variants share price-free family artwork", () => {
     const a = getProductCover("gemini-ai-pro-5tb-12m-mail-a");
     const b = getProductCover("gemini-ai-pro-5tb-12m-mail-b");
-    // Archived from live catalogue; covers may remain on disk for rollback
     if (a && b && isRasterCover(a) && isRasterCover(b)) {
-      expect(a.publicPath).not.toBe(b.publicPath);
+      expect(a.publicPath).toBe(b.publicPath);
+      expect(a.publicPath).toBe("/media/artwork/gemini.webp");
     }
   });
 
@@ -111,8 +112,8 @@ describe("product image mapping", () => {
     for (const slug of ["cursor-pro-plus", "cursor-pro-30-days", "cursor-ultra"]) {
       const c = getProductCover(slug);
       expect(isRasterCover(c)).toBe(true);
-      expect(c!.sourceFile ?? "").toMatch(/cursor-code-abstract/);
-      expect(c!.publicPath.startsWith("/media/covers/cursor/")).toBe(true);
+      expect(c!.publicPath).toBe("/media/artwork/cursor.webp");
+      expect(c!.publicPath).not.toMatch(/sheet|crop/);
     }
   });
 

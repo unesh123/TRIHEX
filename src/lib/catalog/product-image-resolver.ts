@@ -1,4 +1,5 @@
 import manifest from "./product-cover-manifest.json";
+import { premiumArtworkForSlug } from "./premium-artwork";
 import { productFamilyKey } from "./product-families";
 
 export type ManifestItem = {
@@ -118,6 +119,9 @@ const CANONICAL_FAMILY_MAP: Record<string, string> = {
   "figma-edu-2-years": "figma-edu-2-years",
   "grammarly-pro-1-year": "grammarly-pro-1-year",
   "youtube-premium-1-year": "youtube-premium-1-year",
+  "trihex-vip-pass-1-month": "ai-money-maker-digital-course-2026",
+  "trihex-vip-pass-6-months": "ai-money-maker-digital-course-2026",
+  "trihex-vip-pass-lifetime": "ai-money-maker-digital-course-2026",
 };
 
 const BRAND_DEFAULT_COVERS: Record<string, string> = {
@@ -226,6 +230,9 @@ export const TRIHEX_ARTWORK_KIT: Record<string, string> = {
   "the-passive-rebel-antisocial-leads": "/trihex/products/passive-rebel-antisocial-leads.webp",
   "udemy-16-package-ai-agent-pack": "/trihex/products/udemy-16-package-ai-agent-pack.webp",
   "udemy-16-developer-ai-agent-pack": "/trihex/products/udemy-16-package-ai-agent-pack.webp",
+  "trihex-vip-pass-1-month": "/trihex/products/ai-money-maker-digital-products-course.webp",
+  "trihex-vip-pass-6-months": "/trihex/products/ai-money-maker-digital-products-course.webp",
+  "trihex-vip-pass-lifetime": "/trihex/products/ai-money-maker-digital-products-course.webp",
 };
 
 export const FALLBACK_PRODUCT_IMAGE = "/media/products/fallback-product.webp";
@@ -282,6 +289,13 @@ export function resolveProductThumbnail(
   const slug = typeof productOrSlug === "string" ? productOrSlug : productOrSlug.slug;
   const inputThumb = typeof productOrSlug === "object" ? productOrSlug.thumbnailPublicPath : dbThumbnail;
   const inputCover = typeof productOrSlug === "object" ? productOrSlug.coverPublicPath : legacyCover;
+  // Preserve later admin uploads while replacing the old text-poster library.
+  const uploadedCover = [inputThumb, inputCover].map(normalizePublicUrl).find(
+    (url) => url?.startsWith("/media/covers/uploads/") || url?.startsWith("https://"),
+  );
+  if (uploadedCover) return uploadedCover;
+  const artwork = premiumArtworkForSlug(slug);
+  if (artwork) return artwork;
 
   // 1. Direct explicit V2 thumbnail on product
   const normThumb = normalizePublicUrl(inputThumb);
@@ -357,6 +371,8 @@ export function resolveProductInfographic(
 ): string {
   const slug = typeof productOrSlug === "string" ? productOrSlug : productOrSlug.slug;
   const inputInfo = typeof productOrSlug === "object" ? productOrSlug.infographicPublicPath : dbInfographic;
+  const artwork = premiumArtworkForSlug(slug);
+  if (artwork) return artwork;
 
   const normInfo = normalizePublicUrl(inputInfo);
   if (normInfo && normInfo.startsWith("/media/products/")) {
