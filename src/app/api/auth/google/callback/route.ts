@@ -22,10 +22,12 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin;
 
   let next = "/vip";
+  let stateRedirectUri: string | null = null;
   try {
     if (rawState) {
       const parsed = JSON.parse(Buffer.from(rawState, "base64url").toString("utf8"));
       if (parsed.next) next = parsed.next;
+      if (parsed.redirectUri) stateRedirectUri = parsed.redirectUri;
     }
   } catch {
     // ignore
@@ -36,9 +38,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientId =
+      process.env.GOOGLE_CLIENT_ID ||
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      "819947841068-dndd9hfekaangr1htloljt7mf0r3fgk7.apps.googleusercontent.com";
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectUri = `${origin}/api/auth/google/callback`;
+    const redirectUri =
+      stateRedirectUri ||
+      process.env.GOOGLE_REDIRECT_URI?.trim() ||
+      `${origin}/api/auth/google/callback`;
 
     if (!clientId || !clientSecret) {
       throw new Error("Missing Google OAuth credentials in environment.");

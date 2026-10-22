@@ -6,6 +6,18 @@ export async function register() {
     const { normalizeEnvAliases } = await import("@/lib/env/normalize-aliases");
     normalizeEnvAliases();
 
+    // Start background local OAuth callback bridge on port 8000 for registered Google redirect URIs
+    if (!process.env.VERCEL) {
+      try {
+        const { startLocalOAuthForwarder } = await import(
+          "@/lib/auth/local-oauth-forwarder"
+        );
+        startLocalOAuthForwarder();
+      } catch {
+        // non-fatal
+      }
+    }
+
     const { assertProductionSafe } = await import(
       "@/lib/config/persistence-guard"
     );

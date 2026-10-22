@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { USER_SESSION_COOKIE, encodeUserSession, type StorefrontUser } from "@/lib/auth/user-session";
+import { ADMIN_SESSION_COOKIE, buildAdminSessionCookieValue } from "@/lib/admin/session-cookie";
 import { isOwnerEmail } from "@/lib/auth/owner";
 import { registerCustomerLogin } from "@/lib/vip/vip-member-store";
 import { isSecureCookie } from "@/lib/auth/cookie-config";
@@ -60,6 +61,25 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 30,
     });
+
+    // If owner, grant admin session & clearance
+    if (isOwner) {
+      const signedSession = buildAdminSessionCookieValue(email);
+      response.cookies.set(ADMIN_SESSION_COOKIE, signedSession, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isSecureCookie(),
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("trihex_vault_clearance", "cleared_zone_9702", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: isSecureCookie(),
+        path: "/",
+        maxAge: 60 * 60 * 12,
+      });
+    }
 
     return response;
   } catch (err) {
