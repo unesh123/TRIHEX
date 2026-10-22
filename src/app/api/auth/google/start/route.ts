@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const clientId =
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
     process.env.GOOGLE_CLIENT_ID ||
-    "819947841068-dndd9hfekaangr1htloljt7mf0r3fgk7.apps.googleusercontent.com";
+    "1055636675498-jo31l5n9fouujd1htgdmo390arl95h7t.apps.googleusercontent.com";
 
   // If a specific redirect URI is registered in Google Cloud Console (e.g. from .env.local),
   // use it so Google doesn't throw redirect_uri_mismatch.

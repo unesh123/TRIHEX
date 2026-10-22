@@ -84,7 +84,7 @@ export function GoogleAuthButton({
   useEffect(() => {
     const clientId =
       clientEnv.googleClientId ||
-      "819947841068-dndd9hfekaangr1htloljt7mf0r3fgk7.apps.googleusercontent.com";
+      "1055636675498-jo31l5n9fouujd1htgdmo390arl95h7t.apps.googleusercontent.com";
 
     const loadGsiScript = () => {
       if (typeof window === "undefined") return;

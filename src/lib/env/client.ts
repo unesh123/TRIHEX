@@ -32,6 +32,6 @@ export const clientEnv: ClientEnvConfig = {
   googleMapsMapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
   googleClientId:
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-    "819947841068-dndd9hfekaangr1htloljt7mf0r3fgk7.apps.googleusercontent.com",
+    "1055636675498-jo31l5n9fouujd1htgdmo390arl95h7t.apps.googleusercontent.com",
   isProduction: process.env.NODE_ENV === "production",
 };
