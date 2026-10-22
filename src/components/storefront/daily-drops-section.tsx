@@ -25,7 +25,7 @@ const TODAY_DROPS: DropItem[] = [
     id: "drop-1",
     badge: "NEW DROP",
     timeAgo: "2 hours ago",
-    title: "CapCut Pro 1-Month Plan Price Adjusted to Rs. 399",
+    title: "CapCut Pro 1-Month Plan Price Adjusted to Rs. 699",
     category: "Video Editing",
     type: "PRODUCT",
     href: "/products/capcut-pro-30-days",

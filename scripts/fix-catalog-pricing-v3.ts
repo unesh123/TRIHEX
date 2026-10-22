@@ -29,14 +29,14 @@ async function main() {
 
   await sql`
     UPDATE product_variants
-    SET manual_selling_price_npr_minor = 39900,
+    SET manual_selling_price_npr_minor = 69900,
         variant_name = '1 Month Full Warranty',
         duration_value = 1,
         duration_unit = 'MONTH',
         purchasable = true
     WHERE sku = 'CAP-1M-FW'
   `;
-  console.log("-> CAP-1M-FW set to Rs. 399 (Invariant Preserved)");
+  console.log("-> CAP-1M-FW set to Rs. 699");
 
   await sql`
     UPDATE product_variants

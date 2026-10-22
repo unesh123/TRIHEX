@@ -21,7 +21,7 @@ const CATEGORY_GROUPS = [
     badge: "15+ Tools",
     items: [
       { name: "Coding AI (Cursor, Claude Code)", href: "/products/cursor-pro-12m" },
-      { name: "Video AI (CapCut Pro Rs. 399)", href: "/products/capcut-pro-30-days" },
+      { name: "Video AI (CapCut Pro Rs. 699)", href: "/products/capcut-pro" },
       { name: "Voice AI (ElevenLabs Creator)", href: "/products/elevenlabs-creator-shared" },
       { name: "Image AI (Canva Pro, Midjourney)", href: "/products/canva-pro-1-year" },
     ],

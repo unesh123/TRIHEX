@@ -51,10 +51,27 @@ function categorySlugFromName(name: string | null | undefined): string {
   return "ai-tools";
 }
 
+let memoryCatalogueCache: { products: SeedProduct[]; expiry: number } | null = null;
+const MEMORY_CATALOGUE_TTL_MS = 60_000;
+
 /** Load catalogue products for storefront + admin. Prefers live DB. */
 export async function loadCatalogueProducts(): Promise<SeedProduct[]> {
-  if (!isDatabaseConfigured()) return ALL_SEED_PRODUCTS;
-  return loadCatalogueProductsCached();
+  if (memoryCatalogueCache && Date.now() < memoryCatalogueCache.expiry) {
+    return memoryCatalogueCache.products;
+  }
+  if (!isDatabaseConfigured()) {
+    memoryCatalogueCache = {
+      products: ALL_SEED_PRODUCTS,
+      expiry: Date.now() + MEMORY_CATALOGUE_TTL_MS,
+    };
+    return ALL_SEED_PRODUCTS;
+  }
+  const products = await loadCatalogueProductsCached();
+  memoryCatalogueCache = {
+    products,
+    expiry: Date.now() + MEMORY_CATALOGUE_TTL_MS,
+  };
+  return products;
 }
 
 const loadCatalogueProductsCached = unstable_cache(

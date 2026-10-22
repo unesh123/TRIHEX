@@ -231,7 +231,7 @@ export const BLOG_POSTS: BlogPost[] = [
       "heading": "3x Digital CapCut AI Pricing & Duration Packages",
       "paragraphs": [
         "CapCut Pro 7-Day Sprint: Perfect for single campaigns or urgent client deliverables.",
-        "CapCut Pro 1-Month Creator: NPR 799 (Compare-at NPR 1,200) — The most popular monthly plan for active content creators.",
+        "CapCut Pro 1-Month Creator: NPR 699 (Compare-at NPR 1,200) — The most popular monthly plan for active content creators.",
         "CapCut Pro 6-Month Pro: Great savings for consistent weekly editors and studio workflows.",
         "All plans include uninterrupted server access, instant activation, and our 100% uptime replacement warranty."
       ]

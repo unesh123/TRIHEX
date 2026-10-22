@@ -153,7 +153,7 @@ export default async function HomePage() {
                 All Available Software Packages
               </h2>
               <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-600">
-                {shopProducts.length} verified packages ready for instant checkout with live NPR prices. CapCut Pro at Rs. 399, Gemini Pro 18-Months at Rs. 399, ChatGPT Plus, Claude Pro, and VIP Passes.
+                {shopProducts.length} verified packages ready for instant checkout with live NPR prices. CapCut Pro at Rs. 699, Gemini Pro 18-Months at Rs. 399, ChatGPT Plus, Claude Pro, and VIP Passes.
               </p>
             </div>
             <Link

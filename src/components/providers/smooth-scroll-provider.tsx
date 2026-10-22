@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { ChevronUp } from "lucide-react";
@@ -11,18 +11,19 @@ interface SmoothScrollProviderProps {
 
 /**
  * Ultimate Luxury Smooth Scroll Provider
- * Engineered for silky, momentum-based inertial scrolling with zero lockups or touch conflicts.
+ * Engineered for silky, momentum-based inertial scrolling with zero React render overhead on scroll.
  * Features:
  * - Exponential deceleration curve (Apple/Linear-grade fluid glide)
+ * - Direct DOM style mutation on scroll (0 React component re-renders during 120 FPS scrolling)
  * - Dynamic ResizeObserver auto-synchronization for zero bottom-clipping
  * - Top glowing progress indicator tracking scroll progress
  * - Glassmorphic floating Back-to-Top pill button
  */
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const backToTopRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     // Respect user's accessibility reduced motion setting
@@ -48,10 +49,22 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     lenisRef.current = lenis;
     (window as any).lenis = lenis;
 
-    // Listen to scroll events for progress bar & back-to-top button
+    // High performance DOM mutation on scroll - 0 React re-renders!
     lenis.on("scroll", (e: { progress: number; scroll: number }) => {
-      setScrollProgress(Math.min(100, Math.max(0, e.progress * 100)));
-      setShowBackToTop(e.scroll > 450);
+      if (progressBarRef.current) {
+        const p = Math.min(100, Math.max(0, e.progress * 100));
+        progressBarRef.current.style.width = `${p}%`;
+        progressBarRef.current.style.boxShadow =
+          p > 1
+            ? "0 0 10px rgba(6, 182, 212, 0.7), 0 0 4px rgba(59, 130, 246, 0.8)"
+            : "none";
+      }
+      if (backToTopRef.current) {
+        const shouldShow = e.scroll > 450;
+        backToTopRef.current.style.opacity = shouldShow ? "1" : "0";
+        backToTopRef.current.style.pointerEvents = shouldShow ? "auto" : "none";
+        backToTopRef.current.style.transform = shouldShow ? "translateY(0)" : "translateY(12px)";
+      }
     });
 
     // Continuous requestAnimationFrame loop
@@ -90,8 +103,15 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
-    setScrollProgress(0);
-    setShowBackToTop(false);
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = "0%";
+      progressBarRef.current.style.boxShadow = "none";
+    }
+    if (backToTopRef.current) {
+      backToTopRef.current.style.opacity = "0";
+      backToTopRef.current.style.pointerEvents = "none";
+      backToTopRef.current.style.transform = "translateY(12px)";
+    }
   }, [pathname]);
 
   const handleScrollToTop = () => {
@@ -106,11 +126,11 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     <>
       {/* Top Luxury Ambient Scroll Progress Glow Bar */}
       <div
+        ref={progressBarRef}
         className="fixed top-0 left-0 right-0 h-[2.5px] z-[120] pointer-events-none transition-all duration-75"
         style={{
-          width: `${scrollProgress}%`,
+          width: "0%",
           background: "linear-gradient(90deg, #3b82f6 0%, #06b6d4 50%, #10b981 100%)",
-          boxShadow: scrollProgress > 1 ? "0 0 10px rgba(6, 182, 212, 0.7), 0 0 4px rgba(59, 130, 246, 0.8)" : "none",
         }}
         aria-hidden="true"
       />
@@ -118,16 +138,20 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
       {children}
 
       {/* Floating Glassmorphic Back to Top Button */}
-      {showBackToTop && (
-        <button
-          onClick={handleScrollToTop}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-1.5 rounded-full border border-white/15 bg-slate-900/85 px-3 py-2 text-xs font-semibold text-slate-200 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-800 hover:text-white animate-in fade-in slide-in-from-bottom-3"
-          aria-label="Scroll back to top"
-        >
-          <ChevronUp className="h-4 w-4 text-cyan-400" />
-          <span className="hidden sm:inline font-mono text-[11px] uppercase tracking-wider">Top</span>
-        </button>
-      )}
+      <button
+        ref={backToTopRef}
+        onClick={handleScrollToTop}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-1.5 rounded-full border border-white/15 bg-slate-900/85 px-3 py-2 text-xs font-semibold text-slate-200 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 hover:bg-slate-800 hover:text-white"
+        style={{
+          opacity: 0,
+          pointerEvents: "none",
+          transform: "translateY(12px)",
+        }}
+        aria-label="Scroll back to top"
+      >
+        <ChevronUp className="h-4 w-4 text-cyan-400" />
+        <span className="hidden sm:inline font-mono text-[11px] uppercase tracking-wider">Top</span>
+      </button>
     </>
   );
 }
