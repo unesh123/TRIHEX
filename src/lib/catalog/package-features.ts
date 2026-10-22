@@ -2,6 +2,19 @@
  * Customer-facing package features (truthful, no unverified "official" claims).
  */
 export const PACKAGE_FEATURES: Record<string, string[]> = {
+  "musi-ai-pro-subscription": [
+    "Next-gen AI video & audio storage with ultrafast playback",
+    "Speech-to-text transcription with timestamped keyword search",
+    "Ad-free 4K responsive video embedding for websites & blogs",
+    "Developer API access with webhooks & custom storage",
+    "Official 3x Digital warranty and rapid WhatsApp activation",
+  ],
+  "museai": [
+    "1 Billion token allowance for AI video & audio workloads",
+    "Timestamped speech-to-text transcriptions and indexing",
+    "Ad-free responsive player embed code",
+    "Direct WhatsApp activation assistance by 3x Digital",
+  ],
   "gemini-pro-18-months-link": [
     "Gemini Pro model access for about 18 months (as provided by the plan)",
     "Up to 5 TB cloud storage when included in the package",
@@ -508,6 +521,13 @@ export function detailMetaForSlug(slug: string): {
       warranty: "Full term duration replacement warranty & activation support",
       delivery: "Delivered within 1–2 hours after payment proof verification",
       notes: "Activation assistance provided with verified order record on website.",
+    };
+  }
+  if (slug.includes("musi") || slug.includes("muse")) {
+    return {
+      warranty: "Full term duration replacement warranty & priority support",
+      delivery: "Usually 30 minutes to 2 hours after payment verification",
+      notes: "Official 3x Digital Musi AI (Muse.ai) activation with verified order record on website.",
     };
   }
   if (slug.includes("cursor")) {

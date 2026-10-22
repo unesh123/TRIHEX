@@ -51,6 +51,9 @@ export function productFamilyKey(slug: string): string {
 
   // Alias naming variants of the same Grok Super line
   if (key === "super-grok" || key === "supergrok") key = "grok-super";
+  if (key === "musi-ai" || key === "musi-ai-pro" || key === "musi-ai-pro-subscription" || key === "muse-ai") {
+    key = "musi-ai";
+  }
 
   // CapCut "30-days" often means 1 month — already stripped by duration re
   if (!key) return slug.toLowerCase();

@@ -18,6 +18,9 @@ export type ProductCoverEntry = {
 };
 
 const CANONICAL_FAMILY_MAP: Record<string, string> = {
+  "musi-ai-pro-subscription": "musi-ai",
+  "musi-ai": "musi-ai",
+  "museai": "musi-ai",
   "super-grok-1-month": "supergrok-3-months",
   "super-grok-3-months": "supergrok-3-months",
   "super-grok-6-months": "supergrok-3-months",
@@ -33,6 +36,9 @@ const CANONICAL_FAMILY_MAP: Record<string, string> = {
  * Pristine 1200x900 / 1200x1200 artwork posters imported from the verified Trihex complete kit
  */
 const TRIHEX_PRISTINE_POSTERS: Record<string, string> = {
+  "musi-ai": "/trihex/products/factory-droid-ai.webp",
+  "musi-ai-pro-subscription": "/trihex/products/factory-droid-ai.webp",
+  "museai": "/trihex/products/factory-droid-ai.webp",
   "ai-money-maker-digital-products-course": "/trihex/products/ai-money-maker-digital-products-course.webp",
   "ai-prompt-starter-pack": "/trihex/products/ai-prompt-starter-pack.webp",
   "canva-pro": "/trihex/products/canva-pro.webp",

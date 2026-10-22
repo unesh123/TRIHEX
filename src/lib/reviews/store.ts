@@ -25,12 +25,19 @@ export async function listApprovedReviewsForProduct(input: {
         )
       : and(eq(schema.reviews.status, "APPROVED"), productMatch);
 
-    const rows = await db
+    const queryPromise = db
       .select()
       .from(schema.reviews)
       .where(where)
       .orderBy(desc(schema.reviews.createdAt))
       .limit(20);
+
+    const rows = await Promise.race([
+      queryPromise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Reviews query timeout")), 600)
+      ),
+    ]);
 
     return rows.map((r) => ({
       id: r.id,
@@ -52,7 +59,7 @@ export async function listApprovedReviewsForSlug(input: {
 }): Promise<ApprovedReview[]> {
   try {
     const db = requireDb();
-    const [product] = await db
+    const productQuery = db
       .select({ id: schema.products.id, categorySlug: schema.categories.slug })
       .from(schema.products)
       .leftJoin(
@@ -61,6 +68,13 @@ export async function listApprovedReviewsForSlug(input: {
       )
       .where(eq(schema.products.slug, input.slug))
       .limit(1);
+
+    const [product] = await Promise.race([
+      productQuery,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Reviews slug query timeout")), 600)
+      ),
+    ]);
 
     if (!product) return [];
     return await listApprovedReviewsForProduct({

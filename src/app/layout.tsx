@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { Manrope, Sora } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
+import {
+  JsonLd,
+  organizationJsonLd,
+  websiteJsonLd,
+  localBusinessJsonLd,
+} from "@/components/seo/json-ld";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -21,20 +27,34 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "TRIHEX DIGITAL — Premium AI & Digital Tools for Nepal",
-    template: "%s · TRIHEX DIGITAL",
+    default: "TRIHEX DIGITAL (3x Digital) — #1 AI Subscriptions & Digital Tools in Nepal",
+    template: "%s · TRIHEX DIGITAL (3x Digital)",
   },
   description:
-    "Buy AI and digital tools in Nepal with transparent NPR prices, bank QR checkout, payment proof upload, and WhatsApp support.",
+    "Nepal's premier store for AI subscriptions: Musi AI, CapCut AI, ChatGPT Plus, Cursor Pro, Claude Pro & Gemini. Transparent NPR pricing, instant bank QR & eSewa checkout, WhatsApp support.",
   applicationName: "TRIHEX DIGITAL",
   keywords: [
-    "TRIHEX DIGITAL",
-    "Nepal",
-    "AI tools Nepal",
-    "ChatGPT Nepal",
-    "Gemini Nepal",
+    "3x Digital",
+    "3X Digital",
+    "3x Digital Musi AI subscription",
+    "Musi AI",
+    "Musi AI subscription Nepal",
+    "MuseAI Nepal",
+    "3x Digital CapCut AI subscription",
     "CapCut Pro Nepal",
+    "CapCut AI subscription",
+    "3x Digital ChatGPT subscription",
+    "ChatGPT Plus Nepal",
+    "ChatGPT subscription Nepal",
+    "Cursor Pro Nepal",
+    "Cursor AI subscription 3x Digital",
+    "Claude Pro Nepal",
+    "Gemini Pro Nepal",
+    "ElevenLabs Nepal",
+    "AI tools Nepal",
+    "TRIHEX DIGITAL",
     "digital products NPR",
+    "buy AI subscription Nepal",
   ],
   alternates: {
     canonical: "/",
@@ -43,16 +63,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_NP",
     url: siteUrl,
-    siteName: "TRIHEX DIGITAL",
-    title: "TRIHEX DIGITAL — Premium AI & Digital Tools for Nepal",
+    siteName: "TRIHEX DIGITAL (3x Digital)",
+    title: "TRIHEX DIGITAL (3x Digital) — #1 AI Subscriptions & Digital Tools in Nepal",
     description:
-      "Transparent NPR pricing, website checkout, bank QR pay, and local WhatsApp support.",
+      "Buy Musi AI, CapCut AI, ChatGPT Plus, and Cursor Pro in Nepal with transparent NPR pricing, bank QR checkout, and instant WhatsApp support.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TRIHEX DIGITAL — Premium AI & Digital Tools for Nepal",
+    title: "TRIHEX DIGITAL (3x Digital) — #1 AI Subscriptions & Digital Tools in Nepal",
     description:
-      "Transparent NPR pricing, website checkout, and WhatsApp support.",
+      "Transparent NPR pricing, bank QR checkout, and instant WhatsApp support for all top AI subscriptions.",
   },
   robots: {
     index: true,
@@ -87,6 +107,13 @@ export default function RootLayout({
         // that root-only noise without hiding component-level hydration errors.
         suppressHydrationWarning
       >
+        <JsonLd
+          data={[
+            organizationJsonLd(),
+            websiteJsonLd(),
+            localBusinessJsonLd(),
+          ]}
+        />
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>
     </html>

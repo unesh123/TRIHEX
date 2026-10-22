@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { StorefrontPageShell } from "@/components/storefront/page-shell";
 import { getDemoCategories } from "@/lib/catalog/demo-catalog";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "AI & Digital Tool Categories — 3x Digital (TRIHEX) Nepal",
+  description: "Browse AI Tools, Video Editing, Developer Tools, Design, and Productivity subscriptions in Nepal with transparent NPR pricing and instant bank QR checkout.",
+  alternates: { canonical: "/categories" },
+};
 
 export default function CategoriesPage() {
   const categories = getDemoCategories();

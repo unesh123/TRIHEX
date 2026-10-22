@@ -23,6 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }> = [
     { path: "", priority: 1, changeFrequency: "daily" },
     { path: "/products", priority: 0.95, changeFrequency: "daily" },
+    { path: "/vip", priority: 0.95, changeFrequency: "daily" },
     { path: "/ai-finder", priority: 0.9, changeFrequency: "weekly" },
     { path: "/compare", priority: 0.9, changeFrequency: "weekly" },
     { path: "/vault", priority: 0.9, changeFrequency: "daily" },
@@ -40,8 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/student-tools-nepal", priority: 0.8, changeFrequency: "weekly" },
     { path: "/business-ai-setup", priority: 0.8, changeFrequency: "weekly" },
     { path: "/automation-services", priority: 0.8, changeFrequency: "weekly" },
-    { path: "/deals", priority: 0.9, changeFrequency: "daily" },
-    { path: "/prompts", priority: 0.9, changeFrequency: "daily" },
     { path: "/skills", priority: 0.85, changeFrequency: "weekly" },
     { path: "/nepal", priority: 0.9, changeFrequency: "daily" },
     { path: "/nepal/datasets", priority: 0.85, changeFrequency: "weekly" },
@@ -49,15 +48,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/vault/research", priority: 0.85, changeFrequency: "weekly" },
     { path: "/guides", priority: 0.85, changeFrequency: "weekly" },
     { path: "/categories", priority: 0.75, changeFrequency: "weekly" },
+    { path: "/categories/ai-tools", priority: 0.75, changeFrequency: "weekly" },
     { path: "/categories/design", priority: 0.7, changeFrequency: "weekly" },
     {
       path: "/categories/video-editing",
-      priority: 0.7,
+      priority: 0.75,
       changeFrequency: "weekly",
     },
     {
       path: "/categories/developer-tools",
-      priority: 0.7,
+      priority: 0.75,
       changeFrequency: "weekly",
     },
     { path: "/categories/learning", priority: 0.7, changeFrequency: "weekly" },
@@ -91,83 +91,124 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const entries: MetadataRoute.Sitemap = staticPaths.map((item) => ({
-    url: `${origin}${item.path || "/"}`,
-    lastModified: new Date(),
-    changeFrequency: item.changeFrequency,
-    priority: item.priority,
-  }));
+  const seenUrls = new Set<string>();
+  const entries: MetadataRoute.Sitemap = [];
+
+  for (const item of staticPaths) {
+    const url = `${origin}${item.path || "/"}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(),
+        changeFrequency: item.changeFrequency,
+        priority: item.priority,
+      });
+    }
+  }
 
   for (const post of getAllBlogPosts()) {
-    entries.push({
-      url: `${origin}/blog/${post.slug}`,
-      lastModified: new Date(post.updatedAt),
-      changeFrequency: "monthly",
-      priority: 0.85,
-    });
+    const url = `${origin}/blog/${post.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(post.updatedAt),
+        changeFrequency: "weekly",
+        priority: 0.9,
+      });
+    }
   }
 
   for (const prompt of getAllPrompts()) {
-    entries.push({
-      url: `${origin}/prompts/${prompt.slug}`,
-      lastModified: new Date(prompt.updatedAt),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    });
+    const url = `${origin}/prompts/${prompt.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(prompt.updatedAt),
+        changeFrequency: "weekly",
+        priority: 0.8,
+      });
+    }
   }
 
   for (const skill of getAllSkills()) {
-    entries.push({
-      url: `${origin}/skills/${skill.slug}`,
-      lastModified: new Date(skill.updatedAt),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    });
+    const url = `${origin}/skills/${skill.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(skill.updatedAt),
+        changeFrequency: "monthly",
+        priority: 0.8,
+      });
+    }
   }
 
   for (const guide of getAllGuides()) {
-    entries.push({
-      url: `${origin}/guides/${guide.slug}`,
-      lastModified: new Date(guide.publishedAt),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    });
+    const url = `${origin}/guides/${guide.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(guide.publishedAt),
+        changeFrequency: "monthly",
+        priority: 0.8,
+      });
+    }
   }
 
   for (const research of getAllResearchItems()) {
-    entries.push({
-      url: `${origin}/vault/research/${research.slug}`,
-      lastModified: new Date(research.lastAuditedAt),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    });
+    const url = `${origin}/vault/research/${research.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(research.lastAuditedAt),
+        changeFrequency: "monthly",
+        priority: 0.8,
+      });
+    }
   }
 
   for (const article of getAllNews()) {
-    entries.push({
-      url: `${origin}/news/${article.slug}`,
-      lastModified: new Date(article.publishedAt),
-      changeFrequency: "daily",
-      priority: 0.85,
-    });
+    const url = `${origin}/news/${article.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(article.publishedAt),
+        changeFrequency: "daily",
+        priority: 0.85,
+      });
+    }
   }
 
   for (const res of getAllResources()) {
-    entries.push({
-      url: `${origin}/resources/${res.slug}`,
-      lastModified: new Date(res.lastAuditedAt),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    });
+    const url = `${origin}/resources/${res.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(res.lastAuditedAt),
+        changeFrequency: "weekly",
+        priority: 0.8,
+      });
+    }
   }
 
   for (const deal of getPublishedDeals()) {
-    entries.push({
-      url: `${origin}/deals/${deal.slug}`,
-      lastModified: new Date(deal.updatedAt),
-      changeFrequency: "daily",
-      priority: 0.85,
-    });
+    const url = `${origin}/deals/${deal.slug}`;
+    if (!seenUrls.has(url)) {
+      seenUrls.add(url);
+      entries.push({
+        url,
+        lastModified: new Date(deal.updatedAt),
+        changeFrequency: "daily",
+        priority: 0.85,
+      });
+    }
   }
 
   try {
@@ -175,12 +216,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const p of products) {
       if (p.visibility === "BLOCKED") continue;
       if (isInternalOrTestSku(p.slug) || isInternalOrTestSku(p.variantSku)) continue;
-      entries.push({
-        url: `${origin}/products/${p.slug}`,
-        lastModified: new Date(),
-        changeFrequency: "weekly",
-        priority: p.purchasable ? 0.85 : 0.65,
-      });
+      const url = `${origin}/products/${p.slug}`;
+      if (!seenUrls.has(url)) {
+        seenUrls.add(url);
+        entries.push({
+          url,
+          lastModified: new Date(),
+          changeFrequency: "weekly",
+          priority: p.purchasable ? 0.9 : 0.7,
+        });
+      }
     }
   } catch {
     // static + blog routes still publish

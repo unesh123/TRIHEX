@@ -34,7 +34,7 @@ const PRODUCT_ARTWORK: Array<[RegExp, string]> = [
   [/^mobbin/, "mobbin"], [/^n8n/, "n8n"],
   [/^notion/, "notion"], [/^railway/, "railway"],
   [/^runway/, "runway"], [/^supabase/, "supabase"],
-  [/^warp/, "warp"], [/^muse-?ai/, "museai"],
+  [/^warp/, "warp"], [/^(muse|musi)-?ai/, "museai"],
   [/^ai-prompt-starter/, "prompt-pack"],
   [/^small-business-ai/, "business-setup"],
   [/^(custom-)?workflow-automation/, "automation"],

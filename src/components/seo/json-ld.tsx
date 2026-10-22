@@ -16,21 +16,45 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "TRIHEX DIGITAL",
+    alternateName: [
+      "3x Digital",
+      "3X Digital",
+      "3xDigital",
+      "TRIHEX DIGITAL",
+      "AITRIHEX",
+      "TRIHEX",
+    ],
     url: origin,
     logo: `${origin}/icon`,
     description:
-      "Nepal-first digital storefront for AI and digital tools with NPR pricing, website checkout, and WhatsApp support.",
+      "Nepal's #1 digital storefront for AI and digital tools. Official 3x Digital subscriptions for Musi AI, CapCut Pro AI, ChatGPT Plus, Cursor Pro, Claude Pro, and Gemini with transparent NPR pricing, bank QR checkout, and WhatsApp support.",
     telephone: getWhatsAppDisplay(),
+    knowsAbout: [
+      "Musi AI subscription",
+      "3x Digital Musi AI",
+      "CapCut Pro AI subscription",
+      "3x Digital CapCut",
+      "ChatGPT Plus Nepal",
+      "3x Digital ChatGPT",
+      "Cursor Pro AI Nepal",
+      "Claude Pro Nepal",
+      "AI tools Nepal",
+      "Nepal digital subscriptions",
+    ],
     address: {
       "@type": "PostalAddress",
       addressCountry: "NP",
-      addressLocality: "Nepal",
+      addressLocality: "Kathmandu",
+      addressRegion: "Bagmati",
     },
     areaServed: {
       "@type": "Country",
       name: "Nepal",
     },
-    sameAs: [`https://wa.me/${getWhatsAppNumber()}`],
+    sameAs: [
+      `https://wa.me/${getWhatsAppNumber()}`,
+      "https://github.com/unesh123/TRIHEX",
+    ],
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -48,11 +72,21 @@ export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "TRIHEX DIGITAL",
+    name: "TRIHEX DIGITAL (3x Digital)",
+    alternateName: [
+      "3x Digital",
+      "3X Digital",
+      "3xDigital",
+      "TRIHEX DIGITAL",
+      "AITRIHEX",
+      "TRIHEX",
+    ],
     url: origin,
+    description:
+      "Official 3x Digital AI & software subscription portal for Nepal. Instant bank QR & eSewa checkout for Musi AI, CapCut AI, ChatGPT Plus, and developer tools.",
     potentialAction: {
       "@type": "SearchAction",
-      target: `${origin}/search?q={search_term_string}`,
+      target: `${origin}/products?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -63,15 +97,18 @@ export function localBusinessJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Store",
-    name: "TRIHEX DIGITAL",
+    name: "TRIHEX DIGITAL — 3x Digital AI Store",
+    alternateName: ["3x Digital", "3X Digital", "TRIHEX Store Nepal"],
     url: origin,
     image: `${origin}/icon`,
-    priceRange: "NPR",
+    priceRange: "NPR 399 - NPR 23,999",
     currenciesAccepted: "NPR",
-    paymentAccepted: "Bank Transfer, eSewa, Khalti",
+    paymentAccepted: "Bank Transfer, Fonepay QR, eSewa, Khalti",
     address: {
       "@type": "PostalAddress",
       addressCountry: "NP",
+      addressLocality: "Kathmandu",
+      addressRegion: "Bagmati",
     },
     areaServed: "Nepal",
     telephone: getWhatsAppDisplay(),
@@ -179,5 +216,39 @@ export function productJsonLd(input: {
       name: "TRIHEX DIGITAL",
     },
     offers: offer,
+  };
+}
+
+export function softwareApplicationJsonLd(input: {
+  name: string;
+  applicationCategory: string;
+  operatingSystem?: string;
+  description: string;
+  slug: string;
+  priceNprMinor?: number | null;
+}) {
+  const origin = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: input.name,
+    alternateName: [`3x Digital ${input.name}`, `${input.name} Nepal`],
+    applicationCategory: input.applicationCategory,
+    operatingSystem: input.operatingSystem ?? "Web, Windows, macOS, Android, iOS",
+    description: input.description,
+    url: `${origin}/products/${input.slug}`,
+    offers:
+      input.priceNprMinor != null
+        ? {
+            "@type": "Offer",
+            priceCurrency: "NPR",
+            price: (input.priceNprMinor / 100).toFixed(2),
+            availability: "https://schema.org/InStock",
+            seller: {
+              "@type": "Organization",
+              name: "3x Digital (TRIHEX DIGITAL)",
+            },
+          }
+        : undefined,
   };
 }

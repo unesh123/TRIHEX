@@ -79,7 +79,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `/products/${product.slug}` },
     openGraph: {
-      title: `${product.title} | TRIHEX DIGITAL Nepal`,
+      title: `${product.title} | 3x Digital (TRIHEX) Nepal`,
       description,
       url: `${getSiteUrl()}/products/${product.slug}`,
       type: "website",
