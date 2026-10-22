@@ -54,6 +54,16 @@ function mapVariablesForDb(vars: PromptVariable[]) {
   }));
 }
 
+function safeDateToISO(d: any): string {
+  if (!d) return new Date().toISOString();
+  if (d instanceof Date && !isNaN(d.getTime())) return d.toISOString();
+  if (typeof d === "string") {
+    const parsed = new Date(d);
+    if (!isNaN(parsed.getTime())) return parsed.toISOString();
+  }
+  return new Date().toISOString();
+}
+
 function mapDbRowToPrompt(row: typeof schema.prompts.$inferSelect): Prompt {
   return {
     id: row.id,
@@ -77,9 +87,9 @@ function mapDbRowToPrompt(row: typeof schema.prompts.$inferSelect): Prompt {
     difficulty: (row.difficulty as PromptDifficulty) || "INTERMEDIATE",
     qualityStatus: (row.qualityStatus as PromptQualityStatus) || "CURATED",
     contentHash: row.contentHash,
-    syncedAt: row.syncedAt ? row.syncedAt.toISOString() : undefined,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
+    syncedAt: row.syncedAt ? safeDateToISO(row.syncedAt) : undefined,
+    createdAt: safeDateToISO(row.createdAt),
+    updatedAt: safeDateToISO(row.updatedAt),
   };
 }
 
@@ -168,7 +178,7 @@ export async function syncPromptsFromDatabase(): Promise<Prompt[]> {
         version: v.version,
         content: v.content,
         contentHash: v.contentHash,
-        capturedAt: v.capturedAt.toISOString(),
+        capturedAt: safeDateToISO(v.capturedAt),
       });
     }
 
