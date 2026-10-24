@@ -58,6 +58,8 @@ export function OrderCommandTable({ initialOrders }: OrderCommandTableProps) {
       o.customerName.toLowerCase().includes(q) ||
       o.customerEmail.toLowerCase().includes(q) ||
       o.customerPhone.includes(q) ||
+      (o.notes && o.notes.toLowerCase().includes(q)) ||
+      (o.paymentMethod && o.paymentMethod.toLowerCase().includes(q)) ||
       o.itemsSummary.toLowerCase().includes(q);
 
     let matchesTab = true;

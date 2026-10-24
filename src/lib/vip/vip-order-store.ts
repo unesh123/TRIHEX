@@ -3,6 +3,8 @@ import * as schema from "@/db/schema";
 import { eq, inArray, desc, or, ilike } from "drizzle-orm";
 import { isDatabaseConfigured } from "@/lib/env";
 import { getRepositories } from "@/lib/repositories";
+import { randomUUID } from "crypto";
+import { nanoid } from "nanoid";
 import {
   getAllVipMembers,
   registerOrUpdateCustomerVip,
@@ -15,6 +17,8 @@ import { resolveProofViewUrl } from "@/lib/storage/proof-url";
 export interface VipOrderRow {
   id: string;
   orderNumber: string;
+  customerId?: string | null;
+  customerCode?: string | null;
   customerName: string;
   customerPhone: string;
   customerEmail: string;
@@ -147,19 +151,24 @@ export async function createVipOrder(data: {
     "CUSTOM": "VIP Custom Clearance",
   };
 
-  const id = `ord-vip-${Date.now().toString(36)}`;
-  const orderNumber = `THX-${new Date().toISOString().slice(2, 10).replace(/-/g, "")}-${Math.floor(100000 + Math.random() * 900000)}`;
+  const id = randomUUID();
+  const dateStr = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+  const orderNumber = `THX-${dateStr}-VIP-${Math.floor(1000 + Math.random() * 9000)}`;
+  const cleanEmail = data.customerEmail.toLowerCase().trim();
+  const cleanPhone = data.customerPhone.trim();
+  const cleanName = data.customerName.trim() || cleanEmail.split("@")[0];
+  const amountMinor = data.amountNpr * 100;
 
   const newOrder: VipOrderRow = {
     id,
     orderNumber,
-    customerName: data.customerName,
-    customerPhone: data.customerPhone,
-    customerEmail: data.customerEmail,
+    customerName: cleanName,
+    customerPhone: cleanPhone,
+    customerEmail: cleanEmail,
     tier,
     tierTitle: data.tierName || tierTitles[tier] || "VIP Access Pass",
     amountNpr: data.amountNpr,
-    amountMinor: data.amountNpr * 100,
+    amountMinor,
     orderStatus: data.status === "ACTIVE" ? "PAID" : "PROCESSING",
     paymentStatus: data.status === "ACTIVE" ? "PAID" : "UNDER_REVIEW",
     fulfillmentStatus: data.status === "ACTIVE" ? "DELIVERED" : "NOT_STARTED",
@@ -167,12 +176,119 @@ export async function createVipOrder(data: {
     proofUrl: null,
     senderReference: data.transactionReference || null,
     placedAt: new Date().toISOString(),
-    notes: data.notes || "VIP access request submitted.",
+    notes: data.notes || `[VIP ACCESS REQUEST] Tier: ${tier} | Ref: ${data.transactionReference || "QR"}`,
     itemsSummary: `${tierTitles[tier] || "VIP Pass"} (Full Vault Access)`,
     isMemberActive: data.status === "ACTIVE",
     currentVipTag: data.status === "ACTIVE" ? "VIP" : "NORMAL",
   };
 
+  // 1. Immediately persist to PostgreSQL Database if configured
+  if (isDatabaseConfigured()) {
+    try {
+      const db = getDb();
+      if (db) {
+        // Ensure customer profile exists or find existing
+        let profileId: string | null = null;
+        try {
+          const existingProfiles = await db
+            .select({ id: schema.profiles.id })
+            .from(schema.profiles)
+            .where(eq(schema.profiles.email, cleanEmail))
+            .limit(1);
+
+          if (existingProfiles.length > 0) {
+            profileId = existingProfiles[0].id;
+            if (cleanPhone) {
+              await db
+                .update(schema.profiles)
+                .set({ phone: cleanPhone, updatedAt: new Date() })
+                .where(eq(schema.profiles.id, profileId))
+                .catch(() => null);
+            }
+          } else {
+            const newAuthUserId = randomUUID();
+            const inserted = await db
+              .insert(schema.profiles)
+              .values({
+                authUserId: newAuthUserId,
+                email: cleanEmail,
+                fullName: cleanName,
+                phone: cleanPhone || null,
+                role: "CUSTOMER",
+                accountStatus: "ACTIVE",
+              })
+              .returning({ id: schema.profiles.id })
+              .catch(() => null);
+            if (inserted && inserted[0]) {
+              profileId = inserted[0].id;
+            }
+          }
+        } catch (err) {
+          console.warn("[VipOrderStore] Profile correlation note:", err);
+        }
+
+        if (profileId) {
+          newOrder.customerId = profileId;
+        }
+        newOrder.customerCode = `THX-USR-${cleanPhone ? cleanPhone.slice(-4) : cleanEmail.slice(0, 4).toUpperCase()}`;
+
+        // Insert Order into schema.orders
+        const secureToken = nanoid(32);
+        await db.insert(schema.orders).values({
+          id,
+          humanReadableOrderNumber: orderNumber,
+          customerId: profileId,
+          customerEmail: cleanEmail,
+          customerPhone: cleanPhone,
+          customerName: cleanName,
+          subtotalMinor: amountMinor,
+          grandTotalMinor: amountMinor,
+          currency: "NPR",
+          orderStatus: data.status === "ACTIVE" ? "PAID" : "PROCESSING",
+          paymentStatus: data.status === "ACTIVE" ? "PAID" : "UNDER_REVIEW",
+          fulfillmentStatus: data.status === "ACTIVE" ? "DELIVERED" : "NOT_STARTED",
+          secureToken,
+          orderNotes: newOrder.notes,
+          placedAt: new Date(),
+        });
+
+        // Insert Order Item into schema.orderItems
+        await db.insert(schema.orderItems).values({
+          orderId: id,
+          productName: "TRIHEX VIP VAULT",
+          variantName: newOrder.tierTitle,
+          sku: `THX-VIP-${tier}`,
+          quantity: 1,
+          unitPriceMinor: amountMinor,
+          totalMinor: amountMinor,
+        });
+
+        // Insert Manual Payment Record into schema.manualPaymentSubmissions
+        const paymentMethodEnumVal =
+          data.paymentMethod === "ESEWA"
+            ? "ESEWA_MANUAL"
+            : data.paymentMethod === "KHALTI"
+            ? "KHALTI_MANUAL"
+            : "BANK_TRANSFER";
+
+        await db.insert(schema.manualPaymentSubmissions).values({
+          orderId: id,
+          method: paymentMethodEnumVal,
+          senderName: cleanName,
+          senderReference: data.transactionReference || `QR-VIP-${Math.floor(1000 + Math.random() * 9000)}`,
+          amountMinor,
+          status: "SUBMITTED",
+          paymentDate: new Date(),
+        });
+
+        console.log(`[VipOrderStore] Successfully persisted VIP order ${orderNumber} to PostgreSQL database!`);
+      }
+    } catch (dbErr) {
+      console.error("[VipOrderStore] Failed to persist order to PostgreSQL:", dbErr);
+    }
+  }
+
+  // 2. Also keep in local fast memory
   memoryVipOrders.unshift(newOrder);
   return newOrder;
 }
@@ -185,11 +301,12 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
     try {
       const db = getDb();
       if (db) {
-        // Query recent orders from Postgres with 400ms timeout guard
-        const ordersQueryPromise = db
+        // Query recent orders from Postgres
+        const dbOrders = await db
           .select({
             id: schema.orders.id,
             orderNumber: schema.orders.humanReadableOrderNumber,
+            customerId: schema.orders.customerId,
             customerName: schema.orders.customerName,
             customerEmail: schema.orders.customerEmail,
             customerPhone: schema.orders.customerPhone,
@@ -205,17 +322,10 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
           .orderBy(desc(schema.orders.createdAt))
           .limit(100);
 
-        const dbOrders = await Promise.race([
-          ordersQueryPromise,
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("DB orders query timeout")), 400),
-          ),
-        ]);
-
         const orderIds = dbOrders.map((o) => o.id);
 
         if (orderIds.length > 0) {
-          const itemsAndProofsPromise = Promise.all([
+          const [dbItems, dbProofs] = await Promise.all([
             db
               .select({
                 orderId: schema.orderItems.orderId,
@@ -238,13 +348,6 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
               .where(inArray(schema.manualPaymentSubmissions.orderId, orderIds)),
           ]);
 
-          const [dbItems, dbProofs] = await Promise.race([
-            itemsAndProofsPromise,
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("DB items query timeout")), 400),
-            ),
-          ]);
-
           for (const ord of dbOrders) {
             const matchingItems = dbItems.filter((i) => i.orderId === ord.id);
             const proof = dbProofs.find((p) => p.orderId === ord.id);
@@ -255,8 +358,9 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
             );
             const isVipAmount = [399900, 599900, 799900].includes(ord.grandTotalMinor);
             const isVipNotes = (ord.orderNotes || "").toUpperCase().includes("VIP");
+            const isVipNumber = (ord.orderNumber || "").toUpperCase().includes("VIP");
 
-            if (isVipSku || isVipAmount || isVipNotes) {
+            if (isVipSku || isVipAmount || isVipNotes || isVipNumber) {
               let tier: VipOrderRow["tier"] = "1_MONTH";
               let tierTitle = "1 Month VIP Pass (30 Days)";
 
@@ -290,9 +394,15 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
                 viewProofUrl = await resolveProofViewUrl(viewProofUrl);
               }
 
+              const customerCode =
+                matchingMember?.verificationToken ||
+                (phoneClean ? `THX-USR-${phoneClean.slice(-4)}` : `THX-USR-${(ord.customerEmail || "9702").slice(0, 4).toUpperCase()}`);
+
               results.push({
                 id: ord.id,
                 orderNumber: ord.orderNumber,
+                customerId: ord.customerId || matchingMember?.id || null,
+                customerCode,
                 customerName: ord.customerName || "Customer",
                 customerPhone: ord.customerPhone || "",
                 customerEmail: ord.customerEmail,
@@ -396,10 +506,25 @@ export async function updateVipOrderStatus(
           updates.internalNotes = notes;
         }
 
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
+        const whereClause = isUuid
+          ? or(eq(schema.orders.id, orderId), eq(schema.orders.humanReadableOrderNumber, orderId))
+          : eq(schema.orders.humanReadableOrderNumber, orderId);
+
         await db
           .update(schema.orders)
           .set(updates)
-          .where(eq(schema.orders.id, orderId));
+          .where(whereClause);
+
+        if (newStatus === "PAID" || newStatus === "FULFILLED") {
+          if (isUuid) {
+            await db
+              .update(schema.manualPaymentSubmissions)
+              .set({ status: "VERIFIED" })
+              .where(eq(schema.manualPaymentSubmissions.orderId, orderId))
+              .catch(() => null);
+          }
+        }
       }
     } catch (err) {
       console.warn("[VipOrderStore] DB update status error:", err);

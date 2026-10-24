@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     });
 
     // 2. Also record in VIP order store so admin sees it in both Orders and VIP tabs
-    await createVipOrder({
+    const createdOrder = await createVipOrder({
       customerName: name,
       customerPhone: cleanedPhone,
       customerEmail: email,
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
             phone: cleanedPhone,
             tier,
             token,
+            orderNumber: createdOrder.orderNumber,
             paymentMethod,
             paymentReference,
           },
@@ -99,6 +100,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      order: createdOrder,
+      orderNumber: createdOrder.orderNumber,
+      customerCode: member.verificationToken,
       member,
       message: "VIP access requested successfully. Admin approval pending upon payment confirmation.",
     });

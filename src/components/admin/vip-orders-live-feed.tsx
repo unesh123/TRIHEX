@@ -206,16 +206,38 @@ export function VipOrdersLiveFeed({
     }
   };
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Manual refresh helper
+  const handleRefreshFeed = async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/admin/vip-orders");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+      }
+    } catch (e) {
+      console.error("Refresh feed error", e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // Filter logic
   const filteredOrders = orders.filter((o) => {
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
       o.orderNumber.toLowerCase().includes(q) ||
+      (o.customerCode && o.customerCode.toLowerCase().includes(q)) ||
+      (o.customerId && o.customerId.toLowerCase().includes(q)) ||
+      (o.memberId && o.memberId.toLowerCase().includes(q)) ||
       o.customerName.toLowerCase().includes(q) ||
       o.customerPhone.includes(q) ||
       o.customerEmail.toLowerCase().includes(q) ||
       (o.senderReference && o.senderReference.toLowerCase().includes(q)) ||
+      (o.paymentMethod && o.paymentMethod.toLowerCase().includes(q)) ||
       (o.notes && o.notes.toLowerCase().includes(q));
 
     let matchesTier = true;
@@ -331,24 +353,36 @@ export function VipOrdersLiveFeed({
       {/* Filter and Search Bar */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 shadow-xl space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search VIP orders by customer name, phone 98XXXXXXXX, order #, ref code..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-white"
-              >
-                Clear
-              </button>
-            )}
+          {/* Search Input & Refresh Button */}
+          <div className="flex items-center gap-2 flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by User ID (THX-USR-XXXX), Order #, Phone, Email, Transaction Ref..."
+                className="w-full pl-9 pr-14 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-white"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={handleRefreshFeed}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50 cursor-pointer shrink-0"
+              title="Refresh Live Orders from Database"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-amber-400" : ""}`} />
+              <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Refresh Feed"}</span>
+            </button>
           </div>
 
           {/* Tier Filters */}
@@ -543,10 +577,29 @@ export function VipOrdersLiveFeed({
                     </div>
 
                     {/* Customer Profile */}
-                    <div className="flex flex-wrap items-center gap-4 text-xs">
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
                       <div className="font-bold text-white text-sm">
                         {order.customerName}
                       </div>
+
+                      {/* Customer User ID */}
+                      {order.customerCode && (
+                        <div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-950/40 px-2.5 py-1 text-xs text-amber-300 font-mono">
+                          <span className="text-[10px] uppercase font-bold text-slate-400">User ID:</span>
+                          <span className="font-bold text-amber-300">{order.customerCode}</span>
+                          <button
+                            onClick={() => handleCopy(order.customerCode || "", `code-${order.id}`)}
+                            className="text-amber-400 hover:text-white p-0.5 cursor-pointer"
+                            title="Copy Customer User ID"
+                          >
+                            {copiedText === `code-${order.id}` ? (
+                              <Check className="h-3 w-3 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </button>
+                        </div>
+                      )}
 
                       {/* Mobile Phone with 1-click WhatsApp */}
                       <div className="flex items-center gap-1.5 text-slate-300 bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800">

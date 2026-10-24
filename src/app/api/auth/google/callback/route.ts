@@ -14,6 +14,7 @@ import { registerCustomerLogin } from "@/lib/vip/vip-member-store";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -117,8 +118,9 @@ export async function GET(request: Request) {
           .limit(1);
 
         if (existing.length === 0) {
+          const authUserId = randomUUID();
           await db.insert(schema.profiles).values({
-            authUserId: userPayload.id,
+            authUserId,
             email,
             fullName,
             role: isOwner ? "SUPER_ADMIN" : "CUSTOMER",

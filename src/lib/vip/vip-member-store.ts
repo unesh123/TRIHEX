@@ -1,6 +1,6 @@
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
-import { eq, or, ilike, sql } from "drizzle-orm";
+import { eq, or, ilike, sql, desc } from "drizzle-orm";
 import { isDatabaseConfigured } from "@/lib/env";
 import { nanoid } from "nanoid";
 
@@ -187,38 +187,52 @@ const MEMORY_VIP_MEMBERS: VipMember[] = [
 ];
 
 export async function getAllVipMembers(): Promise<VipMember[]> {
-  // If database is live, merge registered profiles with phone numbers (guarded with fast timeout)
+  // If database is live, merge registered profiles and orders with VIP records
   if (isDatabaseConfigured()) {
     try {
       const db = getDb();
       if (db) {
-        const queryPromise = db
-          .select({
-            id: schema.profiles.id,
-            email: schema.profiles.email,
-            fullName: schema.profiles.fullName,
-            phone: schema.profiles.phone,
-            role: schema.profiles.role,
-            createdAt: schema.profiles.createdAt,
-          })
-          .from(schema.profiles)
-          .limit(100);
+        const [liveProfiles, dbOrders] = await Promise.all([
+          db
+            .select({
+              id: schema.profiles.id,
+              email: schema.profiles.email,
+              fullName: schema.profiles.fullName,
+              phone: schema.profiles.phone,
+              role: schema.profiles.role,
+              createdAt: schema.profiles.createdAt,
+            })
+            .from(schema.profiles)
+            .limit(100),
 
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("DB profiles query timeout")), 400),
-        );
-
-        const liveProfiles = await Promise.race([queryPromise, timeoutPromise]);
+          db
+            .select({
+              id: schema.orders.id,
+              orderNumber: schema.orders.humanReadableOrderNumber,
+              customerEmail: schema.orders.customerEmail,
+              customerPhone: schema.orders.customerPhone,
+              customerName: schema.orders.customerName,
+              grandTotalMinor: schema.orders.grandTotalMinor,
+              orderStatus: schema.orders.orderStatus,
+              paymentStatus: schema.orders.paymentStatus,
+              orderNotes: schema.orders.orderNotes,
+              createdAt: schema.orders.createdAt,
+            })
+            .from(schema.orders)
+            .orderBy(desc(schema.orders.createdAt))
+            .limit(100)
+            .catch(() => []),
+        ]);
 
         // Augment with live user profiles
         for (const p of liveProfiles) {
           const exists = MEMORY_VIP_MEMBERS.some(
             (m) => m.email.toLowerCase() === p.email.toLowerCase(),
           );
-          if (!exists && p.phone) {
+          if (!exists) {
             MEMORY_VIP_MEMBERS.push({
               id: `vip-${p.id}`,
-              phone: p.phone,
+              phone: p.phone || "",
               email: p.email,
               name: p.fullName || p.email.split("@")[0],
               avatarUrl: null,
@@ -235,13 +249,90 @@ export async function getAllVipMembers(): Promise<VipMember[]> {
               lastLocation: "Nepal",
               adminNotes: "Auto-synced from registered customer profiles.",
               whatsappVerified: false,
-              verificationToken: `THX-AUTO-${nanoid(6).toUpperCase()}`,
+              verificationToken: `THX-USR-${p.phone ? p.phone.slice(-4) : p.email.slice(0, 4).toUpperCase()}`,
+            });
+          }
+        }
+
+        // Augment or promote with DB VIP orders
+        for (const ord of dbOrders) {
+          const isVip =
+            (ord.orderNumber && ord.orderNumber.toUpperCase().includes("VIP")) ||
+            [399900, 599900, 799900].includes(ord.grandTotalMinor) ||
+            (ord.orderNotes && ord.orderNotes.toUpperCase().includes("VIP"));
+
+          if (!isVip || !ord.customerEmail) continue;
+
+          const cleanEmail = ord.customerEmail.toLowerCase().trim();
+          let tier: VipTier =
+            ord.grandTotalMinor === 799900
+              ? "LIFETIME"
+              : ord.grandTotalMinor === 599900
+              ? "6_MONTHS"
+              : "1_MONTH";
+
+          const isPaid =
+            ord.orderStatus === "FULFILLED" ||
+            ord.orderStatus === "PAID" ||
+            ord.paymentStatus === "PAID";
+
+          const status: VipStatus = isPaid ? "ACTIVE" : "PENDING_VERIFICATION";
+          const isLifetime = tier === "LIFETIME";
+
+          const existingIdx = MEMORY_VIP_MEMBERS.findIndex(
+            (m) => m.email.toLowerCase() === cleanEmail,
+          );
+
+          if (existingIdx >= 0) {
+            const prev = MEMORY_VIP_MEMBERS[existingIdx];
+            if (isPaid || prev.status !== "ACTIVE") {
+              MEMORY_VIP_MEMBERS[existingIdx] = {
+                ...prev,
+                tier: tier || prev.tier,
+                tierName:
+                  tier === "LIFETIME"
+                    ? "Permanent Lifetime VIP Pack"
+                    : tier === "6_MONTHS"
+                    ? "6 Months VIP Pass (180 Days)"
+                    : "1 Month VIP Pass (30 Days)",
+                vipTag: isPaid ? "VIP" : prev.vipTag,
+                status: isPaid ? "ACTIVE" : prev.status,
+                isLifetime: isLifetime || prev.isLifetime,
+                phone: ord.customerPhone || prev.phone,
+              };
+            }
+          } else {
+            MEMORY_VIP_MEMBERS.push({
+              id: `vip-db-${ord.id.slice(0, 8)}`,
+              phone: ord.customerPhone || "",
+              email: cleanEmail,
+              name: ord.customerName || cleanEmail.split("@")[0],
+              avatarUrl: null,
+              tier,
+              tierName:
+                tier === "LIFETIME"
+                  ? "Permanent Lifetime VIP Pack"
+                  : tier === "6_MONTHS"
+                  ? "6 Months VIP Pass (180 Days)"
+                  : "1 Month VIP Pass (30 Days)",
+              vipTag: isPaid ? "VIP" : "NORMAL",
+              status,
+              grantedAt: ord.createdAt ? ord.createdAt.toISOString() : new Date().toISOString(),
+              expiresAt: isLifetime ? null : new Date(Date.now() + 30 * 86400000).toISOString(),
+              isLifetime,
+              totalOrders: 1,
+              totalSpentNpr: Math.round(ord.grandTotalMinor / 100),
+              deviceTelemetry: "VIP Order Integration",
+              lastLocation: "Nepal",
+              adminNotes: `Synced from VIP Order #${ord.orderNumber}.`,
+              whatsappVerified: false,
+              verificationToken: `THX-USR-${ord.customerPhone ? ord.customerPhone.slice(-4) : cleanEmail.slice(0, 4).toUpperCase()}`,
             });
           }
         }
       }
-    } catch {
-      // Non-fatal fallback to MEMORY_VIP_MEMBERS
+    } catch (err) {
+      console.warn("[VipMemberStore] DB member sync note:", err);
     }
   }
 
@@ -281,12 +372,86 @@ export async function getVipMemberByEmail(email: string): Promise<VipMember | nu
 }
 
 export async function getVipMemberRecordByEmail(email: string): Promise<VipMember | null> {
+  const cleanEmail = email.trim().toLowerCase();
   const all = await getAllVipMembers();
-  return (
-    all.find(
-      (m) => m.email.toLowerCase() === email.toLowerCase(),
-    ) || null
-  );
+  const found = all.find((m) => m.email.toLowerCase() === cleanEmail);
+  if (found) return found;
+
+  // Direct DB check for this email
+  if (isDatabaseConfigured()) {
+    try {
+      const db = getDb();
+      if (db) {
+        const dbOrders = await db
+          .select({
+            id: schema.orders.id,
+            orderNumber: schema.orders.humanReadableOrderNumber,
+            customerPhone: schema.orders.customerPhone,
+            customerName: schema.orders.customerName,
+            grandTotalMinor: schema.orders.grandTotalMinor,
+            orderStatus: schema.orders.orderStatus,
+            paymentStatus: schema.orders.paymentStatus,
+            orderNotes: schema.orders.orderNotes,
+            createdAt: schema.orders.createdAt,
+          })
+          .from(schema.orders)
+          .where(eq(schema.orders.customerEmail, cleanEmail))
+          .orderBy(desc(schema.orders.createdAt))
+          .limit(10);
+
+        for (const ord of dbOrders) {
+          const isVip =
+            (ord.orderNumber && ord.orderNumber.toUpperCase().includes("VIP")) ||
+            [399900, 599900, 799900].includes(ord.grandTotalMinor) ||
+            (ord.orderNotes && ord.orderNotes.toUpperCase().includes("VIP"));
+
+          if (isVip) {
+            const isPaid =
+              ord.orderStatus === "FULFILLED" ||
+              ord.orderStatus === "PAID" ||
+              ord.paymentStatus === "PAID";
+            const tier: VipTier =
+              ord.grandTotalMinor === 799900
+                ? "LIFETIME"
+                : ord.grandTotalMinor === 599900
+                ? "6_MONTHS"
+                : "1_MONTH";
+
+            return {
+              id: `vip-db-${ord.id.slice(0, 8)}`,
+              phone: ord.customerPhone || "",
+              email: cleanEmail,
+              name: ord.customerName || cleanEmail.split("@")[0],
+              avatarUrl: null,
+              tier,
+              tierName:
+                tier === "LIFETIME"
+                  ? "Permanent Lifetime VIP Pack"
+                  : tier === "6_MONTHS"
+                  ? "6 Months VIP Pass (180 Days)"
+                  : "1 Month VIP Pass (30 Days)",
+              vipTag: isPaid ? "VIP" : "NORMAL",
+              status: isPaid ? "ACTIVE" : "PENDING_VERIFICATION",
+              grantedAt: ord.createdAt ? ord.createdAt.toISOString() : new Date().toISOString(),
+              expiresAt: tier === "LIFETIME" ? null : new Date(Date.now() + 30 * 86400000).toISOString(),
+              isLifetime: tier === "LIFETIME",
+              totalOrders: 1,
+              totalSpentNpr: Math.round(ord.grandTotalMinor / 100),
+              deviceTelemetry: "VIP Order Integration",
+              lastLocation: "Nepal",
+              adminNotes: `Synced from VIP Order #${ord.orderNumber}.`,
+              whatsappVerified: false,
+              verificationToken: `THX-USR-${ord.customerPhone ? ord.customerPhone.slice(-4) : cleanEmail.slice(0, 4).toUpperCase()}`,
+            };
+          }
+        }
+      }
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  return null;
 }
 
 export async function registerCustomerLogin(data: {

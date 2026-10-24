@@ -46,6 +46,8 @@ export function VipRequestAccessForm({
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [submittedOrderNumber, setSubmittedOrderNumber] = useState<string | null>(null);
+  const [copiedOrderNumber, setCopiedOrderNumber] = useState(false);
   const [successStatus, setSuccessStatus] = useState<boolean>(
     existingMember?.status === "PENDING_VERIFICATION" &&
       Boolean(existingMember.phone && existingMember.phone.length >= 7)
@@ -78,16 +80,28 @@ export function VipRequestAccessForm({
     setTimeout(() => setCopiedAccount(null), 2000);
   };
 
-  const waConfirmUrl = buildWhatsAppUrl(
-    `Hello Trix (Admin)! I have completed payment for TRIHEX VIP Vault.\n\n` +
-    `User ID: ${customerCode}\n` +
-    `Name: ${user.fullName || payerName}\n` +
-    `Email: ${user.email}\n` +
-    `Mobile: ${phone}\n` +
-    `Selected Plan: ${currentPrice.label} (Rs. ${currentPrice.npr.toLocaleString()})\n` +
-    `Payment Ref: ${paymentReference || "Direct Bank QR"}\n\n` +
-    `Please confirm my payment and activate my VIP Vault access!`
-  );
+  const handleCopyOrderNumber = (ordNum: string) => {
+    navigator.clipboard.writeText(ordNum);
+    setCopiedOrderNumber(true);
+    setTimeout(() => setCopiedOrderNumber(false), 2000);
+  };
+
+  const getWaConfirmUrl = (ordNum?: string | null) => {
+    const orderRefText = ordNum ? `Order #: ${ordNum}\n` : "";
+    return buildWhatsAppUrl(
+      `Hello Trix (Admin)! I have completed payment for TRIHEX VIP Vault.\n\n` +
+      `${orderRefText}` +
+      `User ID: ${customerCode}\n` +
+      `Name: ${user.fullName || payerName}\n` +
+      `Email: ${user.email}\n` +
+      `Mobile: ${phone}\n` +
+      `Selected Plan: ${currentPrice.label} (Rs. ${currentPrice.npr.toLocaleString()})\n` +
+      `Payment Ref: ${paymentReference || "Direct Bank QR"}\n\n` +
+      `Please confirm my payment and activate my VIP Vault access!`
+    );
+  };
+
+  const waConfirmUrl = getWaConfirmUrl(submittedOrderNumber);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,9 +131,13 @@ export function VipRequestAccessForm({
 
       const data = await res.json();
       if (data.success) {
+        if (data.orderNumber) {
+          setSubmittedOrderNumber(data.orderNumber);
+        }
         setSuccessStatus(true);
-        // Open WhatsApp directly to Trix with pre-filled details
-        window.open(waConfirmUrl, "_blank");
+        // Open WhatsApp directly to Trix with pre-filled details including Order #
+        const exactWaUrl = getWaConfirmUrl(data.orderNumber);
+        window.open(exactWaUrl, "_blank");
         router.refresh();
       } else {
         setErrorMsg(data.error || "Failed to submit VIP access request.");
@@ -181,7 +199,37 @@ export function VipRequestAccessForm({
             <h3 className="mt-3 text-xl font-bold text-white">
               VIP Request Registered &amp; Queued for Activation
             </h3>
-            <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+
+            {/* Order & User ID Details Box */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-slate-950/80 px-3.5 py-1.5 text-xs">
+                <span className="text-slate-400 font-semibold uppercase">Customer User ID:</span>
+                <span className="font-mono font-black text-amber-300">{customerCode}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300 hover:bg-amber-500/30 transition cursor-pointer"
+                >
+                  {copiedCode ? "Copied" : "Copy"}
+                </button>
+              </div>
+
+              {submittedOrderNumber && (
+                <div className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-slate-950/80 px-3.5 py-1.5 text-xs">
+                  <span className="text-slate-400 font-semibold uppercase">Order #:</span>
+                  <span className="font-mono font-black text-cyan-300">{submittedOrderNumber}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyOrderNumber(submittedOrderNumber)}
+                    className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-bold text-cyan-300 hover:bg-cyan-500/30 transition cursor-pointer"
+                  >
+                    {copiedOrderNumber ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <p className="mt-3 text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
               Your request for <strong className="text-amber-300">{existingMember?.tierName || currentPrice.label}</strong> has been transmitted directly to the Admin Desk under User ID <strong className="text-amber-300 font-mono">{customerCode}</strong>.
             </p>
             <p className="mt-1 text-xs text-slate-400 max-w-md mx-auto">
