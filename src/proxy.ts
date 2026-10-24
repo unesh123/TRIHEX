@@ -4,6 +4,10 @@ import {
   ADMIN_SESSION_COOKIE,
   parseAdminSessionCookie,
 } from "@/lib/admin/session-cookie";
+import {
+  USER_SESSION_COOKIE,
+  decodeUserSession,
+} from "@/lib/auth/user-session";
 import { isOwnerEmail } from "@/lib/auth/owner";
 import { isSecureCookie } from "@/lib/auth/cookie-config";
 
@@ -44,13 +48,25 @@ function hasAdminAccess(request: NextRequest): boolean {
     return true;
   }
 
-  const rawCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
-  if (!rawCookie) return false;
+  // 1. Direct admin session cookie check
+  const rawAdminCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  if (rawAdminCookie) {
+    const session = parseAdminSessionCookie(rawAdminCookie);
+    if (session?.email && isOwnerEmail(session.email)) {
+      return true;
+    }
+  }
 
-  const session = parseAdminSessionCookie(rawCookie);
-  if (!session || !session.email) return false;
+  // 2. Verified Google user session cookie check (Platform Owner)
+  const rawUserCookie = request.cookies.get(USER_SESSION_COOKIE)?.value;
+  if (rawUserCookie) {
+    const user = decodeUserSession(rawUserCookie);
+    if (user?.email && isOwnerEmail(user.email)) {
+      return true;
+    }
+  }
 
-  return isOwnerEmail(session.email);
+  return false;
 }
 
 export function proxy(request: NextRequest) {

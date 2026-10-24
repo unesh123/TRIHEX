@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 export const metadata = {
   title: "Admin Command Portal · TRIHEX DIGITAL",
@@ -125,8 +126,35 @@ export default async function AdminLoginPage({
           </div>
         ) : null}
 
+        {/* Instant Google Login for Platform Owner */}
+        <div className="mt-6 rounded-2xl border border-blue-500/20 bg-blue-950/20 p-4 text-center">
+          <p className="text-xs font-semibold text-blue-300">
+            Platform Owner Fast Sign-In
+          </p>
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            Click below to sign in directly with your authorized Google account.
+          </p>
+          <div className="mt-3.5">
+            <GoogleAuthButton
+              nextUrl="/admin"
+              label="Sign in with Google (Owner)"
+              variant="dark"
+              isAdmin={true}
+            />
+          </div>
+        </div>
+
+        <div className="relative my-6 text-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-800" />
+          </div>
+          <span className="relative bg-slate-900 px-3 text-[10px] font-mono uppercase tracking-wider text-slate-500">
+            Or Operator Master Password
+          </span>
+        </div>
+
         {/* Secure Operator Authentication Form */}
-        <form action={adminLoginAction} className="mt-8 space-y-4">
+        <form action={adminLoginAction} className="space-y-4">
           <input type="hidden" name="__website_hp" value="" />
           <div>
             <label
@@ -184,7 +212,7 @@ export default async function AdminLoginPage({
         {/* Security Notice */}
         <div className="mt-6 rounded-2xl border border-slate-800/80 bg-slate-950/40 p-3.5 text-center">
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Google SSO is temporarily offline for a scheduled root permissions audit. Only authenticated operator credentials with cryptographically signed tokens are authorized.
+            Google SSO is live with 256-bit cryptographic verification. Only whitelisted Platform Owner accounts (<span className="font-mono text-blue-400">uneshbastola@gmail.com</span>) are granted root access.
           </p>
         </div>
 

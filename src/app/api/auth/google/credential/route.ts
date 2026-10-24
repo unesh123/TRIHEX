@@ -74,6 +74,16 @@ export async function POST(request: Request) {
     const avatarUrl = googleUser.picture || null;
     const isOwner = isOwnerEmail(email);
 
+    if (next.startsWith("/admin") && !isOwner) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized: This Google account is a Customer account and does not have Platform Administrator clearance.",
+        },
+        { status: 403 },
+      );
+    }
+
     // Register customer in VIP store to obtain their unique persistent Customer User ID
     const member = await registerCustomerLogin({
       email,

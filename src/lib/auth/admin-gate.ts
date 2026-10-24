@@ -11,6 +11,10 @@ import {
   parseAdminSessionCookie,
   ADMIN_SESSION_COOKIE,
 } from "@/lib/admin/session-cookie";
+import {
+  USER_SESSION_COOKIE,
+  decodeUserSession,
+} from "@/lib/auth/user-session";
 
 export interface AdminSession {
   authenticated: boolean;
@@ -90,6 +94,30 @@ export async function checkAdminSession(
         bypass: false,
       },
     };
+  }
+
+  // Fast path 2: Cryptographically verified Google session for Platform Owner
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const rawUserCookie = cookieStore.get(USER_SESSION_COOKIE)?.value ?? "";
+    if (rawUserCookie) {
+      const user = decodeUserSession(rawUserCookie);
+      if (user?.email && isOwnerEmail(user.email)) {
+        return {
+          ok: true,
+          session: {
+            authenticated: true,
+            userId: user.id || "root-operator",
+            email: user.email,
+            role: "SUPER_ADMIN",
+            bypass: false,
+          },
+        };
+      }
+    }
+  } catch {
+    // non-fatal
   }
 
   // Supabase session path when configured
