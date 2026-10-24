@@ -182,6 +182,28 @@ export const INITIAL_DEAL_CANDIDATES: DealCandidate[] = [
 let dealsStore: DealCandidate[] = [...INITIAL_DEAL_CANDIDATES];
 let dbSyncInitialized = false;
 
+function toIso(val: any): string {
+  if (!val) return new Date().toISOString();
+  if (val instanceof Date) return val.toISOString();
+  try {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+}
+
+function toIsoOptional(val: any): string | undefined {
+  if (!val) return undefined;
+  if (val instanceof Date) return val.toISOString();
+  try {
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? undefined : d.toISOString();
+  } catch {
+    return undefined;
+  }
+}
+
 function mapDbRowToCandidate(row: typeof schema.dealCandidates.$inferSelect, revisions: DealRevision[] = []): DealCandidate {
   return {
     id: row.id,
@@ -199,10 +221,10 @@ function mapDbRowToCandidate(row: typeof schema.dealCandidates.$inferSelect, rev
     cardRequired: row.cardRequired,
     sourceClaimUrl: row.sourceClaimUrl,
     officialVendorUrl: row.officialVendorUrl,
-    discoveredAt: row.createdAt.toISOString(),
-    validFrom: row.validFrom ? row.validFrom.toISOString() : undefined,
-    validUntil: row.validUntil ? row.validUntil.toISOString() : undefined,
-    lastVerifiedAt: row.lastVerifiedAt ? row.lastVerifiedAt.toISOString() : undefined,
+    discoveredAt: toIso(row.createdAt),
+    validFrom: toIsoOptional(row.validFrom),
+    validUntil: toIsoOptional(row.validUntil),
+    lastVerifiedAt: toIsoOptional(row.lastVerifiedAt),
     verificationScore: row.verificationScore,
     verificationReport: row.verificationReport as any,
     vendorClaimSummary: row.vendorClaimSummary || undefined,
@@ -212,8 +234,8 @@ function mapDbRowToCandidate(row: typeof schema.dealCandidates.$inferSelect, rev
     assignedProductId: row.assignedProductId || undefined,
     revisions,
     category: row.category as any,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
+    createdAt: toIso(row.createdAt),
+    updatedAt: toIso(row.updatedAt),
   };
 }
 
@@ -278,7 +300,7 @@ export async function syncDealsFromDatabase(): Promise<DealCandidate[]> {
           newValue: r.newValue,
           reason: r.reason || undefined,
           changedBy: r.changedBy,
-          createdAt: r.detectedAt.toISOString(),
+          createdAt: toIso(r.detectedAt),
         }));
       return mapDbRowToCandidate(row, revisions);
     });

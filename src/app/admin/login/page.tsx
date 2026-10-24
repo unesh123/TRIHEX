@@ -212,7 +212,7 @@ export default async function AdminLoginPage({
         {/* Security Notice */}
         <div className="mt-6 rounded-2xl border border-slate-800/80 bg-slate-950/40 p-3.5 text-center">
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Google SSO is live with 256-bit cryptographic verification. Only whitelisted Platform Owner accounts (<span className="font-mono text-blue-400">uneshbastola@gmail.com</span>) are granted root access.
+            Google SSO is live with 256-bit cryptographic verification. Only authorized Platform Owner Google accounts (<span className="font-mono text-blue-400">uneshbastola888@gmail.com</span>) are granted root clearance.
           </p>
         </div>
 

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { getCurrentStorefrontUser } from "@/lib/auth/user-session";
 import { getVipMemberRecordByEmail } from "@/lib/vip/vip-member-store";
+import { isOwnerEmail } from "@/lib/auth/owner";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { CustomerPhoneEditor } from "@/components/account/customer-phone-editor";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -26,6 +27,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const user = await getCurrentStorefrontUser();
+  const isOwner = user?.email ? isOwnerEmail(user.email) : false;
   const vipMember = user?.email ? await getVipMemberRecordByEmail(user.email) : null;
   const customerCode = user?.customerCode || vipMember?.verificationToken || `THX-USR-${user?.email ? user.email.slice(0, 4).toUpperCase() : "9702"}`;
 
@@ -46,6 +48,65 @@ export default async function AccountPage() {
       {user ? (
         /* Authenticated State */
         <div className="mt-6 space-y-6">
+          {/* Platform Owner Root Administrator Command Center Box */}
+          {isOwner && (
+            <div className="rounded-3xl border-2 border-amber-500 bg-gradient-to-br from-amber-950/70 via-slate-900 to-slate-950 p-6 text-white shadow-[0_0_40px_rgba(245,158,11,0.25)]">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                <div className="flex items-start sm:items-center gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-inner">
+                    <Crown className="h-7 w-7 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 border border-amber-400/60 px-3 py-0.5 text-[11px] font-black text-amber-300 uppercase tracking-wider">
+                      <span>👑 Platform Owner Clearance Active</span>
+                    </div>
+                    <h3 className="mt-1 text-xl font-black text-white">
+                      Administrator Command Center
+                    </h3>
+                    <p className="mt-0.5 text-xs text-slate-300 leading-relaxed max-w-xl">
+                      Your Google account (<span className="text-amber-300 font-mono font-semibold">{user.email}</span>) has unrestricted root administrator clearance.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/admin"
+                  className="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 px-7 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-amber-950/50 hover:scale-105 active:scale-95 transition cursor-pointer"
+                >
+                  <span>Open Admin Console (/admin)</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-slate-800/80 text-xs font-semibold">
+                <Link
+                  href="/admin/vip"
+                  className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5 text-center text-slate-200 hover:text-amber-300 hover:border-amber-500/50 transition hover:bg-slate-800/80"
+                >
+                  👑 VIP Orders Feed
+                </Link>
+                <Link
+                  href="/admin/payments/review"
+                  className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5 text-center text-slate-200 hover:text-amber-300 hover:border-amber-500/50 transition hover:bg-slate-800/80"
+                >
+                  💳 Payment Reviews
+                </Link>
+                <Link
+                  href="/admin/orders"
+                  className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5 text-center text-slate-200 hover:text-amber-300 hover:border-amber-500/50 transition hover:bg-slate-800/80"
+                >
+                  📦 All Orders
+                </Link>
+                <Link
+                  href="/admin/products"
+                  className="rounded-xl bg-slate-900/90 border border-slate-800 p-2.5 text-center text-slate-200 hover:text-amber-300 hover:border-amber-500/50 transition hover:bg-slate-800/80"
+                >
+                  🏷️ Product Catalog
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Profile Overview Card */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-[var(--border)] bg-gradient-to-r from-slate-900 to-indigo-950 p-6 text-white shadow-xl">
             <div className="flex items-center gap-4">

@@ -97,27 +97,40 @@ export async function checkAdminSession(
   }
 
   // Fast path 2: Cryptographically verified Google session for Platform Owner
-  try {
-    const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
-    const rawUserCookie = cookieStore.get(USER_SESSION_COOKIE)?.value ?? "";
-    if (rawUserCookie) {
-      const user = decodeUserSession(rawUserCookie);
-      if (user?.email && isOwnerEmail(user.email)) {
-        return {
-          ok: true,
-          session: {
-            authenticated: true,
-            userId: user.id || "root-operator",
-            email: user.email,
-            role: "SUPER_ADMIN",
-            bypass: false,
-          },
-        };
-      }
+  let rawUserCookie = "";
+  if (cookieHeader) {
+    const match = cookieHeader.match(
+      new RegExp(`(?:^|;\\s*)${USER_SESSION_COOKIE}=([^;]+)`),
+    );
+    if (match?.[1]) {
+      rawUserCookie = match[1].trim();
     }
-  } catch {
-    // non-fatal
+  }
+
+  if (!rawUserCookie) {
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      rawUserCookie = cookieStore.get(USER_SESSION_COOKIE)?.value ?? "";
+    } catch {
+      // non-fatal
+    }
+  }
+
+  if (rawUserCookie) {
+    const user = decodeUserSession(rawUserCookie);
+    if (user?.email && isOwnerEmail(user.email)) {
+      return {
+        ok: true,
+        session: {
+          authenticated: true,
+          userId: user.id || "root-operator",
+          email: user.email,
+          role: "SUPER_ADMIN",
+          bypass: false,
+        },
+      };
+    }
   }
 
   // Supabase session path when configured
@@ -208,7 +221,7 @@ async function resolveProfileRole(
     if (isOwnerEmail(email)) {
       await db.insert(profiles).values({
         authUserId,
-        email: getOwnerEmail(),
+        email: email || getOwnerEmail(),
         role: "SUPER_ADMIN",
         fullName: process.env.ADMIN_BOOTSTRAP_NAME ?? TRIHEX_OWNER_NAME,
       });

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 export const metadata = {
   title: "Vault Gateway Clearance · Zone 9702-X8F2A9C1E4D7",
@@ -151,11 +152,22 @@ export default async function EncryptedSecretAdminLoginPage({
           </Button>
         </form>
 
-        {/* Security Notice */}
-        <div className="mt-6 rounded-2xl border border-cyan-500/20 bg-cyan-950/20 p-3.5 text-center">
-          <p className="text-[11px] font-mono text-cyan-300/80 leading-relaxed">
-            Direct credential authentication required. Google SSO disabled during system security audit.
+        {/* Fast Google SSO for Platform Owner */}
+        <div className="mt-6 rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-4 text-center">
+          <p className="text-xs font-semibold text-cyan-300">
+            Platform Owner Google Sign-In
           </p>
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            Sign in directly with your authorized owner Google account.
+          </p>
+          <div className="mt-3.5">
+            <GoogleAuthButton
+              nextUrl="/admin"
+              label="Sign in with Google (Owner)"
+              variant="dark"
+              isAdmin={true}
+            />
+          </div>
         </div>
 
         {/* Password Reset Dispatcher */}

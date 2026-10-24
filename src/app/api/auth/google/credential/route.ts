@@ -123,6 +123,11 @@ export async function POST(request: Request) {
             role: isOwner ? "SUPER_ADMIN" : "CUSTOMER",
             accountStatus: "ACTIVE",
           });
+        } else if (isOwner && existing[0].role !== "SUPER_ADMIN") {
+          await db
+            .update(schema.profiles)
+            .set({ role: "SUPER_ADMIN", updatedAt: new Date() })
+            .where(eq(schema.profiles.email, email));
         }
       }
     } catch {

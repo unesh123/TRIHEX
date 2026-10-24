@@ -80,6 +80,8 @@ export function SiteHeader() {
     avatarUrl?: string | null;
     customerCode?: string;
     vipStatus?: string;
+    isOwner?: boolean;
+    role?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -228,6 +230,19 @@ export function SiteHeader() {
               </kbd>
             </button>
 
+            {/* Platform Owner Fast Access Pill */}
+            {(currentUser?.isOwner || currentUser?.role === "SUPER_ADMIN") && (
+              <Link
+                href="/admin"
+                prefetch={false}
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500/15 via-amber-400/25 to-amber-500/15 px-3 py-1.5 text-xs font-black text-amber-900 hover:border-amber-500 hover:bg-amber-100/90 transition shadow-xs"
+                title="Root Platform Administrator Command Center"
+              >
+                <Crown className="h-3.5 w-3.5 text-amber-600 fill-amber-500 animate-pulse" />
+                <span>Admin Portal</span>
+              </Link>
+            )}
+
             <Link
               href="/account"
               prefetch={true}
@@ -334,6 +349,17 @@ export function SiteHeader() {
                     {item.label}
                   </Link>
                 ))}
+
+                {(currentUser?.isOwner || currentUser?.role === "SUPER_ADMIN") && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-2 rounded-xl bg-amber-500/15 border border-amber-500/40 px-3 py-2.5 text-sm font-black text-amber-900 transition-colors"
+                    onClick={() => setOpen(false)}
+                  >
+                    <Crown className="w-4 h-4 text-amber-600 fill-amber-500" />
+                    <span>👑 Admin Command Center</span>
+                  </Link>
+                )}
 
                 <div className="pt-2 pb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Explore Hubs

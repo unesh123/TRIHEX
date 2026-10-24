@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentStorefrontUser } from "@/lib/auth/user-session";
 import { getVipMemberRecordByEmail } from "@/lib/vip/vip-member-store";
+import { isOwnerEmail } from "@/lib/auth/owner";
 
 export const dynamic = "force-dynamic";
 
@@ -12,16 +13,19 @@ export async function GET() {
     }
 
     const vipRecord = user.email ? await getVipMemberRecordByEmail(user.email) : null;
+    const isOwner = isOwnerEmail(user.email);
 
     return NextResponse.json({
       authenticated: true,
       user: {
         ...user,
+        isOwner,
+        role: isOwner ? "SUPER_ADMIN" : user.role || "CUSTOMER",
         customerCode: vipRecord?.verificationToken || user.customerCode,
         phone: vipRecord?.phone || user.phone,
-        vipStatus: vipRecord?.status || "NONE",
-        vipTag: vipRecord?.vipTag || "NORMAL",
-        isLifetime: vipRecord?.isLifetime || false,
+        vipStatus: isOwner ? "ACTIVE" : vipRecord?.status || "NONE",
+        vipTag: isOwner ? "OWNER" : vipRecord?.vipTag || "NORMAL",
+        isLifetime: isOwner ? true : vipRecord?.isLifetime || false,
       },
     });
   } catch (err) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import {
   Crown,
@@ -66,6 +66,16 @@ export function FluxDirectoryVault() {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [activeModalOffer, setActiveModalOffer] = useState<FluxOffer | null>(null);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.user?.isOwner) setIsOwner(true);
+      })
+      .catch(() => {});
+  }, []);
 
   // Filter offers based on category, search, and type
   const filteredOffers = useMemo(() => {
@@ -206,6 +216,23 @@ export function FluxDirectoryVault() {
               </span>
             </div>
           </div>
+
+          {/* Platform Owner Admin Shortcut */}
+          {isOwner && (
+            <div className="mt-4 p-3 rounded-2xl border-2 border-amber-500/60 bg-gradient-to-br from-amber-50 via-white to-amber-50 text-slate-900 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-amber-900 uppercase tracking-wider">Root Operator</span>
+                <span className="text-[9px] font-mono bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded font-black">SUPER_ADMIN</span>
+              </div>
+              <a
+                href="/admin"
+                className="mt-2.5 flex items-center justify-center gap-1.5 w-full rounded-xl bg-slate-950 px-3 py-2 text-xs font-black text-amber-300 hover:bg-slate-900 transition shadow-sm"
+              >
+                <Crown className="h-3.5 w-3.5 text-amber-400" />
+                <span>Admin Console (/admin)</span>
+              </a>
+            </div>
+          )}
 
           {/* MAIN Section */}
           <div className="mt-5 space-y-1">
