@@ -221,8 +221,11 @@ export async function createVipOrder(data: {
   return newOrder;
 }
 
-export async function getAllVipOrders(includeAllStoreOrders = true): Promise<VipOrderRow[]> {
-  const members = await getAllVipMembers();
+export async function getAllVipOrders(
+  includeAllStoreOrders = true,
+  existingMembers?: VipMember[],
+): Promise<VipOrderRow[]> {
+  const members = existingMembers || (await getAllVipMembers());
   const results: VipOrderRow[] = [];
 
   if (isDatabaseConfigured()) {
@@ -326,7 +329,7 @@ export async function getAllVipOrders(includeAllStoreOrders = true): Promise<Vip
 
             let viewProofUrl: string | null = proof?.proofImageUrl || null;
             if (viewProofUrl && viewProofUrl.startsWith("storage://")) {
-              viewProofUrl = await resolveProofViewUrl(viewProofUrl);
+              viewProofUrl = `/api/admin/proof-view?path=${encodeURIComponent(viewProofUrl)}`;
             }
 
             const customerCode =
@@ -390,11 +393,7 @@ export async function getAllVipOrders(includeAllStoreOrders = true): Promise<Vip
 
       let memProof = memOrder.proofUrl;
       if (memProof && memProof.startsWith("storage://")) {
-        try {
-          memProof = await resolveProofViewUrl(memProof);
-        } catch {
-          // keep original
-        }
+        memProof = `/api/admin/proof-view?path=${encodeURIComponent(memProof)}`;
       }
 
       results.push({

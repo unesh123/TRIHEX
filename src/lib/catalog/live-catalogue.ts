@@ -399,8 +399,13 @@ export async function loadPrimaryCoverPathsBySlug(): Promise<Map<string, string>
       .map((entry) => [entry.slug, entry.publicPath as string]),
   );
   if (!isDatabaseConfigured()) return new Map(Object.entries(manifest));
-  const cached = await loadPrimaryCoverPathsCached(manifest);
-  return new Map(Object.entries(cached));
+  try {
+    const cached = await loadPrimaryCoverPathsCached(manifest);
+    return new Map(Object.entries(cached));
+  } catch (err) {
+    console.warn("[catalogue] loadPrimaryCoverPathsCached failed, using manifest:", err);
+    return new Map(Object.entries(manifest));
+  }
 }
 
 const loadPrimaryCoverPathsCached = unstable_cache(

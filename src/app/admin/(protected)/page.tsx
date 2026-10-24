@@ -4,6 +4,7 @@ import { getRecentAuditEvents, type AuditEvent } from "@/lib/audit/log";
 import {
   getPaidOrdersCount,
   getVerifiedRevenueStats,
+  type VerifiedRevenueStats,
 } from "@/lib/admin/revenue-stats";
 import { loadAdminProducts } from "@/lib/catalog/live-catalogue";
 import { isDatabaseConfigured } from "@/lib/env";
@@ -20,15 +21,59 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
   let dataWarning = "";
-  let products = [] as Awaited<ReturnType<typeof loadAdminProducts>>;
-  if (isDatabaseConfigured()) {
-    try {
-      products = await loadAdminProducts();
-    } catch (error) {
-      console.error("[Admin overview] product load failed", error);
-      dataWarning = "Some live catalogue data is temporarily unavailable. The admin shell is still safe to use; check System health before making changes.";
-    }
+  const fallbackRevenue: VerifiedRevenueStats = {
+    verifiedCount: 0,
+    revenueNprMinor: 0,
+    profitNprMinor: 0,
+    costNprMinor: 0,
+    pendingCount: 0,
+    revenueLabel: "NPR 0",
+    profitLabel: "NPR 0",
+    costLabel: "NPR 0",
+  };
+
+  function timeoutGuard<T>(promise: Promise<T>, fallback: T, ms = 2000): Promise<T> {
+    return Promise.race([
+      promise.catch((err) => {
+        console.error("[Admin overview query error]:", err);
+        return fallback;
+      }),
+      new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+    ]);
   }
+
+  const [
+    productsRes,
+    auditRes,
+    revenueRes,
+    paidOrdersRes,
+    ordersRes,
+    paymentsRes,
+  ] = await Promise.allSettled([
+    isDatabaseConfigured()
+      ? timeoutGuard(loadAdminProducts(), [] as Awaited<ReturnType<typeof loadAdminProducts>>)
+      : Promise.resolve([]),
+    timeoutGuard(getRecentAuditEvents(8), [] as AuditEvent[]),
+    timeoutGuard(getVerifiedRevenueStats(), fallbackRevenue),
+    timeoutGuard(getPaidOrdersCount(), 0),
+    isDatabaseConfigured()
+      ? timeoutGuard(getRepositories().orders.listRecent(100), [])
+      : Promise.resolve([]),
+    isDatabaseConfigured()
+      ? timeoutGuard(listManualPayments(), [])
+      : Promise.resolve([]),
+  ]);
+
+  const products = productsRes.status === "fulfilled" ? productsRes.value : [];
+  const recentAudit = auditRes.status === "fulfilled" ? auditRes.value : [];
+  const revenue =
+    revenueRes.status === "fulfilled"
+      ? revenueRes.value
+      : fallbackRevenue;
+  const paidOrders = paidOrdersRes.status === "fulfilled" ? paidOrdersRes.value : 0;
+  const recentOrders = ordersRes.status === "fulfilled" ? ordersRes.value : [];
+  const manualPayments = paymentsRes.status === "fulfilled" ? paymentsRes.value : [];
+
   const active = products.filter((p) => p.productStatus !== "ARCHIVED");
   const publicCount = active.filter((p) => p.productStatus === "PUBLIC").length;
   const blockedCount = active.filter((p) => p.productStatus === "BLOCKED").length;
@@ -41,44 +86,20 @@ export default async function AdminOverviewPage() {
       p.seedVisibleQuantity > 0 &&
       p.seedVisibleQuantity <= 5,
   ).length;
-  let recentAudit: AuditEvent[] = [];
-  try {
-    recentAudit = await getRecentAuditEvents(8);
-  } catch (error) {
-    console.error("[Admin overview] audit load failed", error);
-    dataWarning ||= "Recent audit activity is temporarily unavailable.";
-  }
 
-  let orderCount = 0;
-  let pendingProofs = 0;
-  let unpaidOrders = 0;
-  let toDeliver = 0;
-  let deliveredCount = 0;
-  const revenue = await getVerifiedRevenueStats();
-  const paidOrders = await getPaidOrdersCount();
+  const orderCount = recentOrders.length;
+  const unpaidOrders = recentOrders.filter((o) => o.paymentStatus !== "PAID").length;
+  const toDeliver = recentOrders.filter(
+    (o) => o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
+  ).length;
+  const deliveredCount = recentOrders.filter((o) => o.fulfillmentWhatsappDelivered).length;
+  const pendingProofs = manualPayments.filter((p) =>
+    ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
+  ).length;
+
   const claimsAudit = auditCatalogClaims();
   const deals = getAllDealCandidates();
   const prompts = getAllPrompts();
-
-  if (isDatabaseConfigured()) {
-    try {
-      const orders = await getRepositories().orders.listRecent(100);
-      orderCount = orders.length;
-      unpaidOrders = orders.filter((o) => o.paymentStatus !== "PAID").length;
-      toDeliver = orders.filter(
-        (o) =>
-          o.paymentStatus === "PAID" && !o.fulfillmentWhatsappDelivered,
-      ).length;
-      deliveredCount = orders.filter((o) => o.fulfillmentWhatsappDelivered).length;
-      const payments = await listManualPayments();
-      pendingProofs = payments.filter((p) =>
-        ["SUBMITTED", "UNDER_REVIEW"].includes(p.status),
-      ).length;
-    } catch (error) {
-      console.error("[Admin overview] order/payment load failed", error);
-      dataWarning ||= "Order and payment metrics are temporarily unavailable.";
-    }
-  }
 
   return (
     <>

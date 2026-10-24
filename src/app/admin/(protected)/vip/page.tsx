@@ -18,10 +18,10 @@ export default async function AdminVipPage({
   searchParams: Promise<{ tab?: "orders" | "members" | "vault"; search?: string }>;
 }) {
   const params = await searchParams;
-  const [vaultItems, vipMembers, vipOrders] = await Promise.all([
+  const vipMembers = await getAllVipMembers();
+  const [vaultItems, vipOrders] = await Promise.all([
     getAllVipVaultItems(),
-    getAllVipMembers(),
-    getAllVipOrders(),
+    getAllVipOrders(true, vipMembers),
   ]);
 
   return (

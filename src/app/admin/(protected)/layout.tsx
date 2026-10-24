@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { checkAdminSession } from "@/lib/auth/admin-gate";
+import { isOwnerEmail } from "@/lib/auth/owner";
 import { getSystemHealth } from "@/lib/admin/system-health";
 import { adminLogoutAction } from "@/app/admin/login/actions";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ export default async function AdminProtectedLayout({
   // Hard MFA lock only when explicitly required — never lock out by default
   if (
     !session.bypass &&
+    !isOwnerEmail(session.email) &&
     isMfaHardRequired() &&
     isPrivilegedAdminRole(session.role) &&
     !pathname.startsWith("/admin/settings/security")

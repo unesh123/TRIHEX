@@ -29,8 +29,8 @@ function createDb(): Db | null {
     }
     const client = postgres(connectionString, {
       prepare: false,
-      // Each build worker / serverless instance has its own pool.
-      max: 2,
+      // Support concurrent admin overview queries against Supabase pooler
+      max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
     });
