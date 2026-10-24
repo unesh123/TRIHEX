@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Eye,
   RefreshCw,
+  Crown,
 } from "lucide-react";
 import { formatNpr } from "@/lib/money";
 
@@ -318,6 +319,15 @@ export function OrderCommandTable({ initialOrders }: OrderCommandTableProps) {
                               <span className="hidden sm:inline">WhatsApp</span>
                             </a>
                           ) : null}
+
+                          <Link
+                            href={`/admin/vip?search=${encodeURIComponent(order.orderNumber)}`}
+                            title="Manage / Grant VIP Clearance"
+                            className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 text-xs font-bold text-amber-700 hover:bg-amber-500/20 transition shadow-sm"
+                          >
+                            <Crown className="h-3.5 w-3.5 text-amber-600" />
+                            <span className="hidden sm:inline">VIP</span>
+                          </Link>
 
                           <Link
                             href={`/admin/orders/${order.id}`}

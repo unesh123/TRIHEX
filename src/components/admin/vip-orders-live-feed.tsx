@@ -23,6 +23,9 @@ import {
   Gift,
   RefreshCw,
   Image as ImageIcon,
+  Package,
+  Layers,
+  ArrowRightLeft,
 } from "lucide-react";
 import { formatNpr } from "@/lib/money";
 import type { VipOrderRow } from "@/lib/vip/vip-order-store";
@@ -30,19 +33,24 @@ import type { VipTag } from "@/lib/vip/vip-member-store";
 
 interface VipOrdersLiveFeedProps {
   initialOrders: VipOrderRow[];
+  initialSearch?: string;
   onOrderUpdated?: () => void;
 }
 
 export function VipOrdersLiveFeed({
   initialOrders,
+  initialSearch = "",
   onOrderUpdated,
 }: VipOrdersLiveFeedProps) {
   const [orders, setOrders] = useState<VipOrderRow[]>(initialOrders);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [tierFilter, setTierFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [categoryFilter, setCategoryFilter] = useState<"ALL" | "VIP" | "STORE">("ALL");
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const [changingTierOrderId, setChangingTierOrderId] = useState<string | null>(null);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [actionSuccessNotice, setActionSuccessNotice] = useState<string | null>(null);
 
   // Lightbox Modal for Payment Screenshot
   const [previewProofUrl, setPreviewProofUrl] = useState<string | null>(null);
@@ -50,11 +58,18 @@ export function VipOrdersLiveFeed({
 
   // Approve & Grant VIP Modal State
   const [approveModalOrder, setApproveModalOrder] = useState<VipOrderRow | null>(null);
+  const [approvedTier, setApprovedTier] = useState<"1_MONTH" | "6_MONTHS" | "LIFETIME">("1_MONTH");
   const [grantBonusDays, setGrantBonusDays] = useState<number>(0);
   const [grantBonusPerk, setGrantBonusPerk] = useState<string>("");
   const [grantTag, setGrantTag] = useState<VipTag>("VIP");
   const [adminNotes, setAdminNotes] = useState<string>("");
   const [isApproving, setIsApproving] = useState<boolean>(false);
+
+  // Toast / notification helper
+  const showNotice = (msg: string) => {
+    setActionSuccessNotice(msg);
+    setTimeout(() => setActionSuccessNotice(null), 3500);
+  };
 
   // Copy to clipboard helper
   const handleCopy = (text: string, label: string) => {
@@ -64,24 +79,32 @@ export function VipOrdersLiveFeed({
   };
 
   // Build WhatsApp Message URL
-  const buildWhatsAppUrl = (order: VipOrderRow, memberToken?: string) => {
+  const buildWhatsAppUrl = (order: VipOrderRow, memberToken?: string, confirmedTier?: string) => {
     const cleanPhone = order.customerPhone.replace(/\D/g, "");
     const nepPhone = cleanPhone.startsWith("977") ? cleanPhone : `977${cleanPhone}`;
-    const token = memberToken || `THX-VIP-${order.tier}-${order.orderNumber.slice(-6)}`;
+    const activeTier = confirmedTier || order.tier;
+    const token = memberToken || `THX-VIP-${activeTier}-${order.orderNumber.slice(-6)}`;
     const bonusText =
       order.bonusDays && order.bonusDays > 0
         ? `\n🎁 Exclusive Bonus: +${order.bonusDays} Free Days Added!`
         : "";
 
+    const tierName =
+      activeTier === "LIFETIME"
+        ? "Lifetime VIP Pass (Permanent Uncapped)"
+        : activeTier === "6_MONTHS"
+        ? "6 Months VIP Pass (180 Days)"
+        : "1 Month VIP Pass (30 Days)";
+
     const text = encodeURIComponent(
       `Namaste ${order.customerName}! 👑\n\n` +
       `Your TRIHEX VIP Access order is confirmed!\n\n` +
-      `📦 Package: ${order.tierTitle}\n` +
+      `📦 Package: ${tierName}\n` +
       `🔖 Order #: ${order.orderNumber}\n` +
       `💰 Amount: Rs. ${order.amountNpr.toLocaleString()}\n` +
       `⚡ VIP Clearance: ACTIVE\n` +
       `🔑 VIP Access Token: ${token}${bonusText}\n\n` +
-      `You can track your order & clearance anytime:\n` +
+      `Track your order & clearance anytime:\n` +
       `https://trihexdigital.shop/track-order?phone=${encodeURIComponent(order.customerPhone)}\n\n` +
       `Unlock your VIP Vault assets:\n` +
       `https://trihexdigital.shop/vip\n\n` +
@@ -89,6 +112,42 @@ export function VipOrdersLiveFeed({
     );
 
     return `https://wa.me/${nepPhone}?text=${text}`;
+  };
+
+  // 1-Click Plan / Duration Switcher directly on card
+  const handlePlanChange = async (
+    orderId: string,
+    newTier: "1_MONTH" | "6_MONTHS" | "LIFETIME"
+  ) => {
+    setChangingTierOrderId(orderId);
+    try {
+      const res = await fetch("/api/admin/vip-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "CHANGE_TIER",
+          orderId,
+          tier: newTier,
+          adminNotes: `Admin switched duration to ${newTier} in 1-click.`,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.order) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === orderId ? { ...o, ...data.order } : o))
+        );
+        showNotice(`Order plan successfully adjusted to ${data.order.tierTitle}!`);
+        if (onOrderUpdated) onOrderUpdated();
+      } else {
+        alert(data.error || "Failed to change order duration.");
+      }
+    } catch (err) {
+      console.error("Plan change error", err);
+      alert("Network error updating duration.");
+    } finally {
+      setChangingTierOrderId(null);
+    }
   };
 
   // 1-Click Status Modifier
@@ -111,6 +170,7 @@ export function VipOrdersLiveFeed({
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, ...data.order } : o))
         );
+        showNotice(`Order #${data.order.orderNumber} status set to ${newStatus}.`);
         if (onOrderUpdated) onOrderUpdated();
       } else {
         alert(data.error || "Failed to update order status.");
@@ -126,32 +186,56 @@ export function VipOrdersLiveFeed({
   // Open Approval Modal
   const openApproveModal = (order: VipOrderRow) => {
     setApproveModalOrder(order);
-    setGrantTag(order.tier === "6_MONTHS" ? "PRO" : "VIP");
-    if (order.tier === "1_MONTH") {
+    const initialTier =
+      order.tier === "6_MONTHS" ? "6_MONTHS" : order.tier === "LIFETIME" ? "LIFETIME" : "1_MONTH";
+    setApprovedTier(initialTier);
+    setGrantTag(initialTier === "6_MONTHS" ? "PRO" : "VIP");
+
+    if (initialTier === "1_MONTH") {
       setGrantBonusDays(7);
       setGrantBonusPerk("Standard Fast-Track Support");
-    } else if (order.tier === "6_MONTHS") {
+    } else if (initialTier === "6_MONTHS") {
       setGrantBonusDays(30);
       setGrantBonusPerk("Midjourney & Lovable Pro Prompts Pack");
-    } else if (order.tier === "LIFETIME") {
+    } else if (initialTier === "LIFETIME") {
       setGrantBonusDays(0);
       setGrantBonusPerk("Priority Founder Hotline & Uncapped AI Leaks");
     }
     setAdminNotes(`Approved payment & granted VIP clearance for Order #${order.orderNumber}`);
   };
 
-  // Execute Approval & Activation with Bonuses
+  // When admin switches tier in the modal, adjust defaults
+  const handleModalTierSelect = (tier: "1_MONTH" | "6_MONTHS" | "LIFETIME") => {
+    setApprovedTier(tier);
+    if (tier === "1_MONTH") {
+      setGrantTag("VIP");
+      setGrantBonusDays(7);
+    } else if (tier === "6_MONTHS") {
+      setGrantTag("PRO");
+      setGrantBonusDays(30);
+    } else if (tier === "LIFETIME") {
+      setGrantTag("VIP");
+      setGrantBonusDays(0);
+    }
+  };
+
+  // Execute Approval & Activation with Custom / Overridden Plan
   const handleConfirmApproval = async () => {
     if (!approveModalOrder) return;
     setIsApproving(true);
 
     try {
+      const overrideAmountNpr =
+        approvedTier === "1_MONTH" ? 3999 : approvedTier === "6_MONTHS" ? 5999 : 7999;
+
       const res = await fetch("/api/admin/vip-orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "APPROVE_ACTIVATE",
           orderId: approveModalOrder.id,
+          overrideTier: approvedTier,
+          overrideAmountNpr,
           bonusDays: grantBonusDays,
           bonusPerk: grantBonusPerk,
           customTag: grantTag,
@@ -166,11 +250,13 @@ export function VipOrdersLiveFeed({
             o.id === approveModalOrder.id
               ? {
                   ...o,
+                  ...data.order,
                   orderStatus: "FULFILLED",
                   paymentStatus: "PAID",
                   fulfillmentStatus: "DELIVERED",
                   isMemberActive: true,
                   currentVipTag: grantTag,
+                  tier: approvedTier,
                   bonusDays: (o.bonusDays || 0) + grantBonusDays,
                   bonusPerks: grantBonusPerk
                     ? [...(o.bonusPerks || []), grantBonusPerk]
@@ -182,15 +268,17 @@ export function VipOrdersLiveFeed({
 
         const waUrl = buildWhatsAppUrl(
           approveModalOrder,
-          data.member?.verificationToken
+          data.member?.verificationToken,
+          approvedTier
         );
         setApproveModalOrder(null);
+        showNotice(`VIP Clearance for ${approveModalOrder.customerName} activated successfully!`);
         if (onOrderUpdated) onOrderUpdated();
 
         // Prompt WhatsApp dispatch
         if (
           confirm(
-            `VIP Access for ${approveModalOrder.customerName} is now ACTIVE! 👑\n\nWould you like to open WhatsApp to send the activation & token message?`
+            `VIP Access for ${approveModalOrder.customerName} is now ACTIVE as ${approvedTier}! 👑\n\nWould you like to open WhatsApp to send the activation & token message?`
           )
         ) {
           window.open(waUrl, "_blank");
@@ -212,10 +300,11 @@ export function VipOrdersLiveFeed({
   const handleRefreshFeed = async () => {
     setIsRefreshing(true);
     try {
-      const res = await fetch("/api/admin/vip-orders");
+      const res = await fetch("/api/admin/vip-orders?all=true");
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
         setOrders(data.orders);
+        showNotice("Orders refreshed from database.");
       }
     } catch (e) {
       console.error("Refresh feed error", e);
@@ -240,6 +329,13 @@ export function VipOrdersLiveFeed({
       (o.paymentMethod && o.paymentMethod.toLowerCase().includes(q)) ||
       (o.notes && o.notes.toLowerCase().includes(q));
 
+    let matchesCategory = true;
+    if (categoryFilter === "VIP") {
+      matchesCategory = o.isVipPackage === true;
+    } else if (categoryFilter === "STORE") {
+      matchesCategory = o.isVipPackage === false;
+    }
+
     let matchesTier = true;
     if (tierFilter !== "ALL") {
       matchesTier = o.tier === tierFilter;
@@ -260,7 +356,7 @@ export function VipOrdersLiveFeed({
       matchesStatus = o.orderStatus === "CANCELLED";
     }
 
-    return matchesSearch && matchesTier && matchesStatus;
+    return matchesSearch && matchesCategory && matchesTier && matchesStatus;
   });
 
   // KPI Calculations
@@ -275,18 +371,28 @@ export function VipOrdersLiveFeed({
       o.orderStatus === "AWAITING_PAYMENT"
   ).length;
 
+  const countVipRequests = orders.filter((o) => o.isVipPackage).length;
+  const countStoreOrders = orders.filter((o) => !o.isVipPackage).length;
   const count1Month = orders.filter((o) => o.tier === "1_MONTH").length;
   const count6Months = orders.filter((o) => o.tier === "6_MONTHS").length;
   const countLifetime = orders.filter((o) => o.tier === "LIFETIME").length;
 
   return (
     <div className="space-y-6">
+      {/* Action Notice Banner */}
+      {actionSuccessNotice && (
+        <div className="p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+          <span>{actionSuccessNotice}</span>
+        </div>
+      )}
+
       {/* KPI Overview Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/30 shadow-lg">
           <div className="flex items-center gap-2 text-xs font-bold text-amber-400 mb-1">
             <Crown className="h-4 w-4" />
-            <span>Total VIP Revenue</span>
+            <span>Total Revenue</span>
           </div>
           <div className="text-xl font-black text-amber-300 font-mono">
             {formatNpr(totalRevenueNpr * 100)}
@@ -340,20 +446,60 @@ export function VipOrdersLiveFeed({
 
         <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 shadow-lg">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
-            <Filter className="h-4 w-4" />
-            <span>Total VIP Orders</span>
+            <Layers className="h-4 w-4" />
+            <span>Total Live Orders</span>
           </div>
           <div className="text-xl font-black text-white font-mono">
             {orders.length}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">All Time Placed</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">All Time Database</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 shadow-xl space-y-3">
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 shadow-xl space-y-3.5">
+        {/* Category Tabs: All vs VIP Requests vs Store Products */}
+        <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-slate-800/80">
+          <span className="text-xs font-bold text-slate-400 mr-1 flex items-center gap-1.5">
+            <Layers className="h-3.5 w-3.5 text-amber-400" />
+            <span>View Category:</span>
+          </span>
+          <button
+            onClick={() => setCategoryFilter("ALL")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              categoryFilter === "ALL"
+                ? "bg-slate-200 text-slate-950 shadow-md font-black"
+                : "bg-slate-800 text-slate-400 hover:text-white"
+            }`}
+          >
+            All Live Orders ({orders.length})
+          </button>
+          <button
+            onClick={() => setCategoryFilter("VIP")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              categoryFilter === "VIP"
+                ? "bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md font-black"
+                : "bg-slate-800 text-amber-300 hover:bg-amber-950/40"
+            }`}
+          >
+            <Crown className="h-3.5 w-3.5" />
+            <span>👑 VIP Requests Only ({countVipRequests})</span>
+          </button>
+          <button
+            onClick={() => setCategoryFilter("STORE")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              categoryFilter === "STORE"
+                ? "bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-md font-black"
+                : "bg-slate-800 text-indigo-300 hover:bg-indigo-950/40"
+            }`}
+          >
+            <Package className="h-3.5 w-3.5" />
+            <span>📦 Store Products Only ({countStoreOrders})</span>
+          </button>
+        </div>
+
+        {/* Search Row */}
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-          {/* Search Input & Refresh Button */}
           <div className="flex items-center gap-2 flex-1">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
@@ -395,7 +541,7 @@ export function VipOrdersLiveFeed({
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
               }`}
             >
-              All Packages ({orders.length})
+              All Packages
             </button>
             <button
               onClick={() => setTierFilter("LIFETIME")}
@@ -405,7 +551,7 @@ export function VipOrdersLiveFeed({
                   : "bg-slate-800 text-purple-300 hover:bg-purple-950/40"
               }`}
             >
-              👑 Lifetime Rs. 7,999 ({countLifetime})
+              👑 Lifetime
             </button>
             <button
               onClick={() => setTierFilter("6_MONTHS")}
@@ -415,7 +561,7 @@ export function VipOrdersLiveFeed({
                   : "bg-slate-800 text-cyan-300 hover:bg-cyan-950/40"
               }`}
             >
-              ⚡ 6 Months Rs. 5,999 ({count6Months})
+              ⚡ 6 Months
             </button>
             <button
               onClick={() => setTierFilter("1_MONTH")}
@@ -425,7 +571,7 @@ export function VipOrdersLiveFeed({
                   : "bg-slate-800 text-emerald-300 hover:bg-emerald-950/40"
               }`}
             >
-              🔰 1 Month Rs. 3,999 ({count1Month})
+              🔰 1 Month
             </button>
           </div>
         </div>
@@ -439,7 +585,7 @@ export function VipOrdersLiveFeed({
               statusFilter === "ALL" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            All
+            All Statuses
           </button>
           <button
             onClick={() => setStatusFilter("PENDING")}
@@ -463,6 +609,16 @@ export function VipOrdersLiveFeed({
             Paid / Active
           </button>
           <button
+            onClick={() => setStatusFilter("FULFILLED")}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              statusFilter === "FULFILLED"
+                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                : "text-slate-400 hover:text-cyan-400"
+            }`}
+          >
+            Fulfilled
+          </button>
+          <button
             onClick={() => setStatusFilter("CANCELLED")}
             className={`px-2.5 py-1 rounded-md font-semibold ${
               statusFilter === "CANCELLED"
@@ -480,11 +636,11 @@ export function VipOrdersLiveFeed({
         {filteredOrders.length === 0 ? (
           <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
             <Crown className="h-12 w-12 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-white">No VIP Orders Found</h3>
-            <p className="text-sm text-slate-400 mt-1">
+            <h3 className="text-base font-bold text-white">No Orders Found</h3>
+            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
               {searchQuery
-                ? "Try searching for a different customer name, phone number, or clear your filters."
-                : "VIP package orders placed via the checkout page will appear here automatically."}
+                ? `No orders matched "${searchQuery}". Try searching by phone, email, or order number.`
+                : "All live store orders and VIP requests will show up here automatically."}
             </p>
           </div>
         ) : (
@@ -495,7 +651,7 @@ export function VipOrdersLiveFeed({
               order.orderStatus === "AWAITING_PAYMENT";
             const isFulfilled =
               order.orderStatus === "FULFILLED" || order.paymentStatus === "PAID";
-            const isCancelled = order.orderStatus === "CANCELLED";
+            const isChangingTier = changingTierOrderId === order.id;
 
             return (
               <div
@@ -510,12 +666,14 @@ export function VipOrdersLiveFeed({
               >
                 {/* Glowing Top Tier Bar */}
                 <div
-                  className={`h-1 w-full ${
+                  className={`h-1.5 w-full ${
                     order.tier === "LIFETIME"
                       ? "bg-gradient-to-r from-purple-500 via-amber-400 to-purple-600"
                       : order.tier === "6_MONTHS"
                       ? "bg-gradient-to-r from-cyan-400 to-blue-500"
-                      : "bg-gradient-to-r from-emerald-400 to-teal-500"
+                      : order.tier === "1_MONTH"
+                      ? "bg-gradient-to-r from-emerald-400 to-teal-500"
+                      : "bg-slate-700"
                   }`}
                 />
 
@@ -523,12 +681,13 @@ export function VipOrdersLiveFeed({
                   {/* Left Column: Order details & Customer */}
                   <div className="space-y-3 flex-1 min-w-[280px]">
                     <div className="flex flex-wrap items-center gap-2">
+                      {/* Order Number */}
                       <span className="font-mono text-sm font-black text-white">
                         {order.orderNumber}
                       </span>
                       <button
                         onClick={() => handleCopy(order.orderNumber, `order-${order.id}`)}
-                        className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition"
+                        className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition cursor-pointer"
                         title="Copy Order Number"
                       >
                         {copiedText === `order-${order.id}` ? (
@@ -538,18 +697,34 @@ export function VipOrdersLiveFeed({
                         )}
                       </button>
 
-                      {/* Tier Badge */}
+                      {/* VIP vs Store Order Badge */}
+                      {order.isVipPackage ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 flex items-center gap-1 shadow-sm">
+                          <Crown className="h-3 w-3" />
+                          <span>👑 VIP Request</span>
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-950/80 text-indigo-300 border border-indigo-700/60 flex items-center gap-1">
+                          <Package className="h-3 w-3 text-indigo-400" />
+                          <span>Store Order</span>
+                        </span>
+                      )}
+
+                      {/* Current Active Plan Badge */}
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
                           order.tier === "LIFETIME"
-                            ? "bg-gradient-to-r from-amber-400 to-purple-400 text-slate-950 shadow-md shadow-amber-900/30"
+                            ? "bg-gradient-to-r from-purple-500 to-amber-400 text-slate-950 shadow-md shadow-purple-900/30"
                             : order.tier === "6_MONTHS"
-                            ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950"
-                            : "bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950"
+                            ? "bg-cyan-400 text-slate-950"
+                            : "bg-emerald-400 text-slate-950"
                         }`}
                       >
-                        <Crown className="h-3 w-3" />
-                        {order.tierTitle.split("(")[0].trim()}
+                        {order.tier === "LIFETIME"
+                          ? "👑 Lifetime VIP"
+                          : order.tier === "6_MONTHS"
+                          ? "⚡ 6 Months (180d)"
+                          : "🔰 1 Month (30d)"}
                       </span>
 
                       {/* Payment Status Pill */}
@@ -562,7 +737,7 @@ export function VipOrdersLiveFeed({
                             : "bg-slate-800 text-slate-300 border border-slate-700"
                         }`}
                       >
-                        Payment: {order.paymentStatus}
+                        {order.paymentStatus}
                       </span>
 
                       {/* Date */}
@@ -576,10 +751,10 @@ export function VipOrdersLiveFeed({
                       </span>
                     </div>
 
-                    {/* Customer Profile */}
+                    {/* Customer Profile Row */}
                     <div className="flex flex-wrap items-center gap-3 text-xs">
                       <div className="font-bold text-white text-sm">
-                        {order.customerName}
+                        {order.customerName || "Customer"}
                       </div>
 
                       {/* Customer User ID */}
@@ -601,13 +776,13 @@ export function VipOrdersLiveFeed({
                         </div>
                       )}
 
-                      {/* Mobile Phone with 1-click WhatsApp */}
+                      {/* Mobile Phone with Copy */}
                       <div className="flex items-center gap-1.5 text-slate-300 bg-slate-950/60 px-2 py-1 rounded-lg border border-slate-800">
                         <Phone className="h-3 w-3 text-emerald-400" />
                         <span className="font-mono font-bold">{order.customerPhone}</span>
                         <button
                           onClick={() => handleCopy(order.customerPhone, `phone-${order.id}`)}
-                          className="text-slate-400 hover:text-white ml-0.5"
+                          className="text-slate-400 hover:text-white ml-0.5 cursor-pointer"
                           title="Copy Phone"
                         >
                           {copiedText === `phone-${order.id}` ? (
@@ -625,9 +800,9 @@ export function VipOrdersLiveFeed({
                         </div>
                       )}
 
-                      {/* Correlated VIP Member Tag */}
+                      {/* VIP Member Status */}
                       <div className="flex items-center gap-1 text-xs">
-                        <span className="text-slate-500">Member Status:</span>
+                        <span className="text-slate-500">Vault Access:</span>
                         {order.isMemberActive ? (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
                             👑 ACTIVE ({order.currentVipTag || "VIP"})
@@ -638,7 +813,7 @@ export function VipOrdersLiveFeed({
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
-                            ⏳ Unverified
+                            ⏳ Not Activated
                           </span>
                         )}
                         {order.bonusDays && order.bonusDays > 0 ? (
@@ -649,15 +824,24 @@ export function VipOrdersLiveFeed({
                       </div>
                     </div>
 
-                    {/* Order Notes / Payment Ref */}
-                    <div className="text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 flex flex-wrap items-center justify-between gap-2">
+                    {/* Order Items & Summary */}
+                    <div className="text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-300">Method:</span>
-                        <span className="text-white font-mono">{order.paymentMethod}</span>
+                        <span className="font-semibold text-slate-400">Items:</span>
+                        <span className="text-white font-medium">
+                          {order.itemsSummary || order.tierTitle}
+                        </span>
+                        {order.paymentMethod && (
+                          <>
+                            <span className="text-slate-600">·</span>
+                            <span className="font-semibold text-slate-400">Method:</span>
+                            <span className="text-white font-mono">{order.paymentMethod}</span>
+                          </>
+                        )}
                         {order.senderReference && (
                           <>
                             <span className="text-slate-600">·</span>
-                            <span className="font-semibold text-slate-300">Ref:</span>
+                            <span className="font-semibold text-slate-400">Ref:</span>
                             <span className="text-amber-300 font-mono font-bold">
                               {order.senderReference}
                             </span>
@@ -668,6 +852,60 @@ export function VipOrdersLiveFeed({
                         <span className="text-[11px] text-slate-400 italic">
                           {order.notes}
                         </span>
+                      )}
+                    </div>
+
+                    {/* 1-CLICK DURATION / PLAN OVERRIDE TOOLBAR */}
+                    <div className="flex flex-wrap items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-amber-500/30">
+                      <span className="text-[10px] uppercase font-black text-amber-400 flex items-center gap-1">
+                        <ArrowRightLeft className="h-3 w-3" />
+                        <span>1-Click Plan Override:</span>
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          disabled={isChangingTier || order.tier === "1_MONTH"}
+                          onClick={() => handlePlanChange(order.id, "1_MONTH")}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            order.tier === "1_MONTH"
+                              ? "bg-emerald-500 text-slate-950 font-black shadow-sm ring-1 ring-emerald-300"
+                              : "bg-slate-900 text-slate-300 hover:bg-emerald-950 hover:text-emerald-300 border border-slate-800"
+                          } disabled:opacity-50`}
+                          title="Override to 1 Month (30 Days · Rs. 3,999)"
+                        >
+                          🔰 1 Month (30d)
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={isChangingTier || order.tier === "6_MONTHS"}
+                          onClick={() => handlePlanChange(order.id, "6_MONTHS")}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            order.tier === "6_MONTHS"
+                              ? "bg-cyan-500 text-slate-950 font-black shadow-sm ring-1 ring-cyan-300"
+                              : "bg-slate-900 text-slate-300 hover:bg-cyan-950 hover:text-cyan-300 border border-slate-800"
+                          } disabled:opacity-50`}
+                          title="Override to 6 Months (180 Days · Rs. 5,999)"
+                        >
+                          ⚡ 6 Months (180d)
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={isChangingTier || order.tier === "LIFETIME"}
+                          onClick={() => handlePlanChange(order.id, "LIFETIME")}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
+                            order.tier === "LIFETIME"
+                              ? "bg-gradient-to-r from-purple-500 to-amber-400 text-slate-950 font-black shadow-sm ring-1 ring-amber-300"
+                              : "bg-slate-900 text-slate-300 hover:bg-purple-950 hover:text-purple-300 border border-slate-800"
+                          } disabled:opacity-50`}
+                          title="Override to Lifetime (Permanent · Rs. 7,999)"
+                        >
+                          👑 Lifetime (Permanent)
+                        </button>
+                      </div>
+                      {isChangingTier && (
+                        <RefreshCw className="h-3 w-3 animate-spin text-amber-400 ml-1" />
                       )}
                     </div>
                   </div>
@@ -691,10 +929,10 @@ export function VipOrdersLiveFeed({
                     {order.proofUrl ? (
                       <button
                         onClick={() => {
-                          setPreviewProofUrl(order.proofUrl);
+                          setPreviewProofUrl(order.proofUrl || null);
                           setPreviewProofOrderNum(order.orderNumber);
                         }}
-                        className="group relative h-16 w-16 rounded-xl overflow-hidden border border-amber-500/40 bg-slate-950 flex items-center justify-center hover:scale-105 transition"
+                        className="group relative h-16 w-16 rounded-xl overflow-hidden border border-amber-500/40 bg-slate-950 flex items-center justify-center hover:scale-105 transition cursor-pointer"
                         title="Click to view payment screenshot"
                       >
                         <img
@@ -725,7 +963,7 @@ export function VipOrdersLiveFeed({
                         value={order.orderStatus}
                         disabled={updatingOrderId === order.id}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        className={`flex-1 text-xs font-bold font-mono py-1.5 px-2.5 rounded-xl border bg-slate-950 focus:outline-none transition ${
+                        className={`flex-1 text-xs font-bold font-mono py-1.5 px-2.5 rounded-xl border bg-slate-950 focus:outline-none transition cursor-pointer ${
                           order.orderStatus === "FULFILLED" || order.orderStatus === "PAID"
                             ? "text-emerald-300 border-emerald-500/50"
                             : order.orderStatus === "PROCESSING"
@@ -746,7 +984,7 @@ export function VipOrdersLiveFeed({
                     {/* 1-Click Approve & Grant VIP Button */}
                     <button
                       onClick={() => openApproveModal(order)}
-                      className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md ${
+                      className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer ${
                         order.isMemberActive
                           ? "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
                           : "bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 hover:brightness-110 shadow-amber-950/40"
@@ -761,7 +999,7 @@ export function VipOrdersLiveFeed({
                       href={buildWhatsAppUrl(order)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-1.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600 hover:text-slate-950 transition"
+                      className="w-full py-1.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600 hover:text-slate-950 transition cursor-pointer"
                     >
                       <MessageCircle className="h-3.5 w-3.5" />
                       <span>Dispatch WhatsApp</span>
@@ -791,7 +1029,7 @@ export function VipOrdersLiveFeed({
               </div>
               <button
                 onClick={() => setPreviewProofUrl(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 ✕
               </button>
@@ -806,7 +1044,7 @@ export function VipOrdersLiveFeed({
             <div className="pt-3 border-t border-slate-800 flex justify-end">
               <button
                 onClick={() => setPreviewProofUrl(null)}
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold"
+                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Close Preview
               </button>
@@ -815,14 +1053,14 @@ export function VipOrdersLiveFeed({
         </div>
       )}
 
-      {/* Approve & Grant VIP Modal */}
+      {/* Approve & Grant VIP Modal with DURATION OVERRIDE */}
       {approveModalOrder && (
         <div
           className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => !isApproving && setApproveModalOrder(null)}
         >
           <div
-            className="relative max-w-lg w-full bg-slate-900 border border-amber-500/40 rounded-2xl shadow-2xl p-6 space-y-5"
+            className="relative max-w-lg w-full bg-slate-900 border border-amber-500/40 rounded-2xl shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -842,7 +1080,7 @@ export function VipOrdersLiveFeed({
               </div>
               <button
                 onClick={() => !isApproving && setApproveModalOrder(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -851,13 +1089,13 @@ export function VipOrdersLiveFeed({
             {/* Customer & Package Overview */}
             <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Package:</span>
+                <span className="text-slate-400">Customer Requested:</span>
                 <span className="text-amber-300 font-bold font-mono">
                   {approveModalOrder.tierTitle}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Paid Amount:</span>
+                <span className="text-slate-400">Paid Amount Recorded:</span>
                 <span className="text-white font-mono font-bold">
                   Rs. {approveModalOrder.amountNpr.toLocaleString()}
                 </span>
@@ -867,6 +1105,60 @@ export function VipOrdersLiveFeed({
                 <span className="text-emerald-400 font-mono font-bold">
                   {approveModalOrder.customerPhone}
                 </span>
+              </div>
+            </div>
+
+            {/* 1-CLICK DURATION & PLAN OVERRIDE (ADMIN POWER) */}
+            <div className="space-y-2 p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/40">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                  <Zap className="h-4 w-4 text-amber-400" />
+                  <span>Choose Approved Duration / Plan:</span>
+                </span>
+                <span className="text-[10px] text-amber-200/80 font-mono">
+                  1-Click Discretion
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                If the customer selected 6 Months but deposited only for 1 Month (or vice versa), click the exact duration you want to approve below:
+              </p>
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleModalTierSelect("1_MONTH")}
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                    approvedTier === "1_MONTH"
+                      ? "border-emerald-400 bg-emerald-950/70 text-white shadow-lg ring-2 ring-emerald-400"
+                      : "border-slate-800 bg-slate-950/80 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  <div className="text-xs font-black text-emerald-300">1 Month (30d)</div>
+                  <div className="text-[10px] text-slate-400 font-mono">Rs. 3,999</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleModalTierSelect("6_MONTHS")}
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                    approvedTier === "6_MONTHS"
+                      ? "border-cyan-400 bg-cyan-950/70 text-white shadow-lg ring-2 ring-cyan-400"
+                      : "border-slate-800 bg-slate-950/80 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  <div className="text-xs font-black text-cyan-300">6 Months (180d)</div>
+                  <div className="text-[10px] text-slate-400 font-mono">Rs. 5,999</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleModalTierSelect("LIFETIME")}
+                  className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                    approvedTier === "LIFETIME"
+                      ? "border-amber-400 bg-gradient-to-br from-amber-950/80 to-purple-950/80 text-white shadow-lg ring-2 ring-amber-400"
+                      : "border-slate-800 bg-slate-950/80 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  <div className="text-xs font-black text-amber-300">👑 Lifetime</div>
+                  <div className="text-[10px] text-slate-400 font-mono">Rs. 7,999</div>
+                </button>
               </div>
             </div>
 
@@ -882,7 +1174,7 @@ export function VipOrdersLiveFeed({
                     key={t}
                     type="button"
                     onClick={() => setGrantTag(t)}
-                    className={`py-2 px-2 rounded-xl text-xs font-black transition-all ${
+                    className={`py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                       grantTag === t
                         ? t === "VIP"
                           ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-950/40"
@@ -917,7 +1209,7 @@ export function VipOrdersLiveFeed({
                     key={d}
                     type="button"
                     onClick={() => setGrantBonusDays(d)}
-                    className={`py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
+                    className={`py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
                       grantBonusDays === d
                         ? "bg-purple-600 text-white shadow-md shadow-purple-950/40"
                         : "bg-slate-950 text-slate-400 border border-slate-800 hover:text-white"
@@ -953,7 +1245,7 @@ export function VipOrdersLiveFeed({
                     key={p}
                     type="button"
                     onClick={() => setGrantBonusPerk(p)}
-                    className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300"
+                    className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400 hover:text-cyan-300 cursor-pointer"
                   >
                     + {p}
                   </button>
@@ -980,7 +1272,7 @@ export function VipOrdersLiveFeed({
                 type="button"
                 disabled={isApproving}
                 onClick={() => setApproveModalOrder(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
               >
                 Cancel
               </button>
@@ -988,14 +1280,14 @@ export function VipOrdersLiveFeed({
                 type="button"
                 disabled={isApproving}
                 onClick={handleConfirmApproval}
-                className="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 hover:brightness-110 flex items-center gap-1.5 shadow-lg shadow-amber-950/40"
+                className="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 hover:brightness-110 flex items-center gap-1.5 shadow-lg shadow-amber-950/40 cursor-pointer"
               >
                 {isApproving ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <CheckCircle2 className="h-4 w-4" />
                 )}
-                <span>Activate VIP &amp; Dispatch</span>
+                <span>Activate VIP ({approvedTier === "LIFETIME" ? "Lifetime" : approvedTier === "6_MONTHS" ? "6M" : "1M"})</span>
               </button>
             </div>
           </div>

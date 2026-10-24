@@ -5,6 +5,7 @@ import {
   getAllVipOrders,
   updateVipOrderStatus,
   approveVipOrderAndActivateMember,
+  changeVipOrderTier,
 } from "@/lib/vip/vip-order-store";
 import {
   toggleVipLock,
@@ -14,14 +15,16 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   const gate = await checkAdminSession(await headers());
   if (!gate.ok) {
     return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
   }
 
   try {
-    const orders = await getAllVipOrders();
+    const { searchParams } = new URL(request.url);
+    const all = searchParams.get("all") !== "false";
+    const orders = await getAllVipOrders(all);
     return NextResponse.json({ success: true, orders });
   } catch (err) {
     console.error("[VipOrdersAPI] GET error:", err);
@@ -56,9 +59,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, order: updated });
     }
 
-    // 2. 1-Click Approve Order & Activate VIP with Bonuses
+    // 2. 1-Click Approve Order & Activate VIP with Flexible Plan / Duration
     if (action === "APPROVE_ACTIVATE") {
-      const { orderId, bonusDays, bonusPerk, customTag, adminNotes } = body;
+      const {
+        orderId,
+        bonusDays,
+        bonusPerk,
+        customTag,
+        adminNotes,
+        overrideTier,
+        overrideAmountNpr,
+        customDays,
+      } = body;
       if (!orderId) {
         return NextResponse.json(
           { success: false, error: "orderId is required." },
@@ -71,6 +83,32 @@ export async function POST(request: Request) {
         bonusPerk: bonusPerk || undefined,
         customTag: customTag || undefined,
         adminNotes: adminNotes || undefined,
+        overrideTier: overrideTier || undefined,
+        overrideAmountNpr: overrideAmountNpr ? Number(overrideAmountNpr) : undefined,
+        customDays: customDays ? Number(customDays) : undefined,
+      });
+
+      return NextResponse.json({
+        success: true,
+        order: result.order,
+        member: result.member,
+      });
+    }
+
+    // 2.5 1-Click Change VIP Plan / Duration
+    if (action === "CHANGE_TIER") {
+      const { orderId, tier, amountNpr, customDays, adminNotes } = body;
+      if (!orderId || !tier) {
+        return NextResponse.json(
+          { success: false, error: "orderId and tier are required." },
+          { status: 400 }
+        );
+      }
+
+      const result = await changeVipOrderTier(orderId, tier, {
+        customDays: customDays ? Number(customDays) : undefined,
+        amountNpr: amountNpr ? Number(amountNpr) : undefined,
+        adminNotes,
       });
 
       return NextResponse.json({

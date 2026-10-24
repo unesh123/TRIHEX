@@ -43,98 +43,21 @@ export interface VipOrderRow {
   isLocked?: boolean;
   bonusDays?: number;
   bonusPerks?: string[];
+  isVipPackage?: boolean;
 }
 
-// Baseline realistic seed VIP orders for immediate administration
-const BASELINE_VIP_ORDERS: VipOrderRow[] = [
-  {
-    id: "ord-vip-life-001",
-    orderNumber: "THX-261017-965347",
-    customerName: "Binod Adhikari",
-    customerPhone: "9801234567",
-    customerEmail: "binod.ai@gmail.com",
-    tier: "LIFETIME",
-    tierTitle: "Lifetime VIP Pass (Permanent Unrestricted)",
-    amountNpr: 7999,
-    amountMinor: 799900,
-    orderStatus: "PROCESSING",
-    paymentStatus: "UNDER_REVIEW",
-    fulfillmentStatus: "NOT_STARTED",
-    paymentMethod: "BANK_TRANSFER",
-    proofUrl: "/media/payments/bank-qr.webp",
-    senderReference: "NBL-TX-99812",
-    placedAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-    notes: "Customer deposited Rs. 7,999 via Nabil Bank Mobile QR. Requesting immediate VIP Vault access.",
-    itemsSummary: "Permanent Lifetime VIP Pack (All Vault Drops Unlocked)",
-    memberId: null,
-    currentVipTag: "VIP",
-    isMemberActive: false,
-    isLocked: false,
-    bonusDays: 0,
-    bonusPerks: ["Priority Founder Hotline", "Uncapped AI Model Leaks"],
-  },
-  {
-    id: "ord-vip-6m-002",
-    orderNumber: "THX-261017-267073",
-    customerName: "Ramesh Shrestha",
-    customerPhone: "9841399201",
-    customerEmail: "ramesh.kth@gmail.com",
-    tier: "6_MONTHS",
-    tierTitle: "6 Months VIP Pass (180 Days)",
-    amountNpr: 5999,
-    amountMinor: 599900,
-    orderStatus: "PAID",
-    paymentStatus: "PAID",
-    fulfillmentStatus: "DELIVERED",
-    paymentMethod: "ESEWA_MANUAL",
-    proofUrl: "/media/payments/bank-qr.webp",
-    senderReference: "ESW-VIP-88219",
-    placedAt: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-    notes: "6-Month VIP pass activated. VIP tag PRO granted with bonus 30 days.",
-    itemsSummary: "6 Months VIP Pass (180 Days Full Vault Access)",
-    memberId: "vip-client-kth-01",
-    currentVipTag: "PRO",
-    isMemberActive: true,
-    isLocked: false,
-    bonusDays: 30,
-    bonusPerks: ["Midjourney Pro Prompts Pack"],
-  },
-  {
-    id: "ord-vip-1m-003",
-    orderNumber: "THX-261016-512084",
-    customerName: "Anita Gurung",
-    customerPhone: "9818442099",
-    customerEmail: "anita.gurung@outlook.com",
-    tier: "1_MONTH",
-    tierTitle: "1 Month VIP Pass (30 Days)",
-    amountNpr: 3999,
-    amountMinor: 399900,
-    orderStatus: "PAID",
-    paymentStatus: "PAID",
-    fulfillmentStatus: "DELIVERED",
-    paymentMethod: "KHALTI_MANUAL",
-    proofUrl: null,
-    senderReference: "KHLT-772910",
-    placedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    notes: "1-Month VIP subscription activated via Khalti.",
-    itemsSummary: "1 Month VIP Pass (30 Days Full Access)",
-    memberId: "vip-client-pkr-02",
-    currentVipTag: "VIP",
-    isMemberActive: true,
-    isLocked: false,
-    bonusDays: 7,
-    bonusPerks: ["Standard Fast-Track Support"],
-  },
-];
+// Zero fake/dummy orders in production - only live database records
+const BASELINE_VIP_ORDERS: VipOrderRow[] = [];
 
 // In-memory cache of live-updated VIP orders
-let memoryVipOrders: VipOrderRow[] = [...BASELINE_VIP_ORDERS];
+let memoryVipOrders: VipOrderRow[] = [];
 
 export async function createVipOrder(data: {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  tierId: string;
+  tierId?: string;
+  tier?: "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM" | string;
   tierName?: string;
   amountNpr: number;
   paymentMethod?: string;
@@ -143,7 +66,8 @@ export async function createVipOrder(data: {
   deviceTelemetry?: string;
   notes?: string;
 }): Promise<VipOrderRow> {
-  const tier = (data.tierId as "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM") || "1_MONTH";
+  const rawTier = data.tier || data.tierId || "1_MONTH";
+  const tier = (rawTier as "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM") || "1_MONTH";
   const tierTitles: Record<string, string> = {
     "1_MONTH": "1 Month VIP Pass (30 Days)",
     "6_MONTHS": "6 Months VIP Pass (180 Days)",
@@ -293,7 +217,7 @@ export async function createVipOrder(data: {
   return newOrder;
 }
 
-export async function getAllVipOrders(): Promise<VipOrderRow[]> {
+export async function getAllVipOrders(includeAllStoreOrders = true): Promise<VipOrderRow[]> {
   const members = await getAllVipMembers();
   const results: VipOrderRow[] = [];
 
@@ -359,76 +283,85 @@ export async function getAllVipOrders(): Promise<VipOrderRow[]> {
             const isVipAmount = [399900, 599900, 799900].includes(ord.grandTotalMinor);
             const isVipNotes = (ord.orderNotes || "").toUpperCase().includes("VIP");
             const isVipNumber = (ord.orderNumber || "").toUpperCase().includes("VIP");
+            const isVipPackage = Boolean(isVipSku || isVipAmount || isVipNotes || isVipNumber);
 
-            if (isVipSku || isVipAmount || isVipNotes || isVipNumber) {
-              let tier: VipOrderRow["tier"] = "1_MONTH";
-              let tierTitle = "1 Month VIP Pass (30 Days)";
-
-              if (
-                matchingItems.some((i) => i.sku.includes("LIFE") || i.variantName.toLowerCase().includes("life")) ||
-                ord.grandTotalMinor === 799900
-              ) {
-                tier = "LIFETIME";
-                tierTitle = "Lifetime VIP Pass (Permanent Unrestricted)";
-              } else if (
-                matchingItems.some((i) => i.sku.includes("6M") || i.variantName.toLowerCase().includes("6 month")) ||
-                ord.grandTotalMinor === 599900
-              ) {
-                tier = "6_MONTHS";
-                tierTitle = "6 Months VIP Pass (180 Days)";
-              } else if (ord.grandTotalMinor === 399900) {
-                tier = "1_MONTH";
-                tierTitle = "1 Month VIP Pass (30 Days)";
-              }
-
-              // Correlate with member store
-              const phoneClean = (ord.customerPhone || "").replace(/\D/g, "");
-              const matchingMember = members.find(
-                (m) =>
-                  (phoneClean && m.phone.replace(/\D/g, "").includes(phoneClean)) ||
-                  (ord.customerEmail && m.email.toLowerCase() === ord.customerEmail.toLowerCase())
-              );
-
-              let viewProofUrl: string | null = proof?.proofImageUrl || null;
-              if (viewProofUrl && viewProofUrl.startsWith("storage://")) {
-                viewProofUrl = await resolveProofViewUrl(viewProofUrl);
-              }
-
-              const customerCode =
-                matchingMember?.verificationToken ||
-                (phoneClean ? `THX-USR-${phoneClean.slice(-4)}` : `THX-USR-${(ord.customerEmail || "9702").slice(0, 4).toUpperCase()}`);
-
-              results.push({
-                id: ord.id,
-                orderNumber: ord.orderNumber,
-                customerId: ord.customerId || matchingMember?.id || null,
-                customerCode,
-                customerName: ord.customerName || "Customer",
-                customerPhone: ord.customerPhone || "",
-                customerEmail: ord.customerEmail,
-                tier,
-                tierTitle,
-                amountNpr: Math.round(ord.grandTotalMinor / 100),
-                amountMinor: ord.grandTotalMinor,
-                orderStatus: ord.orderStatus,
-                paymentStatus: ord.paymentStatus,
-                fulfillmentStatus: ord.fulfillmentStatus,
-                paymentMethod: proof?.method || "BANK_TRANSFER",
-                proofUrl: viewProofUrl,
-                senderReference: proof?.senderReference || null,
-                placedAt: ord.placedAt ? ord.placedAt.toISOString() : ord.createdAt.toISOString(),
-                notes: ord.orderNotes,
-                itemsSummary:
-                  matchingItems.map((i) => `${i.productName} (${i.variantName})`).join(", ") ||
-                  tierTitle,
-                memberId: matchingMember ? matchingMember.id : null,
-                currentVipTag: matchingMember ? matchingMember.vipTag : "NORMAL",
-                isMemberActive: matchingMember ? matchingMember.status === "ACTIVE" : false,
-                isLocked: matchingMember ? Boolean(matchingMember.isLocked) : false,
-                bonusDays: matchingMember?.bonusDays || 0,
-                bonusPerks: matchingMember?.bonusPerks || [],
-              });
+            if (!includeAllStoreOrders && !isVipPackage) {
+              continue;
             }
+
+            let tier: VipOrderRow["tier"] = "1_MONTH";
+            let tierTitle = "1 Month VIP Pass (30 Days)";
+
+            if (
+              matchingItems.some((i) => i.sku.includes("LIFE") || i.variantName.toLowerCase().includes("life")) ||
+              ord.grandTotalMinor === 799900
+            ) {
+              tier = "LIFETIME";
+              tierTitle = "Lifetime VIP Pass (Permanent Unrestricted)";
+            } else if (
+              matchingItems.some((i) => i.sku.includes("6M") || i.variantName.toLowerCase().includes("6 month")) ||
+              ord.grandTotalMinor === 599900
+            ) {
+              tier = "6_MONTHS";
+              tierTitle = "6 Months VIP Pass (180 Days)";
+            } else if (ord.grandTotalMinor === 399900 || isVipPackage) {
+              tier = "1_MONTH";
+              tierTitle = "1 Month VIP Pass (30 Days)";
+            } else {
+              tier = "1_MONTH";
+              tierTitle = matchingItems[0]?.productName ? `Store: ${matchingItems[0].productName}` : "Storefront Order";
+            }
+
+            // Correlate with member store
+            const phoneClean = (ord.customerPhone || "").replace(/\D/g, "");
+            const matchingMember = members.find(
+              (m) =>
+                (phoneClean && m.phone.replace(/\D/g, "").includes(phoneClean)) ||
+                (ord.customerEmail && m.email.toLowerCase() === ord.customerEmail.toLowerCase())
+            );
+
+            let viewProofUrl: string | null = proof?.proofImageUrl || null;
+            if (viewProofUrl && viewProofUrl.startsWith("storage://")) {
+              viewProofUrl = await resolveProofViewUrl(viewProofUrl);
+            }
+
+            const customerCode =
+              matchingMember?.verificationToken ||
+              (phoneClean ? `THX-USR-${phoneClean.slice(-4)}` : `THX-USR-${(ord.customerEmail || "9702").slice(0, 4).toUpperCase()}`);
+
+            const itemsSummary =
+              matchingItems.map((i) => `${i.productName} (${i.variantName})`).join(", ") ||
+              (isVipPackage ? tierTitle : "Store Order");
+
+            results.push({
+              id: ord.id,
+              orderNumber: ord.orderNumber,
+              customerId: ord.customerId || matchingMember?.id || null,
+              customerCode,
+              customerName: ord.customerName || "Customer",
+              customerPhone: ord.customerPhone || "",
+              customerEmail: ord.customerEmail,
+              tier,
+              tierTitle,
+              amountNpr: Math.round(ord.grandTotalMinor / 100),
+              amountMinor: ord.grandTotalMinor,
+              orderStatus: ord.orderStatus,
+              paymentStatus: ord.paymentStatus,
+              fulfillmentStatus: ord.fulfillmentStatus,
+              paymentMethod: proof?.method || "BANK_TRANSFER",
+              proofUrl: viewProofUrl,
+              senderReference: proof?.senderReference || null,
+              placedAt: ord.placedAt ? ord.placedAt.toISOString() : ord.createdAt.toISOString(),
+              notes: ord.orderNotes,
+              itemsSummary,
+              isVipPackage,
+              memberId: matchingMember ? matchingMember.id : null,
+              currentVipTag: matchingMember ? matchingMember.vipTag : "NORMAL",
+              isMemberActive: matchingMember ? matchingMember.status === "ACTIVE" : false,
+              isLocked: matchingMember ? Boolean(matchingMember.isLocked) : false,
+              bonusDays: matchingMember?.bonusDays || 0,
+              bonusPerks: matchingMember?.bonusPerks || [],
+            });
           }
         }
       }
@@ -553,8 +486,120 @@ export async function updateVipOrderStatus(
     return updated;
   }
 
-  const all = await getAllVipOrders();
+  const all = await getAllVipOrders(true);
   return all.find((o) => o.id === orderId || o.orderNumber === orderId) || null;
+}
+
+export async function changeVipOrderTier(
+  orderId: string,
+  newTier: "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM",
+  options?: {
+    customDays?: number;
+    amountNpr?: number;
+    adminNotes?: string;
+  }
+): Promise<{ order: VipOrderRow | null; member: VipMember | null }> {
+  const tierTitles: Record<string, string> = {
+    "1_MONTH": "1 Month VIP Pass (30 Days)",
+    "6_MONTHS": "6 Months VIP Pass (180 Days)",
+    "LIFETIME": "Lifetime VIP Pass (Permanent Unrestricted)",
+    "CUSTOM": `${options?.customDays || 30} Days VIP Custom Clearance`,
+  };
+
+  const tierPrices: Record<string, number> = {
+    "1_MONTH": 3999,
+    "6_MONTHS": 5999,
+    "LIFETIME": 7999,
+    "CUSTOM": options?.amountNpr || 3999,
+  };
+
+  const amountNpr = options?.amountNpr ?? tierPrices[newTier] ?? 3999;
+  const amountMinor = amountNpr * 100;
+  const tierTitle = tierTitles[newTier] || "VIP Access Pass";
+  const now = new Date();
+
+  let updatedMember: VipMember | null = null;
+
+  // 1. Update in Postgres
+  if (isDatabaseConfigured()) {
+    try {
+      const db = getDb();
+      if (db) {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
+        const whereClause = isUuid
+          ? or(eq(schema.orders.id, orderId), eq(schema.orders.humanReadableOrderNumber, orderId))
+          : eq(schema.orders.humanReadableOrderNumber, orderId);
+
+        const existingOrders = await db.select().from(schema.orders).where(whereClause).limit(1);
+        if (existingOrders.length > 0) {
+          const ord = existingOrders[0];
+          await db
+            .update(schema.orders)
+            .set({
+              subtotalMinor: amountMinor,
+              grandTotalMinor: amountMinor,
+              orderNotes: options?.adminNotes
+                ? `[DURATION ADJUSTED TO ${newTier}] ${options.adminNotes}`
+                : `[DURATION ADJUSTED TO ${newTier}] Admin override duration`,
+              updatedAt: now,
+            })
+            .where(whereClause);
+
+          await db
+            .update(schema.orderItems)
+            .set({
+              productName: "TRIHEX VIP VAULT",
+              variantName: tierTitle,
+              sku: `THX-VIP-${newTier}`,
+              unitPriceMinor: amountMinor,
+              totalMinor: amountMinor,
+            })
+            .where(eq(schema.orderItems.orderId, ord.id));
+
+          // Also update or register member with new duration
+          updatedMember = await registerOrUpdateCustomerVip({
+            phone: ord.customerPhone || "",
+            email: ord.customerEmail,
+            name: ord.customerName || undefined,
+            tier: newTier,
+            amountNpr,
+            adminNotes: `Duration set to ${tierTitle} by Admin.`,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[VipOrderStore] changeVipOrderTier DB error:", err);
+    }
+  }
+
+  // 2. Update memory store
+  const idx = memoryVipOrders.findIndex((o) => o.id === orderId || o.orderNumber === orderId);
+  if (idx >= 0) {
+    const prev = memoryVipOrders[idx];
+    const updated: VipOrderRow = {
+      ...prev,
+      tier: newTier,
+      tierTitle,
+      amountNpr,
+      amountMinor,
+      notes: options?.adminNotes ? `${prev.notes || ""} | [TIER CHANGED: ${newTier}]` : prev.notes,
+    };
+    memoryVipOrders[idx] = updated;
+    if (!updatedMember) {
+      updatedMember = await registerOrUpdateCustomerVip({
+        phone: prev.customerPhone,
+        email: prev.customerEmail,
+        name: prev.customerName,
+        tier: newTier,
+        amountNpr,
+      });
+    }
+    return { order: updated, member: updatedMember };
+  }
+
+  const all = await getAllVipOrders(true);
+  const found = all.find((o) => o.id === orderId || o.orderNumber === orderId) || null;
+  return { order: found, member: updatedMember };
 }
 
 export async function approveVipOrderAndActivateMember(
@@ -564,8 +609,20 @@ export async function approveVipOrderAndActivateMember(
     bonusPerk?: string;
     customTag?: VipTag;
     adminNotes?: string;
+    overrideTier?: "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM";
+    overrideAmountNpr?: number;
+    customDays?: number;
   }
 ): Promise<{ order: VipOrderRow | null; member: VipMember | null }> {
+  // If overrideTier is specified (e.g. customer requested 6 months but admin grants 1 month), update tier first!
+  if (options.overrideTier) {
+    await changeVipOrderTier(orderId, options.overrideTier, {
+      customDays: options.customDays,
+      amountNpr: options.overrideAmountNpr,
+      adminNotes: options.adminNotes,
+    });
+  }
+
   // Update order to PAID and FULFILLED
   const updatedOrder = await updateVipOrderStatus(
     orderId,
@@ -577,20 +634,21 @@ export async function approveVipOrderAndActivateMember(
     return { order: null, member: null };
   }
 
-  const isLifetime = updatedOrder.tier === "LIFETIME";
+  const effectiveTier = options.overrideTier || updatedOrder.tier;
+  const isLifetime = effectiveTier === "LIFETIME";
   const defaultTag: VipTag =
-    options.customTag || (updatedOrder.tier === "6_MONTHS" ? "PRO" : "VIP");
+    options.customTag || (effectiveTier === "6_MONTHS" ? "PRO" : "VIP");
 
   // Activate member profile
   const member = await registerOrUpdateCustomerVip({
     phone: updatedOrder.customerPhone,
     name: updatedOrder.customerName,
     email: updatedOrder.customerEmail,
-    tier: updatedOrder.tier,
+    tier: effectiveTier,
     vipTag: defaultTag,
     status: "ACTIVE",
-    amountNpr: updatedOrder.amountNpr,
-    adminNotes: `Activated from VIP Order #${updatedOrder.orderNumber}. ${options.adminNotes || ""}`,
+    amountNpr: options.overrideAmountNpr || updatedOrder.amountNpr,
+    adminNotes: `Activated from VIP Order #${updatedOrder.orderNumber}. Plan: ${effectiveTier}. ${options.adminNotes || ""}`,
   });
 
   // Apply VIP bonus if specified
@@ -606,6 +664,7 @@ export async function approveVipOrderAndActivateMember(
   updatedOrder.isMemberActive = true;
   updatedOrder.currentVipTag = defaultTag;
   updatedOrder.memberId = finalMember.id;
+  updatedOrder.tier = effectiveTier;
   updatedOrder.bonusDays = finalMember.bonusDays || 0;
   updatedOrder.bonusPerks = finalMember.bonusPerks || [];
 

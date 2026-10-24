@@ -14,6 +14,7 @@ interface VipHubTabsProps {
   initialVaultItems: VipVaultItem[];
   initialOrders?: VipOrderRow[];
   defaultTab?: "orders" | "members" | "vault";
+  initialSearch?: string;
 }
 
 export function VipHubTabs({
@@ -21,6 +22,7 @@ export function VipHubTabs({
   initialVaultItems,
   initialOrders = [],
   defaultTab = "orders",
+  initialSearch = "",
 }: VipHubTabsProps) {
   const [activeTab, setActiveTab] = useState<"orders" | "members" | "vault">(defaultTab);
 
@@ -110,7 +112,7 @@ export function VipHubTabs({
 
       {/* Tab Panels */}
       {activeTab === "orders" ? (
-        <VipOrdersLiveFeed initialOrders={initialOrders} />
+        <VipOrdersLiveFeed initialOrders={initialOrders} initialSearch={initialSearch} />
       ) : activeTab === "members" ? (
         <VipMemberControlCenter initialMembers={initialMembers} />
       ) : (

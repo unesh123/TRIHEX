@@ -15,7 +15,7 @@ export const metadata = {
 export default async function AdminVipPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: "orders" | "members" | "vault" }>;
+  searchParams: Promise<{ tab?: "orders" | "members" | "vault"; search?: string }>;
 }) {
   const params = await searchParams;
   const [vaultItems, vipMembers, vipOrders] = await Promise.all([
@@ -36,6 +36,7 @@ export default async function AdminVipPage({
         initialVaultItems={vaultItems}
         initialOrders={vipOrders}
         defaultTab={params.tab || "orders"}
+        initialSearch={params.search || ""}
       />
     </div>
   );
