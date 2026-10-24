@@ -57,31 +57,11 @@ export async function POST(request: Request) {
       console.warn("[GoogleCredential] Tokeninfo fetch network error:", e);
     }
 
-    // 2. Fallback: Parse Google JWT payload if tokeninfo network was unreachable
-    if (!googleUser || !googleUser.email) {
-      const parts = credential.split(".");
-      if (parts.length === 3) {
-        try {
-          const payloadRaw = Buffer.from(parts[1], "base64url").toString("utf8");
-          const parsed = JSON.parse(payloadRaw);
-          if (
-            parsed?.email &&
-            (parsed.iss?.includes("accounts.google.com") ||
-              parsed.aud?.includes("google") ||
-              parsed.email.includes("@"))
-          ) {
-            googleUser = parsed;
-          }
-        } catch {
-          // ignore
-        }
-      }
-    }
-
-    if (!googleUser || !googleUser.email) {
+    // 2. Token MUST be cryptographically verified by Google tokeninfo
+    if (!googleUser || !googleUser.email || googleUser.email_verified === false || googleUser.email_verified === "false") {
       return NextResponse.json(
-        { success: false, error: "Invalid or expired Google credential." },
-        { status: 400 },
+        { success: false, error: "Invalid, expired, or unverified Google credential." },
+        { status: 401 },
       );
     }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   USER_SESSION_COOKIE,
   encodeUserSession,
+  type StorefrontUser,
 } from "@/lib/auth/user-session";
 import {
   ADMIN_SESSION_COOKIE,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/admin/session-cookie";
 import { isOwnerEmail } from "@/lib/auth/owner";
 import { isSecureCookie } from "@/lib/auth/cookie-config";
+import { registerCustomerLogin } from "@/lib/vip/vip-member-store";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -86,14 +88,22 @@ export async function GET(request: Request) {
     const avatarUrl = profile.picture || null;
     const isOwner = isOwnerEmail(email);
 
-    const userPayload = {
-      id: profile.id ? `goog-${profile.id}` : `usr-${email.split("@")[0]}`,
+    const member = await registerCustomerLogin({
       email,
-      fullName,
+      name: fullName,
       avatarUrl,
-      provider: "google" as const,
+    });
+
+    const userPayload: StorefrontUser = {
+      id: member.id || (profile.id ? `goog-${profile.id}` : `usr-${email.split("@")[0]}`),
+      email,
+      fullName: member.name || fullName,
+      avatarUrl: member.avatarUrl || avatarUrl,
+      provider: "google",
       verified: true,
       role: isOwner ? "SUPER_ADMIN" : "CUSTOMER",
+      phone: member.phone || null,
+      customerCode: member.verificationToken,
     };
 
     // Upsert into DB profiles if available
