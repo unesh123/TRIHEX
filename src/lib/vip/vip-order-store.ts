@@ -65,6 +65,8 @@ export async function createVipOrder(data: {
   status?: string;
   deviceTelemetry?: string;
   notes?: string;
+  proofUrl?: string | null;
+  proofContentHash?: string | null;
 }): Promise<VipOrderRow> {
   const rawTier = data.tier || data.tierId || "1_MONTH";
   const tier = (rawTier as "1_MONTH" | "6_MONTHS" | "LIFETIME" | "CUSTOM") || "1_MONTH";
@@ -97,7 +99,7 @@ export async function createVipOrder(data: {
     paymentStatus: data.status === "ACTIVE" ? "PAID" : "UNDER_REVIEW",
     fulfillmentStatus: data.status === "ACTIVE" ? "DELIVERED" : "NOT_STARTED",
     paymentMethod: data.paymentMethod || "BANK_QR",
-    proofUrl: null,
+    proofUrl: data.proofUrl || null,
     senderReference: data.transactionReference || null,
     placedAt: new Date().toISOString(),
     notes: data.notes || `[VIP ACCESS REQUEST] Tier: ${tier} | Ref: ${data.transactionReference || "QR"}`,
@@ -201,6 +203,8 @@ export async function createVipOrder(data: {
           senderName: cleanName,
           senderReference: data.transactionReference || `QR-VIP-${Math.floor(1000 + Math.random() * 9000)}`,
           amountMinor,
+          proofImageUrl: data.proofUrl || null,
+          proofContentHash: data.proofContentHash || null,
           status: "SUBMITTED",
           paymentDate: new Date(),
         });
@@ -384,8 +388,18 @@ export async function getAllVipOrders(includeAllStoreOrders = true): Promise<Vip
           m.email.toLowerCase() === memOrder.customerEmail.toLowerCase()
       );
 
+      let memProof = memOrder.proofUrl;
+      if (memProof && memProof.startsWith("storage://")) {
+        try {
+          memProof = await resolveProofViewUrl(memProof);
+        } catch {
+          // keep original
+        }
+      }
+
       results.push({
         ...memOrder,
+        proofUrl: memProof,
         memberId: matchingMember ? matchingMember.id : memOrder.memberId,
         currentVipTag: matchingMember ? matchingMember.vipTag : memOrder.currentVipTag,
         isMemberActive: matchingMember ? matchingMember.status === "ACTIVE" : memOrder.isMemberActive,

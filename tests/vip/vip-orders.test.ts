@@ -188,4 +188,31 @@ describe("VIP Orders & Control Center Intelligence", () => {
       expect(newExp).toBeGreaterThan(priorExp);
     }
   });
+
+  it("attaches and persists payment screenshot proof URL and hash on VIP orders", async () => {
+    const proofUrl = "/media/payment-proofs/vip-test-slip-12345.png";
+    const proofHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+    const orderWithProof = await createVipOrder({
+      customerName: "Proof Upload Customer",
+      customerPhone: "9800000008",
+      customerEmail: "proof.customer@trihexdigital.com",
+      tier: "6_MONTHS",
+      amountNpr: 5999,
+      paymentMethod: "ESEWA",
+      transactionReference: "ESW-PROOF-9912",
+      proofUrl,
+      proofContentHash: proofHash,
+      notes: "Customer attached eSewa payment screenshot slip.",
+    });
+
+    expect(orderWithProof.proofUrl).toBe(proofUrl);
+    expect(orderWithProof.senderReference).toBe("ESW-PROOF-9912");
+
+    const orders = await getAllVipOrders();
+    const retrieved = orders.find((o) => o.id === orderWithProof.id);
+    expect(retrieved).toBeDefined();
+    expect(retrieved?.proofUrl).toBe(proofUrl);
+    expect(retrieved?.senderReference).toBe("ESW-PROOF-9912");
+  });
 });
