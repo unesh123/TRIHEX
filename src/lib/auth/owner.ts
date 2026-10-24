@@ -7,6 +7,7 @@ export const TRIHEX_OWNER_NAME = "Unesh Bastola";
 
 export const AUTHORIZED_OWNER_EMAILS = [
   "uneshbastola888@gmail.com",
+  "uneshbastola@gmail.com",
   "jenok_unesh@kkt.redhat.com",
   "jenokunesh@gmail.com",
 ] as const;
