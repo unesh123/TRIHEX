@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Crown,
   Search,
@@ -26,6 +26,7 @@ import {
   Package,
   Layers,
   ArrowRightLeft,
+  Radio,
 } from "lucide-react";
 import { formatNpr } from "@/lib/money";
 import type { VipOrderRow } from "@/lib/vip/vip-order-store";
@@ -295,6 +296,42 @@ export function VipOrdersLiveFeed({
   };
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+  const [freshOrderAlert, setFreshOrderAlert] = useState<string | null>(null);
+  const prevOrderCountRef = useRef<number>(initialOrders.length);
+
+  // Background 24/7 Live Polling Loop (Runs every 6 seconds)
+  useEffect(() => {
+    if (!autoSyncEnabled) return;
+
+    const pollOrders = async () => {
+      // Pause if tab is hidden or user has active modal open
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (updatingOrderId || changingTierOrderId || isApproving || previewProofUrl) return;
+
+      try {
+        const res = await fetch("/api/admin/vip-orders?all=true");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          if (data.orders.length > prevOrderCountRef.current) {
+            const diff = data.orders.length - prevOrderCountRef.current;
+            setFreshOrderAlert(`⚡ ${diff} NEW ORDER${diff > 1 ? "S" : ""} RECEIVED (24/7 Live Sync)`);
+            setTimeout(() => setFreshOrderAlert(null), 8000);
+          }
+          prevOrderCountRef.current = data.orders.length;
+          setOrders(data.orders);
+          setLastSyncTime(new Date().toLocaleTimeString());
+        }
+      } catch (err) {
+        // Silently retry next cycle
+      }
+    };
+
+    const intervalId = setInterval(pollOrders, 6000);
+    return () => clearInterval(intervalId);
+  }, [autoSyncEnabled, updatingOrderId, changingTierOrderId, isApproving, previewProofUrl]);
 
   // Manual refresh helper
   const handleRefreshFeed = async () => {
@@ -304,6 +341,8 @@ export function VipOrdersLiveFeed({
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
         setOrders(data.orders);
+        prevOrderCountRef.current = data.orders.length;
+        setLastSyncTime(new Date().toLocaleTimeString());
         showNotice("Orders refreshed from database.");
       }
     } catch (e) {
@@ -384,6 +423,22 @@ export function VipOrdersLiveFeed({
         <div className="p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
           <span>{actionSuccessNotice}</span>
+        </div>
+      )}
+
+      {/* Fresh Live Order Alert Banner */}
+      {freshOrderAlert && (
+        <div className="p-3.5 bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-emerald-500/20 border-2 border-amber-400/60 rounded-xl text-amber-200 text-xs font-black flex items-center justify-between gap-2 animate-bounce shadow-lg shadow-amber-950/50">
+          <div className="flex items-center gap-2">
+            <Radio className="h-4 w-4 text-amber-400 animate-pulse shrink-0" />
+            <span>{freshOrderAlert}</span>
+          </div>
+          <button
+            onClick={() => setFreshOrderAlert(null)}
+            className="text-[10px] px-2 py-1 rounded bg-amber-400 text-slate-950 font-black hover:bg-amber-300"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -520,15 +575,44 @@ export function VipOrdersLiveFeed({
               )}
             </div>
 
-            <button
-              onClick={handleRefreshFeed}
-              disabled={isRefreshing}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50 cursor-pointer shrink-0"
-              title="Refresh Live Orders from Database"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-amber-400" : ""}`} />
-              <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Refresh Feed"}</span>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-bold transition ${
+                  autoSyncEnabled
+                    ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-300"
+                    : "border-slate-700 bg-slate-800 text-slate-400"
+                }`}
+                title={autoSyncEnabled ? "24/7 Live Sync Active (Click to Pause)" : "Live Sync Paused (Click to Enable)"}
+              >
+                <span className="flex h-2 w-2 relative">
+                  {autoSyncEnabled && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  )}
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${
+                      autoSyncEnabled ? "bg-emerald-500" : "bg-slate-500"
+                    }`}
+                  />
+                </span>
+                <span className="hidden md:inline font-mono">
+                  {autoSyncEnabled ? "24/7 LIVE RADAR (6s)" : "RADAR PAUSED"}
+                </span>
+                <span className="text-[9px] text-slate-400 hidden xl:inline font-mono">
+                  ({lastSyncTime})
+                </span>
+              </button>
+
+              <button
+                onClick={handleRefreshFeed}
+                disabled={isRefreshing}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition disabled:opacity-50 cursor-pointer shrink-0"
+                title="Refresh Live Orders from Database"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-amber-400" : ""}`} />
+                <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Refresh"}</span>
+              </button>
+            </div>
           </div>
 
           {/* Tier Filters */}

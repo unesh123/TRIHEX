@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Crown,
   Search,
@@ -53,6 +53,55 @@ export function VipMemberControlCenter({
   const [bonusDays, setBonusDays] = useState<number>(15);
   const [bonusPerk, setBonusPerk] = useState<string>("Priority Founder Hotline");
   const [isApplyingBonus, setIsApplyingBonus] = useState<boolean>(false);
+
+  // 24/7 Live Member Radar State
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+
+  const handleRefreshMembers = async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/admin/vip-members");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.members)) {
+          setMembers(data.members);
+          setLastSyncTime(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (e) {
+      console.error("Refresh members error", e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 24/7 Background Polling Loop (Runs every 8s)
+  useEffect(() => {
+    if (!autoSyncEnabled) return;
+
+    const pollMembers = async () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (isModalOpen || updatingId || lockingId || bonusModalMember || loading) return;
+
+      try {
+        const res = await fetch("/api/admin/vip-members");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.members)) {
+            setMembers(data.members);
+            setLastSyncTime(new Date().toLocaleTimeString());
+          }
+        }
+      } catch (err) {
+        // Silently retry next cycle
+      }
+    };
+
+    const intervalId = setInterval(pollMembers, 8000);
+    return () => clearInterval(intervalId);
+  }, [autoSyncEnabled, isModalOpen, updatingId, lockingId, bonusModalMember, loading]);
 
   // Form State for granting VIP
   const [phone, setPhone] = useState("");
@@ -470,17 +519,59 @@ export function VipMemberControlCenter({
         </div>
       </div>
 
-      {/* Control Bar: Search & Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="Search by Customer User ID (THX-USR-...), phone (98...), email, or name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 text-sm border-slate-200"
-          />
+      {/* Control Bar: Search & Filters & Live Radar */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-2 flex-1 max-w-lg">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Search by Customer User ID (THX-USR-...), phone (98...), email, or name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 text-sm border-slate-200"
+            />
+          </div>
+
+          {/* 24/7 Live Radar Indicator & Refresh */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-bold transition ${
+                autoSyncEnabled
+                  ? "border-emerald-500/40 bg-emerald-50 text-emerald-700"
+                  : "border-slate-300 bg-slate-100 text-slate-500"
+              }`}
+              title={autoSyncEnabled ? "24/7 Live Sync Active (Click to Pause)" : "Live Sync Paused (Click to Enable)"}
+            >
+              <span className="flex h-2 w-2 relative">
+                {autoSyncEnabled && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                )}
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    autoSyncEnabled ? "bg-emerald-500" : "bg-slate-400"
+                  }`}
+                />
+              </span>
+              <span className="hidden sm:inline font-mono">
+                {autoSyncEnabled ? "24/7 LIVE (8s)" : "PAUSED"}
+              </span>
+              <span className="text-[9px] text-slate-400 hidden xl:inline font-mono">
+                ({lastSyncTime})
+              </span>
+            </button>
+
+            <button
+              onClick={handleRefreshMembers}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition disabled:opacity-50 cursor-pointer shrink-0"
+              title="Refresh VIP Members from Database"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-amber-500" : ""}`} />
+              <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Refresh"}</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

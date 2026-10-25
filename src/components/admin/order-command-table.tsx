@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -50,6 +50,55 @@ export function OrderCommandTable({ initialOrders }: OrderCommandTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // 24/7 Live Order Sync State
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [lastSyncTime, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+
+  const handleRefreshOrders = async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch("/api/admin/orders");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          setLastSyncTime(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (e) {
+      console.error("Refresh orders error", e);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // 24/7 Background Polling Loop (Runs every 8s)
+  useEffect(() => {
+    if (!autoSyncEnabled) return;
+
+    const pollOrders = async () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (updatingId) return;
+
+      try {
+        const res = await fetch("/api/admin/orders");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.orders)) {
+            setOrders(data.orders);
+            setLastSyncTime(new Date().toLocaleTimeString());
+          }
+        }
+      } catch (err) {
+        // Silently retry next cycle
+      }
+    };
+
+    const intervalId = setInterval(pollOrders, 8000);
+    return () => clearInterval(intervalId);
+  }, [autoSyncEnabled, updatingId]);
 
   const filteredOrders = orders.filter((o) => {
     const q = searchQuery.toLowerCase().trim();
@@ -150,16 +199,55 @@ export function OrderCommandTable({ initialOrders }: OrderCommandTableProps) {
   return (
     <div className="space-y-6">
       {/* Top Filter and Search Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search order #, customer name, phone, email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-          />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-2 flex-1 max-w-lg">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search order #, customer name, phone, email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          {/* 24/7 Live Order Sync Indicator & Refresh */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-bold transition ${
+                autoSyncEnabled
+                  ? "border-emerald-500/40 bg-emerald-50 text-emerald-700"
+                  : "border-slate-300 bg-slate-100 text-slate-500"
+              }`}
+              title={autoSyncEnabled ? "24/7 Order Sync Active (Click to Pause)" : "Sync Paused (Click to Enable)"}
+            >
+              <span className="flex h-2 w-2 relative">
+                {autoSyncEnabled && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                )}
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    autoSyncEnabled ? "bg-emerald-500" : "bg-slate-400"
+                  }`}
+                />
+              </span>
+              <span className="hidden sm:inline font-mono">
+                {autoSyncEnabled ? "24/7 LIVE (8s)" : "PAUSED"}
+              </span>
+            </button>
+
+            <button
+              onClick={handleRefreshOrders}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 cursor-pointer shrink-0"
+              title="Refresh Orders from Database"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-indigo-500" : ""}`} />
+              <span className="hidden sm:inline">{isRefreshing ? "Syncing..." : "Refresh"}</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

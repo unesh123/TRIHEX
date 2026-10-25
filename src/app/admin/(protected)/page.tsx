@@ -1,4 +1,5 @@
 import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminLiveEngineBanner } from "@/components/admin/admin-live-engine-banner";
 import { KpiCard } from "@/components/admin/kpi-card";
 import { getRecentAuditEvents, type AuditEvent } from "@/lib/audit/log";
 import {
@@ -121,6 +122,8 @@ export default async function AdminOverviewPage() {
           </div>
         }
       />
+
+      <AdminLiveEngineBanner />
 
       {/* Live Operational Pipeline */}
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">

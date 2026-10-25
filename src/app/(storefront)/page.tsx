@@ -26,6 +26,7 @@ import { PremiumVaultSection } from "@/components/storefront/premium-vault-secti
 import { CyberAcademySection } from "@/components/storefront/cyber-academy-section";
 import { DefensiveSecuritySection } from "@/components/storefront/defensive-security-section";
 import { LiveDealRadarSection } from "@/components/storefront/live-deal-radar-section";
+import { NepalPulseLiveTicker } from "@/components/storefront/nepal-pulse-live-ticker";
 import { DailyDropsSection } from "@/components/storefront/daily-drops-section";
 import { MarketplaceCategoriesGrid } from "@/components/storefront/marketplace-categories-grid";
 import { MarketplaceTrustSection } from "@/components/storefront/marketplace-trust-section";
@@ -207,34 +208,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 11. NEPAL PULSE LIVE TICKER & GEODETIC BANNER ── */}
-      <section className="border-b border-slate-200/80 bg-gradient-to-r from-red-950/30 via-slate-900 to-blue-950/30 py-7 text-white">
-        <div className="store-container flex flex-col md:flex-row items-center justify-between gap-5">
-          <div className="space-y-1 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-400 uppercase tracking-wider">
-              <Radio className="w-3.5 h-3.5 text-red-500 animate-pulse" /> Live Nepal Macro Feeds
-            </div>
-            <div className="text-sm font-bold text-white">
-              Official NRB Forex: 1 USD = NPR {usdRate.buy.toFixed(2)} (Buy) · USGS Seismic: {liveSeismic.events.length} monitored events
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/nepal"
-              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition flex items-center gap-1.5"
-            >
-              Forex &amp; Data Hub <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <Link
-              href="/map"
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20"
-            >
-              <MapPin className="w-3.5 h-3.5" /> Interactive Map
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* ── 11. NEPAL PULSE LIVE TICKER & GEODETIC BANNER (24/7 LIVE RADAR) ── */}
+      <NepalPulseLiveTicker
+        initialUsdBuy={usdRate.buy}
+        initialUsdSell={usdRate.sell}
+        initialSeismicCount={liveSeismic.events.length}
+      />
 
       {/* ── 11B. EXPERT RECOMMENDATIONS & VIP DECISION BOARD ── */}
       <ExpertRecommendationsSection />
