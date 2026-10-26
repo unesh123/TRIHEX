@@ -78,12 +78,8 @@ export function ProductCard({ product }: { product: MerchCard }) {
   })();
 
   const warrantyText = (() => {
-    if (product.warrantyLabel) {
-      return product.warrantyLabel.toLowerCase().includes("warranty")
-        ? product.warrantyLabel
-        : `${product.warrantyLabel} Warranty`;
-    }
-    return "Activation warranty";
+    if (!product.warrantyLabel) return "Warranty terms on product page";
+    return product.warrantyLabel;
   })();
 
   let waHref = "#";

@@ -22,7 +22,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const credential = String(body.credential || "").trim();
-    const next = String(body.next || "/account").trim();
+    const rawNext = String(body.next || "/account").trim();
+    const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/account";
 
     if (!credential) {
       return NextResponse.json(

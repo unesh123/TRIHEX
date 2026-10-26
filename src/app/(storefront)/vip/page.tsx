@@ -62,10 +62,13 @@ export default async function VipVaultPage({ searchParams }: VipPageProps) {
   const user = await getCurrentStorefrontUser();
   const isOwner = user?.email ? isOwnerEmail(user.email) : false;
   const vipRecord = user?.email ? await getVipMemberRecordByEmail(user.email) : null;
-  const isVipActive = isOwner || vipRecord?.status === "ACTIVE" || resolvedParams.vip === "true";
+  const isVipActive =
+    isOwner ||
+    (vipRecord?.status === "ACTIVE" &&
+      (!vipRecord.expiresAt || new Date(vipRecord.expiresAt).getTime() > Date.now()));
 
-  // CASE 1: USER HAS ACTIVE VIP CLEARANCE -> OPEN THE COMPLETE FLUX DIRECTORY VAULT!
-  if ((user && isVipActive) || resolvedParams.vip === "true") {
+  // CASE 1: USER HAS VERIFIED ACTIVE VIP CLEARANCE -> OPEN THE COMPLETE FLUX DIRECTORY VAULT!
+  if (user && isVipActive) {
     return <FluxDirectoryVault />;
   }
 

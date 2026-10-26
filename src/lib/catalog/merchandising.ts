@@ -26,7 +26,10 @@ import {
   normalizeFeatureString,
   normalizePlanLabel,
 } from "@/lib/catalog/content-normalization";
-import { extractDuration } from "@/lib/catalog/duration-parser";
+import {
+  extractDuration,
+  resolveVariantDuration,
+} from "@/lib/catalog/duration-parser";
 import { campaignPrice } from "./limited-offer";
 export {
   canPurchasePlan,
@@ -357,10 +360,13 @@ export function buildMerchCard(product: SeedProduct): MerchCard {
         ? v.activationMethod.replace(/_/g, " ").toLowerCase()
         : activationLabel(product.fulfillmentType);
 
-      const vParsed =
-        extractDuration(v.variantName) ??
-        extractDuration(product.name) ??
-        extractDuration(product.slug);
+      const vParsed = resolveVariantDuration({
+        sku: v.sku,
+        variantName: v.variantName,
+        durationValue: v.durationValue,
+        durationUnit: v.durationUnit,
+        fallback: `${product.name} ${product.slug}`,
+      });
       const vDurLabel =
         vParsed?.label ?? durationLabel(v.durationValue, v.durationUnit);
 

@@ -29,7 +29,10 @@ import {
   findFamilyPlans,
   productFamilyKey,
 } from "@/lib/catalog/product-families";
-import { extractDuration } from "@/lib/catalog/duration-parser";
+import {
+  extractDuration,
+  resolveVariantDuration,
+} from "@/lib/catalog/duration-parser";
 import { getGeneratedCover } from "@/lib/catalog/generated-covers";
 import { getProductCover } from "@/lib/catalog/product-covers";
 import { resolveProductGallery } from "@/lib/catalog/product-image-resolver";
@@ -123,11 +126,13 @@ export default async function ProductDetailPage({
       const priceNpr = Math.round(
         (v.priceNprMinor ?? product.priceNprMinor ?? 0) / 100,
       );
-      const parsedDur =
-        extractDuration(v.variantName) ??
-        extractDuration(v.durationLabel) ??
-        extractDuration(product.title) ??
-        extractDuration(product.slug);
+      const parsedDur = resolveVariantDuration({
+        sku: v.sku,
+        variantName: v.variantName,
+        durationValue: v.durationValue,
+        durationUnit: v.durationUnit,
+        fallback: `${v.durationLabel ?? ""} ${product.title} ${product.slug}`,
+      });
       const durLabel =
         parsedDur?.label ??
         v.durationLabel ??
@@ -140,6 +145,7 @@ export default async function ProductDetailPage({
         /private/i.test(product.title);
       const isShared = !isElevenLabs && (
         /shared/i.test(v.variantName) ||
+        /shared/i.test(v.sku) ||
         (/shared/i.test(product.slug) && !/creator/i.test(product.slug)) ||
         /shared/i.test(product.title)
       );
@@ -162,7 +168,10 @@ export default async function ProductDetailPage({
           slug: product.slug,
           durationLabel: durLabel,
           accessLabel: accessType,
-          warrantyLabel: v.warrantyLabel ?? product.warrantyLabel ?? "Full warranty",
+          warrantyLabel:
+            v.warrantyLabel ??
+            product.warrantyLabel ??
+            "Warranty terms shown at checkout",
           activationLabel:
             v.activationLabel ?? product.activationLabel ?? "Direct activation",
           availability:
@@ -240,13 +249,7 @@ export default async function ProductDetailPage({
                         : "Official Activation";
 
         const warrantyLabel =
-          card.warrantyLabel && card.warrantyLabel !== "No warranty"
-            ? card.warrantyLabel
-            : isPrivate
-              ? "1-Year full replacement warranty"
-              : isShared
-                ? "Full term replacement warranty"
-                : "Full term warranty";
+          card.warrantyLabel ?? "Warranty terms shown at checkout";
 
         purchasePlans.push({
           id: card.variantSku || card.slug,
@@ -297,7 +300,8 @@ export default async function ProductDetailPage({
           : isShared
             ? "Shared Plan"
             : "Official Activation",
-      warrantyLabel: product.warrantyLabel ?? "Full replacement warranty",
+      warrantyLabel:
+        product.warrantyLabel ?? "Warranty terms shown at checkout",
       activationLabel: product.activationLabel ?? "Direct activation",
       availability: product.purchasable ? "available" : "under_review",
       priceNpr,

@@ -14,9 +14,13 @@ import { registerCustomerLogin } from "@/lib/vip/vip-member-store";
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import { randomUUID, createHmac } from "crypto";
 
 export const dynamic = "force-dynamic";
+
+function getSecretKey(): string {
+  return process.env.AUTH_SECRET || process.env.ENCRYPTION_KEY || "trihex-oauth-state-secret-2026";
+}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -24,12 +28,28 @@ export async function GET(request: Request) {
   const rawState = requestUrl.searchParams.get("state");
   const origin = requestUrl.origin;
 
-  let next = "/vip";
+  let next = "/account";
   let stateRedirectUri: string | null = null;
   try {
-    if (rawState) {
+    if (rawState && rawState.startsWith("s.")) {
+      const parts = rawState.split(".");
+      if (parts.length === 3) {
+        const [, hmac, stateData] = parts;
+        const expectedHmac = createHmac("sha256", getSecretKey()).update(stateData).digest("base64url");
+        if (hmac === expectedHmac) {
+          const parsed = JSON.parse(Buffer.from(stateData, "base64url").toString("utf8"));
+          if (parsed.next && parsed.next.startsWith("/") && !parsed.next.startsWith("//")) {
+            next = parsed.next;
+          }
+          if (parsed.redirectUri) stateRedirectUri = parsed.redirectUri;
+        }
+      }
+    } else if (rawState) {
+      // Fallback for legacy unsigned state during migration
       const parsed = JSON.parse(Buffer.from(rawState, "base64url").toString("utf8"));
-      if (parsed.next) next = parsed.next;
+      if (parsed.next && parsed.next.startsWith("/") && !parsed.next.startsWith("//")) {
+        next = parsed.next;
+      }
       if (parsed.redirectUri) stateRedirectUri = parsed.redirectUri;
     }
   } catch {

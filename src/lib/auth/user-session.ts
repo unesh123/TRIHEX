@@ -1,7 +1,16 @@
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/auth/supabase-server";
+import { createHmac, timingSafeEqual } from "crypto";
 
 export const USER_SESSION_COOKIE = "trihex_user_session";
+
+function getCustomerSecretKey(): string {
+  return (
+    process.env.AUTH_SECRET ||
+    process.env.ENCRYPTION_KEY ||
+    "trihex-customer-session-secret-2026"
+  );
+}
 
 export interface StorefrontUser {
   id: string;
@@ -16,25 +25,60 @@ export interface StorefrontUser {
 }
 
 /**
- * Encodes storefront user into a base64url JSON cookie payload.
+ * Encodes storefront user into an HMAC-SHA256 signed base64url cookie payload.
  */
 export function encodeUserSession(user: StorefrontUser): string {
   const payload = JSON.stringify({
     ...user,
     ts: Date.now(),
   });
-  return Buffer.from(payload, "utf8").toString("base64url");
+  const data = Buffer.from(payload, "utf8").toString("base64url");
+  const hmac = createHmac("sha256", getCustomerSecretKey())
+    .update(data)
+    .digest("base64url");
+  return `v2.${hmac}.${data}`;
 }
 
 /**
- * Decodes base64url JSON cookie payload.
+ * Decodes and cryptographically verifies HMAC-SHA256 signed user session.
  */
 export function decodeUserSession(token: string): StorefrontUser | null {
   if (!token) return null;
   try {
-    const raw = Buffer.from(token, "base64url").toString("utf8");
+    let raw: string;
+    if (token.startsWith("v2.")) {
+      const parts = token.split(".");
+      if (parts.length !== 3) return null;
+      const [, hmac, data] = parts;
+      const expectedHmac = createHmac("sha256", getCustomerSecretKey())
+        .update(data)
+        .digest("base64url");
+
+      const hmacBuf = Buffer.from(hmac);
+      const expectedBuf = Buffer.from(expectedHmac);
+      if (
+        hmacBuf.length !== expectedBuf.length ||
+        !timingSafeEqual(hmacBuf, expectedBuf)
+      ) {
+        return null;
+      }
+      raw = Buffer.from(data, "base64url").toString("utf8");
+    } else {
+      // Legacy unsigned tokens rejected in production
+      if (process.env.NODE_ENV === "production") {
+        return null;
+      }
+      raw = Buffer.from(token, "base64url").toString("utf8");
+    }
+
     const parsed = JSON.parse(raw);
     if (!parsed || !parsed.email) return null;
+
+    // Reject expired sessions (> 30 days)
+    const MAX_SESSION_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+    if (parsed.ts && Date.now() - parsed.ts > MAX_SESSION_AGE_MS) {
+      return null;
+    }
 
     return {
       id: parsed.id || `usr-${parsed.email.split("@")[0]}`,

@@ -17,7 +17,7 @@ import { isDatabaseConfigured } from "@/lib/env";
 import { normalizeEnvAliases } from "@/lib/env/normalize-aliases";
 import { isInternalOrTestSku } from "@/lib/commerce/catalogue-lint";
 import { productFamilyKey } from "@/lib/catalog/product-families";
-import { extractDuration } from "@/lib/catalog/duration-parser";
+import { resolveVariantDuration } from "@/lib/catalog/duration-parser";
 
 normalizeEnvAliases();
 
@@ -153,10 +153,13 @@ const loadCatalogueProductsCached = unstable_cache(
         continue;
       }
 
-      const parsedDur =
-        extractDuration(row.name) ||
-        extractDuration(row.slug) ||
-        extractDuration(row.variantName);
+      const parsedDur = resolveVariantDuration({
+        sku: row.sku,
+        variantName: row.variantName,
+        durationValue: row.durationValue,
+        durationUnit: row.durationUnit,
+        fallback: `${row.name} ${row.slug}`,
+      });
 
       const effDurationValue =
         row.slug === "museai" ? null : parsedDur && (row.durationValue == null || (row.durationValue === 1 && parsedDur.value !== 1))

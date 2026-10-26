@@ -35,6 +35,11 @@ async function main() {
       .from(schema.productVariants)
       .where(eq(schema.productVariants.productId, prod.id));
 
+    // Never overwrite multi-variant products with parent product duration!
+    if (variants.length > 1) {
+      continue;
+    }
+
     for (const v of variants) {
       if (v.durationValue !== parsed.value || v.durationUnit !== parsed.unit) {
         await db

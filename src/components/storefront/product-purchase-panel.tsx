@@ -7,6 +7,7 @@ import { readCart, writeCart } from "@/components/storefront/cart-view";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { canPurchasePlan } from "@/lib/commerce/plan-eligibility";
+import { resolveVariantDuration } from "@/lib/catalog/duration-parser";
 
 export interface PurchasePlan {
   id: string; // SKU
@@ -30,6 +31,8 @@ export interface PurchaseVariant {
   compareAtPriceNprMinor?: number | null;
   discountPercent?: number | null;
   durationLabel?: string | null;
+  durationValue?: number | null;
+  durationUnit?: string | null;
   purchasable?: boolean;
   stockQty?: number | null;
   stockLabel?: string | null;
@@ -117,17 +120,30 @@ export function ProductPurchasePanel({
               ? "available"
               : "under_review");
 
+        const resolvedDuration = resolveVariantDuration({
+          sku: v.sku,
+          variantName: v.variantName,
+          durationValue: v.durationValue,
+          durationUnit: v.durationUnit,
+          fallback: v.durationLabel ?? durationLabel,
+        });
         const isPrivate =
           /private|own account/i.test(v.variantName) ||
+          /private|own account/i.test(v.sku) ||
           /private/i.test(v.durationLabel ?? "");
         const isShared = !isElevenLabs && (
           /shared/i.test(v.variantName) ||
+          /shared/i.test(v.sku) ||
           /shared/i.test(v.durationLabel ?? "")
         );
 
         return {
           id: v.sku,
-          durationLabel: v.durationLabel ?? durationLabel ?? "Standard plan",
+          durationLabel:
+            resolvedDuration?.label ??
+            v.durationLabel ??
+            durationLabel ??
+            "Standard plan",
           accessLabel: isElevenLabs
             ? "Creator Plan"
             : v.variantName ||
@@ -136,7 +152,8 @@ export function ProductPurchasePanel({
                 : isShared
                   ? "Shared Plan"
                   : "Official Activation"),
-          warrantyLabel: v.warrantyLabel ?? "Full term warranty",
+          warrantyLabel:
+            v.warrantyLabel ?? "Warranty terms shown at checkout",
           activationLabel: v.activationLabel ?? "Direct activation",
           availability: isAvail,
           priceNpr,
@@ -166,7 +183,7 @@ export function ProductPurchasePanel({
             : isShared
               ? "Shared Plan"
               : "Official Activation",
-        warrantyLabel: "Full replacement warranty",
+        warrantyLabel: "Warranty terms shown at checkout",
         activationLabel: "Direct activation",
         availability: purchasable ? "available" : "under_review",
         priceNpr,
@@ -414,9 +431,7 @@ export function ProductPurchasePanel({
                       </div>
 
                       <div className="mt-0.5 text-[11px] text-[var(--text-muted)] truncate">
-                        {p.warrantyLabel && p.warrantyLabel !== "No warranty"
-                          ? p.warrantyLabel
-                          : "Full replacement warranty"}
+                        {p.warrantyLabel || "Warranty terms shown at checkout"}
                       </div>
                     </div>
                   </div>

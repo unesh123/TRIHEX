@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
+import { createHmac } from "crypto";
 
 export const dynamic = "force-dynamic";
 
+function getSecretKey(): string {
+  return process.env.AUTH_SECRET || process.env.ENCRYPTION_KEY || "trihex-oauth-state-secret-2026";
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
-  const next = requestUrl.searchParams.get("next") || "/account";
+  const rawNext = requestUrl.searchParams.get("next") || "/account";
+  const safeNext = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/account";
   const origin = requestUrl.origin;
 
   const clientId =
@@ -17,9 +23,10 @@ export async function GET(request: Request) {
   const configuredUri = process.env.GOOGLE_REDIRECT_URI?.trim();
   const redirectUri = configuredUri || `${origin}/api/auth/google/callback`;
 
-  const state = Buffer.from(
-    JSON.stringify({ next, origin, redirectUri }),
-  ).toString("base64url");
+  const statePayload = JSON.stringify({ next: safeNext, origin, redirectUri, ts: Date.now() });
+  const stateData = Buffer.from(statePayload, "utf8").toString("base64url");
+  const hmac = createHmac("sha256", getSecretKey()).update(stateData).digest("base64url");
+  const state = `s.${hmac}.${stateData}`;
 
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.set("client_id", clientId);

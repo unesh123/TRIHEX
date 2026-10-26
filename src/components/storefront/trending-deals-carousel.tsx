@@ -125,7 +125,7 @@ export function TrendingDealsCarousel({ products }: TrendingDealsProps) {
                   </Link>
 
                   <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                    {p.packageLabel || p.shortDescription || "Full replacement warranty package with dedicated access."}
+                    {p.packageLabel || p.shortDescription || "Verified package details available on the product page."}
                   </p>
                 </div>
 
@@ -153,7 +153,7 @@ export function TrendingDealsCarousel({ products }: TrendingDealsProps) {
                   <div className="grid grid-cols-2 gap-1 mb-3 text-[10px] text-slate-600 font-medium">
                     <span className="flex items-center gap-1">
                       <ShieldCheck className="h-3 w-3 text-emerald-600" />
-                      <span>Full Warranty</span>
+                      <span>{p.warrantyLabel || "Terms shown"}</span>
                     </span>
                     <span className="flex items-center gap-1">
                       <Zap className="h-3 w-3 text-blue-600" />

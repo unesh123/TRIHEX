@@ -11,6 +11,48 @@ export type ParsedDuration = {
   approxDays: number;
 };
 
+export function durationFromFields(
+  value: number | null | undefined,
+  unit: string | null | undefined,
+): ParsedDuration | null {
+  if (value == null || value <= 0 || !unit) return null;
+  const normalized = unit.toUpperCase().replace(/S$/, "");
+  if (normalized === "DAY") {
+    return { value, unit: "DAY", label: value === 1 ? "1 Day" : `${value} Days`, approxDays: value };
+  }
+  if (normalized === "WEEK") {
+    return { value, unit: "WEEK", label: value === 1 ? "1 Week" : `${value} Weeks`, approxDays: value * 7 };
+  }
+  if (normalized === "MONTH") {
+    return {
+      value,
+      unit: "MONTH",
+      label: value === 12 ? "12 Months (1 Year)" : value === 24 ? "24 Months (2 Years)" : value === 1 ? "1 Month" : `${value} Months`,
+      approxDays: value * 30,
+    };
+  }
+  if (normalized === "YEAR") {
+    return { value, unit: "YEAR", label: value === 1 ? "1 Year" : `${value} Years`, approxDays: value * 365 };
+  }
+  return null;
+}
+
+/** Resolve variant duration from its most variant-specific evidence first. */
+export function resolveVariantDuration(input: {
+  sku?: string | null;
+  variantName?: string | null;
+  durationValue?: number | null;
+  durationUnit?: string | null;
+  fallback?: string | null;
+}): ParsedDuration | null {
+  return (
+    extractDuration(input.sku) ??
+    extractDuration(input.variantName) ??
+    durationFromFields(input.durationValue, input.durationUnit) ??
+    extractDuration(input.fallback)
+  );
+}
+
 export function extractDuration(
   textOrSlug: string | null | undefined,
 ): ParsedDuration | null {
