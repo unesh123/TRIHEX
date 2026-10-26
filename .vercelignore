@@ -1,5 +1,8 @@
 # Do not upload working contact sheets / masters (not needed at runtime)
 assets/product-media/
+# Local installers and delivery archives are never runtime dependencies.
+*.exe
+*.zip
 *.png
 !public/**/*.png
 !src/**/*.png
