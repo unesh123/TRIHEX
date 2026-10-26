@@ -97,6 +97,8 @@ export interface MerchCard {
   stockLabel: string | null;
   /** All variants associated with this product (for tiers & warranty) */
   variants?: MerchCardVariant[];
+  /** Preserved plan count when heavy variant details are omitted from list views. */
+  variantCount?: number;
   /** Optional live DB / admin-uploaded cover override */
   coverPublicPath?: string | null;
   /** High-resolution catalogue thumbnail path (4:5 card view) */
@@ -557,6 +559,29 @@ export function withFamilyGrouping(cards: MerchCard[]): MerchCard[] {
     })),
     slug: f.card.slug,
   }));
+}
+
+/**
+ * Strip PDP-only fields before a card crosses a Server/Client Component
+ * boundary. Catalogue rows need searchable labels and truthful commerce
+ * fields, not every gallery image, feature paragraph, or variant payload.
+ */
+export function compactMerchCardForList(card: MerchCard): MerchCard {
+  return {
+    ...card,
+    shortDescription: card.shortDescription.slice(0, 220),
+    sourceListingText: "",
+    features: [],
+    variantCount: Math.max(
+      card.variantCount ?? 0,
+      card.variants?.length ?? 0,
+      card.familyPlans?.length ?? 0,
+    ),
+    variants: undefined,
+    familyPlans: undefined,
+    infographicPublicPath: undefined,
+    galleryPublicPaths: undefined,
+  };
 }
 
 export function formatStorePrice(nprMinor: number): string {

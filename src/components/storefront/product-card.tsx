@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Star, Sparkles, CheckCircle2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { ProductImage } from "@/components/storefront/product-image";
 import { cn } from "@/lib/utils";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -57,7 +57,8 @@ export function ProductCard({ product }: { product: MerchCard }) {
       ? formatPrice(product.compareAtPriceNprMinor)
       : null;
 
-  const tierCount = product.variants?.length ?? product.familyPlans?.length ?? 0;
+  const tierCount =
+    product.variantCount ?? product.variants?.length ?? product.familyPlans?.length ?? 0;
 
   // Extract concise duration string suitable for mobile cards
   const durationText = (() => {
@@ -100,7 +101,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
     <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/40 hover:shadow-[0_12px_30px_rgba(37,99,235,0.08)]">
       {/* ── Top Media Section ── */}
       <div className="relative aspect-square w-full overflow-hidden bg-[#f5f6fa] sm:aspect-[4/3]">
-        <Link href={href} className="absolute inset-0 z-0 flex items-center justify-center p-2.5 sm:p-3.5">
+        <Link prefetch={false} href={href} className="absolute inset-0 z-0 flex items-center justify-center p-2.5 sm:p-3.5">
           <ProductImage
             product={product}
             alt={`${product.title} thumbnail`}
@@ -154,18 +155,14 @@ export function ProductCard({ product }: { product: MerchCard }) {
         <LimitedOfferBanner slug={product.slug} />
         <div>
           {/* Category micro badge */}
-          <div className="mb-1 flex items-center justify-between gap-1">
+          <div className="mb-1 flex items-center gap-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">
               {product.categoryLabel || product.brandName}
-            </span>
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-500">
-              <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
-              <span>4.9</span>
             </span>
           </div>
 
           {/* Product Title */}
-          <Link href={href} className="block group/title">
+          <Link prefetch={false} href={href} className="block group/title">
             <h3 className="line-clamp-2 text-xs font-bold leading-snug text-slate-900 group-hover/title:text-blue-600 sm:text-sm min-h-[2rem] sm:min-h-[2.4rem] transition-colors">
               {product.title}
             </h3>
@@ -204,6 +201,7 @@ export function ProductCard({ product }: { product: MerchCard }) {
         {/* Action Button Strip */}
         <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-2">
           <Link
+            prefetch={false}
             href={href}
             className="flex h-8 sm:h-9 items-center justify-center rounded-xl bg-slate-900 text-xs font-bold text-white shadow-xs transition hover:bg-blue-600 active:scale-[0.98]"
           >

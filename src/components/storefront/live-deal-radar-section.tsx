@@ -35,11 +35,14 @@ const MONITORED_ECOSYSTEMS = [
 export function LiveDealRadarSection({ deals: initialDeals }: LiveDealRadarSectionProps) {
   const [deals, setDeals] = useState<DealCandidate[]>(initialDeals);
   const [activeVendorIdx, setActiveVendorIdx] = useState<number>(0);
-  const [lastScannedTime, setLastScannedTime] = useState<string>(() => new Date().toLocaleTimeString());
+  // Keep the server and first browser render identical. The local clock is
+  // filled after hydration so time-zone differences cannot break hydration.
+  const [lastScannedTime, setLastScannedTime] = useState<string>("Connecting…");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Cycle through monitored ecosystem tags every 3.5s
   useEffect(() => {
+    setLastScannedTime(new Date().toLocaleTimeString());
     const timer = setInterval(() => {
       setActiveVendorIdx((prev) => (prev + 1) % MONITORED_ECOSYSTEMS.length);
     }, 3500);

@@ -3,7 +3,10 @@ import { ComplianceDisclaimer } from "@/components/storefront/compliance-disclai
 import { TrustStrip } from "@/components/storefront/trust-strip";
 import { PricingTrustSection } from "@/components/storefront/pricing-trust-section";
 import { ProductsCatalogExplorer } from "@/components/storefront/products-catalog-explorer";
-import { withFamilyGrouping } from "@/lib/catalog/merchandising";
+import {
+  compactMerchCardForList,
+  withFamilyGrouping,
+} from "@/lib/catalog/merchandising";
 import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
 import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
 import type { Metadata } from "next";
@@ -60,7 +63,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   ).sort((a, b) => a[1].localeCompare(b[1]));
 
   // One card per product line — durations switch inside the product page
-  const allProducts = withFamilyGrouping(allRaw);
+  const allProducts = withFamilyGrouping(allRaw).map(compactMerchCardForList);
 
   return (
     <StorefrontPageShell

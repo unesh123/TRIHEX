@@ -75,11 +75,14 @@ export function NepalPulseLiveTicker({
 
   const [activeSlide, setActiveSlide] = useState<number>(0);
   const [isHovered, setIsHovered] = useState<boolean>(false);
-  const [lastSyncTime, setLastSyncTime] = useState<string>(() => new Date().toLocaleTimeString());
+  // Render a deterministic value on the server and during the first client
+  // pass; the visitor's local time is applied immediately after hydration.
+  const [lastSyncTime, setLastSyncTime] = useState<string>("Connecting…");
   const [isLiveActive, setIsLiveActive] = useState<boolean>(true);
 
   // Auto-cycle through slides every 5s unless hovered
   useEffect(() => {
+    setLastSyncTime(new Date().toLocaleTimeString());
     if (isHovered) return;
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 3);
@@ -113,6 +116,7 @@ export function NepalPulseLiveTicker({
       }
     };
 
+    void fetchPulse();
     const intervalId = setInterval(fetchPulse, 15000);
     return () => clearInterval(intervalId);
   }, []);

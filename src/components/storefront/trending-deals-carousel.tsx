@@ -4,7 +4,6 @@ import {
   Flame, 
   ShieldCheck, 
   Zap, 
-  Star, 
   ArrowRight, 
   CheckCircle2, 
   Sparkles,
@@ -70,9 +69,13 @@ export function TrendingDealsCarousel({ products }: TrendingDealsProps) {
         {/* Product Cards Grid */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {finalProducts.map((p) => {
-            const priceLabel = p.priceNprMinor ? formatStorePrice(p.priceNprMinor) : "Rs. 399";
-            // Synthetic reference benchmark for high-converting anchor comparison
-            const originalNpr = p.priceNprMinor ? Math.round((p.priceNprMinor * 1.5) / 100) : 599;
+            const priceLabel = p.priceNprMinor ? formatStorePrice(p.priceNprMinor) : "Price on inquiry";
+            const compareLabel =
+              p.compareAtPriceNprMinor != null &&
+              p.priceNprMinor != null &&
+              p.compareAtPriceNprMinor > p.priceNprMinor
+                ? formatStorePrice(p.compareAtPriceNprMinor)
+                : null;
 
             return (
               <div
@@ -111,12 +114,8 @@ export function TrendingDealsCarousel({ products }: TrendingDealsProps) {
 
                 {/* Info */}
                 <div className="flex-1">
-                  <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-slate-500 mb-1">
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 mb-1">
                     <span className="truncate">{p.categoryName}</span>
-                    <span className="flex items-center gap-0.5 text-amber-500 font-bold">
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                      <span>4.9</span>
-                    </span>
                   </div>
 
                   <Link href={`/products/${p.slug}`} className="block">
@@ -134,16 +133,20 @@ export function TrendingDealsCarousel({ products }: TrendingDealsProps) {
                 <div className="mt-4 pt-3 border-t border-slate-100">
                   <div className="flex items-baseline justify-between mb-2.5">
                     <div>
-                      <span className="text-[11px] text-slate-400 line-through mr-1.5 font-mono">
-                        Rs. {originalNpr.toLocaleString()}
-                      </span>
+                      {compareLabel && (
+                        <span className="text-[11px] text-slate-400 line-through mr-1.5 font-mono">
+                          {compareLabel}
+                        </span>
+                      )}
                       <span className="text-lg font-black text-slate-950 font-mono tracking-tight">
                         {priceLabel}
                       </span>
                     </div>
-                    <span className="rounded-full bg-rose-50 border border-rose-200/60 px-2 py-0.5 text-[10px] font-extrabold text-rose-600">
-                      SAVE 30%+
-                    </span>
+                    {p.discountPercent != null && p.discountPercent > 0 && (
+                      <span className="rounded-full bg-rose-50 border border-rose-200/60 px-2 py-0.5 text-[10px] font-extrabold text-rose-600">
+                        SAVE {p.discountPercent}%
+                      </span>
+                    )}
                   </div>
 
                   {/* Trust Micro-Bullets */}

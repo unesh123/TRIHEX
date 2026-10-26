@@ -18,14 +18,18 @@ export async function getLiveMerchandisingCatalogue(
   const { loadCatalogueProducts, loadPrimaryCoverPathsBySlug } = await import(
     "@/lib/catalog/live-catalogue"
   );
-  const products = await loadCatalogueProducts();
+  // Catalogue rows and cover overrides are independent DB reads. Running them
+  // together prevents their fail-soft timeouts from stacking on cold starts.
+  const [products, covers] = await Promise.all([
+    loadCatalogueProducts(),
+    loadPrimaryCoverPathsBySlug(),
+  ]);
   const cards = filterCatalogue(products, options).filter((c: MerchCard) => {
     const t = c.title.toLowerCase();
     if (t.includes("moths")) return false;
     if (/\(plan\)/.test(t) && t.includes("grok")) return false;
     return true;
   });
-  const covers = await loadPrimaryCoverPathsBySlug();
   return cards.map((c: MerchCard) => {
     const rawCover = covers.get(c.slug) ?? null;
     const thumb = resolveProductThumbnail(c.slug, rawCover, c.coverPublicPath);
@@ -47,10 +51,12 @@ export async function getLiveMerchCardBySlug(
   if (isInternalOrTestSku(slug)) return null;
   const { loadCatalogueProductBySlug, loadPrimaryCoverPathsBySlug } =
     await import("@/lib/catalog/live-catalogue");
-  const product = await loadCatalogueProductBySlug(slug);
+  const [product, covers] = await Promise.all([
+    loadCatalogueProductBySlug(slug),
+    loadPrimaryCoverPathsBySlug(),
+  ]);
   if (!product) return null;
   const card = buildMerchCard(product);
-  const covers = await loadPrimaryCoverPathsBySlug();
   const rawCover = covers.get(slug) ?? null;
   const thumb = resolveProductThumbnail(slug, rawCover, card.coverPublicPath);
   const info = resolveProductInfographic(slug, card.infographicPublicPath);

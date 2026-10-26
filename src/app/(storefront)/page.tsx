@@ -39,14 +39,16 @@ import { ExpertRecommendationsSection } from "@/components/storefront/expert-rec
 import { RecentlyViewed } from "@/components/storefront/recently-viewed";
 import { getPublishedDeals } from "@/lib/deals/store";
 import { getAllPrompts } from "@/lib/prompts/store";
-import { fetchNrbForexRates } from "@/lib/nepal/nrb-forex-adapter";
-import { fetchNepalSeismicEvents } from "@/lib/nepal/earthquake-adapter";
+import { BASELINE_NRB_RATES } from "@/lib/nepal/nrb-forex-adapter";
+import { BASELINE_NEPAL_SEISMIC } from "@/lib/nepal/earthquake-adapter";
 import { getAllNews } from "@/lib/news/store";
 import { getAllVaultEntries } from "@/lib/vault/vault-aggregator";
 import { getAllResearchItems } from "@/lib/vault/research-registry";
-import { withFamilyGrouping } from "@/lib/catalog/merchandising";
+import {
+  compactMerchCardForList,
+  withFamilyGrouping,
+} from "@/lib/catalog/merchandising";
 import { getLiveMerchandisingCatalogue } from "@/lib/catalog/live-merchandising";
-import { getCatalogueStats } from "@/lib/catalog/catalogue-stats";
 import { productEnquiryUrl } from "@/lib/whatsapp";
 import { COMPLIANCE_FOOTER_DISCLAIMER } from "@/lib/compliance/gate";
 import type { Metadata } from "next";
@@ -61,18 +63,17 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [all, liveForex, liveSeismic, stats] = await Promise.all([
-    getLiveMerchandisingCatalogue(),
-    fetchNrbForexRates(),
-    fetchNepalSeismicEvents(),
-    getCatalogueStats(),
-  ]);
+  // Do not hold the storefront response open on third-party live feeds. The
+  // ticker hydrates from a verified baseline and refreshes itself client-side.
+  const all = await getLiveMerchandisingCatalogue();
 
   const verifiedDeals = getPublishedDeals();
   const allNews = getAllNews();
   const vaultEntries = getAllVaultEntries();
   const researchItems = getAllResearchItems();
-  const usdRate = liveForex.rates.find((r) => r.currency === "USD") || liveForex.rates[0];
+  const usdRate =
+    BASELINE_NRB_RATES.find((rate) => rate.currency === "USD") ??
+    BASELINE_NRB_RATES[0];
 
   const clean = all.filter((product) => {
     const title = (product.title ?? "").toLowerCase();
@@ -109,6 +110,8 @@ export default async function HomePage() {
         (product.categorySlug === "services" || product.categorySlug === "digital-assets")
       ),
   );
+  const listProducts = shopProducts.map(compactMerchCardForList);
+  const featuredProducts = listProducts.slice(0, 24);
 
   return (
     <div className="overflow-x-clip bg-white">
@@ -151,10 +154,10 @@ export default async function HomePage() {
                 <span>Verified Nepal Storefront · Live Catalogue</span>
               </div>
               <h2 className="font-[family-name:var(--font-sora)] text-xl font-black tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
-                All Available Software Packages
+                Popular Software Packages
               </h2>
               <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-600">
-                {shopProducts.length} verified packages ready for instant checkout with live NPR prices. CapCut Pro at Rs. 699, Gemini Pro 18-Months at Rs. 399, ChatGPT Plus, Claude Pro, and VIP Passes.
+                Explore 24 popular packages here, or open the full catalogue to search and compare all {shopProducts.length} verified product lines.
               </p>
             </div>
             <Link
@@ -164,12 +167,12 @@ export default async function HomePage() {
               Advanced Search →
             </Link>
           </Reveal>
-          <ProductGrid products={shopProducts} />
+          <ProductGrid products={featuredProducts} />
         </div>
       </section>
 
       {/* ── 3. TRENDING PREMIUM DEALS CAROUSEL ── */}
-      <TrendingDealsCarousel products={shopProducts} />
+      <TrendingDealsCarousel products={listProducts} />
 
       {/* ── 4. FREE DIGITAL VAULT ECOSYSTEM (COURSES, PROMPTS, CREDITS) ── */}
       <FreeVaultSection />
@@ -199,7 +202,7 @@ export default async function HomePage() {
       <section className="py-14 sm:py-20 bg-slate-50/70 border-b border-slate-200/80">
         <div className="store-container">
           <UnifiedDiscoveryFeed
-            products={shopProducts}
+            products={listProducts}
             vaultDrops={vaultEntries}
             deals={verifiedDeals}
             news={allNews}
@@ -212,7 +215,7 @@ export default async function HomePage() {
       <NepalPulseLiveTicker
         initialUsdBuy={usdRate.buy}
         initialUsdSell={usdRate.sell}
-        initialSeismicCount={liveSeismic.events.length}
+        initialSeismicCount={BASELINE_NEPAL_SEISMIC.length}
       />
 
       {/* ── 11B. EXPERT RECOMMENDATIONS & VIP DECISION BOARD ── */}
