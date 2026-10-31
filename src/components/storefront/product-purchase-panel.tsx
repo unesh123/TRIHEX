@@ -146,12 +146,13 @@ export function ProductPurchasePanel({
             "Standard plan",
           accessLabel: isElevenLabs
             ? "Creator Plan"
-            : v.variantName ||
-              (isPrivate
-                ? "Private (Own Account)"
-                : isShared
-                  ? "Shared Plan"
-                  : "Official Activation"),
+            : isPrivate
+              ? "Private (Own Account)"
+              : isShared
+                ? "Shared Plan"
+                : /token|billion/i.test(v.variantName ?? "")
+                  ? "Token Package"
+                  : v.variantName || "Official Activation",
           warrantyLabel:
             v.warrantyLabel ?? "Warranty terms shown at checkout",
           activationLabel: v.activationLabel ?? "Direct activation",

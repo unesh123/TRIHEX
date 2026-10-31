@@ -40,6 +40,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/products/musi-ai-pro-subscription",
+        destination: "/products/museai",
+        permanent: true,
+      },
+      {
+        source: "/products/musi-ai",
+        destination: "/products/museai",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

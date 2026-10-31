@@ -18,9 +18,9 @@ export type ProductCoverEntry = {
 };
 
 const CANONICAL_FAMILY_MAP: Record<string, string> = {
-  "musi-ai-pro-subscription": "musi-ai",
-  "musi-ai": "musi-ai",
-  "museai": "musi-ai",
+  "musi-ai-pro-subscription": "museai",
+  "musi-ai": "museai",
+  "museai": "museai",
   "super-grok-1-month": "supergrok-3-months",
   "super-grok-3-months": "supergrok-3-months",
   "super-grok-6-months": "supergrok-3-months",

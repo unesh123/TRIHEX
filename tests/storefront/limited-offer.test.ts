@@ -22,8 +22,9 @@ describe("ElevenLabs campaign", () => {
     const product = ALL_SEED_PRODUCTS.find(p => p.slug === "museai")!;
     const card = buildMerchCard(product);
     expect(card.priceNprMinor).toBe(39900);
-    expect(card.purchasable).toBe(false);
+    expect(card.purchasable).toBe(true);
     expect(product.variants[0].durationValue).toBeNull();
     expect(product.variants[0].variantName).toContain("1 Billion Tokens");
+    expect(product.variants).toHaveLength(3);
   });
 });

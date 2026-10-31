@@ -150,15 +150,18 @@ export default async function ProductDetailPage({
         /shared/i.test(product.title)
       );
 
+      const isTokenPlan = /token|billion/i.test(v.variantName ?? "");
       const accessType = isElevenLabs
         ? "Creator Plan"
         : isPrivate
           ? "Private (Own Account)"
           : isShared
             ? "Shared Plan"
-            : v.variantName && !/standard/i.test(v.variantName)
-              ? v.variantName
-              : "Official Activation";
+            : isTokenPlan
+              ? "Token Package"
+              : v.variantName && !/standard/i.test(v.variantName)
+                ? v.variantName
+                : "Official Activation";
 
       const planKey = `${durLabel.toLowerCase().trim()}_${priceNpr}`;
       if (!seenPlanKeys.has(planKey)) {

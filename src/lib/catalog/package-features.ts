@@ -2,17 +2,18 @@
  * Customer-facing package features (truthful, no unverified "official" claims).
  */
 export const PACKAGE_FEATURES: Record<string, string[]> = {
-  "musi-ai-pro-subscription": [
-    "Next-gen AI video & audio storage with ultrafast playback",
-    "Speech-to-text transcription with timestamped keyword search",
-    "Ad-free 4K responsive video embedding for websites & blogs",
-    "Developer API access with webhooks & custom storage",
-    "Official 3x Digital warranty and rapid WhatsApp activation",
-  ],
   "museai": [
-    "1 Billion token allowance for AI video & audio workloads",
-    "Timestamped speech-to-text transcriptions and indexing",
-    "Ad-free responsive player embed code",
+    "1 Billion, 4 Billion, or 31 Billion token packages for AI video & audio workloads",
+    "Speech-to-text transcription with timestamped keyword search",
+    "Ad-free responsive player embed code for websites & apps",
+    "Developer API access with webhooks & custom storage",
+    "Direct WhatsApp activation assistance by 3x Digital",
+  ],
+  "musi-ai": [
+    "1 Billion, 4 Billion, or 31 Billion token packages for AI video & audio workloads",
+    "Speech-to-text transcription with timestamped keyword search",
+    "Ad-free responsive player embed code for websites & apps",
+    "Developer API access with webhooks & custom storage",
     "Direct WhatsApp activation assistance by 3x Digital",
   ],
   "gemini-pro-18-months-link": [

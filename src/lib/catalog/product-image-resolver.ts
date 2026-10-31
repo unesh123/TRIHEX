@@ -21,9 +21,9 @@ const manifestBySlug = new Map<string, ManifestItem>(
  * Family aliases mapping duration/variant sub-slugs to their canonical parent assets.
  */
 const CANONICAL_FAMILY_MAP: Record<string, string> = {
-  "musi-ai": "musi-ai-pro-subscription",
-  "musi-ai-pro-subscription": "musi-ai-pro-subscription",
-  "museai": "musi-ai-pro-subscription",
+  "musi-ai": "museai",
+  "musi-ai-pro-subscription": "museai",
+  "museai": "museai",
   // CapCut
   "capcut-pro": "capcut-pro",
   "capcut-pro-7-days": "capcut-pro",

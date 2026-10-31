@@ -345,7 +345,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     {
       "question": "How much does Musi AI cost in Nepal?",
-      "answer": "Musi AI Pro is available through 3x Digital at NPR 1,499 per month or NPR 12,999 for 1 year. Token packages are also available from NPR 399."
+      "answer": "Musi AI token packages are available through 3x Digital: 1 Billion Tokens for NPR 399, 4 Billion Tokens for NPR 899, and 31 Billion Tokens for NPR 2,199."
     },
     {
       "question": "Can I embed Musi AI videos on my WordPress or custom website?",
@@ -358,8 +358,8 @@ export const BLOG_POSTS: BlogPost[] = [
   ],
   "relatedHrefs": [
     {
-      "href": "/products/musi-ai-pro-subscription",
-      "label": "Shop Musi AI Pro"
+      "href": "/products/museai",
+      "label": "Shop Musi AI Tokens"
     },
     {
       "href": "/ai-tools-nepal",
