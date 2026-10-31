@@ -67,6 +67,14 @@ export const metadata: Metadata = {
     title: "TRIHEX DIGITAL (3x Digital) — #1 AI Subscriptions & Digital Tools in Nepal",
     description:
       "Buy Musi AI, CapCut AI, ChatGPT Plus, and Cursor Pro in Nepal with transparent NPR pricing, bank QR checkout, and instant WhatsApp support.",
+    images: [
+      {
+        url: `${siteUrl}/brand/trihex-mark.webp`,
+        width: 1200,
+        height: 630,
+        alt: "TRIHEX DIGITAL (3x Digital) — #1 AI Subscriptions in Nepal",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -77,6 +85,20 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  category: "technology",
+  classification: "Artificial Intelligence, Developer Tools, Software Subscriptions",
+  other: {
+    "llms": `${siteUrl}/llms.txt`,
+    "llms-full": `${siteUrl}/llms-full.txt`,
+    "ai-content-declaration": "commercial-digital-storefront",
   },
   icons: {
     icon: [

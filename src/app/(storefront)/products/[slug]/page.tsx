@@ -50,6 +50,7 @@ import {
   JsonLd,
   breadcrumbJsonLd,
   productJsonLd,
+  softwareApplicationJsonLd,
 } from "@/components/seo/json-ld";
 import { PDPIntelligenceHub } from "@/components/storefront/pdp-intelligence-hub";
 import { getSiteUrl } from "@/lib/site";
@@ -401,6 +402,16 @@ export default async function ProductDetailPage({
             image: coverPath,
             priceNprMinor: product.showPrice ? product.priceNprMinor : null,
             availability,
+            plans: purchasePlans,
+          }),
+          softwareApplicationJsonLd({
+            name: product.title,
+            applicationCategory: "AIApplication",
+            description:
+              product.shortDescription ??
+              `${product.title} in Nepal with transparent NPR pricing and instant WhatsApp activation.`,
+            slug: product.slug,
+            priceNprMinor: product.priceNprMinor,
           }),
         ]}
       />
